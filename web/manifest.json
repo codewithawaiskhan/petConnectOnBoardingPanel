@@ -1,0 +1,35 @@
+{
+    "name": "PetConnect Portal",
+    "short_name": "PetConnect Portal",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#F4F6F6",
+    "theme_color": "#2745B5",
+    "description": "PetConnect Portal is a centralized Flutter Web-based management platform designed to seamlessly onboard, verify, and manage veterinarians, service providers, and diagnostic labs for the PetAccess ecosystem.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

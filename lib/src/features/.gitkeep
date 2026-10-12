@@ -1,0 +1,4 @@
+# Features directory ready for Clean Architecture modules:
+# - vet_onboarding (data / domain / presentation)
+# - service_provider_onboarding (data / domain / presentation)
+# - lab_onboarding (data / domain / presentation)
