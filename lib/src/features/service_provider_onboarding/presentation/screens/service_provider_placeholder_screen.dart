@@ -33,7 +33,8 @@ class ServiceProviderPlaceholderScreen extends StatelessWidget with AppColors {
               ),
               const SizedBox(height: 8),
               AppText(
-                text: "Grooming, training, boarding, and nursing service provider onboarding module is ready for feature development.",
+                text:
+                    "Grooming, training, boarding, and nursing service provider onboarding module is ready for feature development.",
                 fontSize: 14,
                 color: textSecondaryColor,
                 textAlign: TextAlign.center,

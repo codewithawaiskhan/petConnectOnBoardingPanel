@@ -91,7 +91,6 @@ class DashboardShell extends StatelessWidget with AppColors {
   }
 }
 
-// --- Desktop Top Bar ---
 class _DesktopTopBar extends StatelessWidget with AppColors {
   final int currentIndex;
 
@@ -100,14 +99,17 @@ class _DesktopTopBar extends StatelessWidget with AppColors {
   static const List<String> _titles = [
     "Dashboard Overview",
     "Veterinarians & Doctors Onboarding",
+    "Registered Vets Directory",
     "Service Providers Management",
+    "Registered Service Providers Directory",
     "Diagnostic Labs & Branches",
   ];
 
   @override
   Widget build(BuildContext context) {
-    final currentTitle =
-        currentIndex < _titles.length ? _titles[currentIndex] : "Onboarding Portal";
+    final currentTitle = currentIndex < _titles.length
+        ? _titles[currentIndex]
+        : "Onboarding Portal";
 
     return Container(
       height: 70,
@@ -156,78 +158,12 @@ class _DesktopTopBar extends StatelessWidget with AppColors {
             ],
           ),
           const Spacer(),
-          // Dynamic Admin Profile & Logout
-          Consumer<AdminAuthProvider>(
-            builder: (context, auth, _) {
-              final initial = auth.adminName.isNotEmpty
-                  ? auth.adminName.substring(0, 1).toUpperCase()
-                  : "A";
-
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                decoration: BoxDecoration(
-                  color: backgroundColor,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: borderColor),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircleAvatar(
-                      radius: 16,
-                      backgroundColor: primaryColor,
-                      child: AppText(
-                        text: initial,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: whiteColor,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppText(
-                          text: auth.adminName,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: textPrimaryColor,
-                        ),
-                        AppText(
-                          text: auth.adminEmail,
-                          fontSize: 11,
-                          color: textSecondaryColor,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      height: 24,
-                      width: 1,
-                      color: borderColor,
-                    ),
-                    const SizedBox(width: 6),
-                    IconButton(
-                      icon: Icon(Icons.logout_rounded, color: textSecondaryColor, size: 18),
-                      tooltip: "Logout",
-                      splashRadius: 18,
-                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                      padding: EdgeInsets.zero,
-                      onPressed: () => auth.logout(context),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
         ],
       ),
     );
   }
 }
 
-// --- Desktop Collapsible Sidebar ---
 class _DesktopSidebar extends StatelessWidget with AppColors {
   final StatefulNavigationShell navigationShell;
 
@@ -250,7 +186,6 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
           ),
           child: Column(
             children: [
-              // Logo & Collapse Button
               Container(
                 height: 70,
                 padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -282,8 +217,10 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
                                     const AppLogo(size: 36),
                                     const SizedBox(width: 12),
                                     Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         AppText(
                                           text: "PetConnect",
@@ -321,10 +258,12 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
                       ),
               ),
               const SizedBox(height: 16),
-              // Navigation Items
+
               Expanded(
                 child: ListView(
-                  padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 10 : 14),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isCollapsed ? 10 : 14,
+                  ),
                   children: [
                     _buildNavItem(
                       context: context,
@@ -347,6 +286,15 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
                     _buildNavItem(
                       context: context,
                       index: 2,
+                      title: "Vets List",
+                      icon: Icons.people_outline_rounded,
+                      activeIcon: Icons.people_rounded,
+                      isCollapsed: isCollapsed,
+                    ),
+                    const SizedBox(height: 6),
+                    _buildNavItem(
+                      context: context,
+                      index: 3,
                       title: "Service Providers",
                       icon: Icons.pets_outlined,
                       activeIcon: Icons.pets_rounded,
@@ -355,7 +303,16 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
                     const SizedBox(height: 6),
                     _buildNavItem(
                       context: context,
-                      index: 3,
+                      index: 4,
+                      title: "Service Providers List",
+                      icon: Icons.storefront_outlined,
+                      activeIcon: Icons.storefront_rounded,
+                      isCollapsed: isCollapsed,
+                    ),
+                    const SizedBox(height: 6),
+                    _buildNavItem(
+                      context: context,
+                      index: 5,
                       title: "Diagnostic Labs",
                       icon: Icons.biotech_outlined,
                       activeIcon: Icons.biotech_rounded,
@@ -364,7 +321,7 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
                   ],
                 ),
               ),
-              // Bottom Status / Logout with dynamic Admin details
+
               Consumer<AdminAuthProvider>(
                 builder: (context, auth, _) {
                   final initial = auth.adminName.isNotEmpty
@@ -564,7 +521,6 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
   }
 }
 
-// --- Mobile Drawer ---
 class _MobileDrawer extends StatelessWidget with AppColors {
   final StatefulNavigationShell navigationShell;
 
@@ -627,13 +583,27 @@ class _MobileDrawer extends StatelessWidget with AppColors {
                   _buildDrawerItem(
                     context,
                     2,
+                    "Vets List",
+                    Icons.people_outline_rounded,
+                    Icons.people_rounded,
+                  ),
+                  _buildDrawerItem(
+                    context,
+                    3,
                     "Service Providers",
                     Icons.pets_outlined,
                     Icons.pets_rounded,
                   ),
                   _buildDrawerItem(
                     context,
-                    3,
+                    4,
+                    "Service Providers List",
+                    Icons.storefront_outlined,
+                    Icons.storefront_rounded,
+                  ),
+                  _buildDrawerItem(
+                    context,
+                    5,
                     "Diagnostic Labs",
                     Icons.biotech_outlined,
                     Icons.biotech_rounded,
@@ -641,7 +611,7 @@ class _MobileDrawer extends StatelessWidget with AppColors {
                 ],
               ),
             ),
-            // Mobile Drawer Bottom Admin Tile & Logout
+
             Consumer<AdminAuthProvider>(
               builder: (context, auth, _) {
                 return Container(
@@ -732,7 +702,7 @@ class _MobileDrawer extends StatelessWidget with AppColors {
           color: isSelected ? primaryColor : textPrimaryColor,
         ),
         onTap: () {
-          Navigator.pop(context); // close drawer
+          Navigator.pop(context);
           navigationShell.goBranch(index);
         },
       ),

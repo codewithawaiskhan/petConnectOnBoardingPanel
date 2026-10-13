@@ -39,12 +39,22 @@ class AdminAuthProvider extends ChangeNotifier {
   }
 
   String get adminName {
-    if (_currentUser?.fullName.isNotEmpty == true) return _currentUser!.fullName;
-    if (_currentUser?.username.isNotEmpty == true) return _currentUser!.username;
+    if (_currentUser?.fullName.isNotEmpty == true) {
+      return _currentUser!.fullName;
+    }
+    if (_currentUser?.username.isNotEmpty == true) {
+      return _currentUser!.username;
+    }
     if (_decodedToken != null) {
-      if (_decodedToken!['fullName'] != null) return _decodedToken!['fullName'].toString();
-      if (_decodedToken!['username'] != null) return _decodedToken!['username'].toString();
-      if (_decodedToken!['name'] != null) return _decodedToken!['name'].toString();
+      if (_decodedToken!['fullName'] != null) {
+        return _decodedToken!['fullName'].toString();
+      }
+      if (_decodedToken!['username'] != null) {
+        return _decodedToken!['username'].toString();
+      }
+      if (_decodedToken!['name'] != null) {
+        return _decodedToken!['name'].toString();
+      }
     }
     return 'Admin';
   }
@@ -54,10 +64,13 @@ class AdminAuthProvider extends ChangeNotifier {
       return _currentUser!.roles.first;
     }
     if (_decodedToken != null) {
-      if (_decodedToken!['roles'] is List && (_decodedToken!['roles'] as List).isNotEmpty) {
+      if (_decodedToken!['roles'] is List &&
+          (_decodedToken!['roles'] as List).isNotEmpty) {
         return (_decodedToken!['roles'] as List).first.toString();
       }
-      if (_decodedToken!['role'] != null) return _decodedToken!['role'].toString();
+      if (_decodedToken!['role'] != null) {
+        return _decodedToken!['role'].toString();
+      }
     }
     return 'Super Admin';
   }
@@ -87,10 +100,8 @@ class AdminAuthProvider extends ChangeNotifier {
       _decodedToken = JwtDecoder.decode(storedToken);
       _isLoggedIn = true;
 
-      // 1. Restore fully cached AdminUser if available
       _currentUser = useCases.getCachedUser();
 
-      // 2. Re-hydrate from decoded JWT claims if user wasn't in cache
       if (_currentUser == null && _decodedToken != null) {
         final rolesList = <String>[];
         if (_decodedToken!['roles'] is List) {
@@ -102,8 +113,14 @@ class AdminAuthProvider extends ChangeNotifier {
         }
 
         _currentUser = AdminUserEntity(
-          id: _decodedToken!['id']?.toString() ?? _decodedToken!['_id']?.toString() ?? '',
-          fullName: _decodedToken!['fullName']?.toString() ?? _decodedToken!['name']?.toString() ?? 'Admin',
+          id:
+              _decodedToken!['id']?.toString() ??
+              _decodedToken!['_id']?.toString() ??
+              '',
+          fullName:
+              _decodedToken!['fullName']?.toString() ??
+              _decodedToken!['name']?.toString() ??
+              'Admin',
           username: _decodedToken!['username']?.toString() ?? '',
           email: _decodedToken!['email']?.toString() ?? '',
           roles: rolesList.isNotEmpty ? rolesList : ['admin'],

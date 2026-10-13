@@ -13,7 +13,8 @@ class SpecialityModel extends SpecialityEntity {
     return SpecialityModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
-      imageDataURI: json['imageDataURI']?.toString() ?? json['image']?.toString(),
+      imageDataURI:
+          json['imageDataURI']?.toString() ?? json['image']?.toString(),
       description: json['description']?.toString(),
       status: json['status']?.toString(),
     );

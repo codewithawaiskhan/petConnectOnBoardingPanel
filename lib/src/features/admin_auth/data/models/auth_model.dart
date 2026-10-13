@@ -56,11 +56,7 @@ class AdminUserModel extends AdminUserEntity {
 }
 
 class AuthModel extends AuthEntity {
-  const AuthModel({
-    required super.token,
-    super.user,
-    super.message,
-  });
+  const AuthModel({required super.token, super.user, super.message});
 
   factory AuthModel.fromJson(Map<String, dynamic> json) {
     String token = '';
@@ -71,7 +67,8 @@ class AuthModel extends AuthEntity {
       if (map['token'] != null && map['token'].toString().trim().isNotEmpty) {
         return map['token'].toString().trim();
       }
-      if (map['accessToken'] != null && map['accessToken'].toString().trim().isNotEmpty) {
+      if (map['accessToken'] != null &&
+          map['accessToken'].toString().trim().isNotEmpty) {
         return map['accessToken'].toString().trim();
       }
       if (map['jwt'] != null && map['jwt'].toString().trim().isNotEmpty) {
@@ -95,14 +92,12 @@ class AuthModel extends AuthEntity {
 
     message = json['message']?.toString();
 
-    // 1. Check data wrapper if present
     Map<String, dynamic>? dataWrapper;
     if (json['data'] is Map<String, dynamic>) {
       dataWrapper = json['data'] as Map<String, dynamic>;
       message ??= dataWrapper['message']?.toString();
     }
 
-    // 2. Locate user object (e.g. { verification: {...}, doc: { ... token: '...' } })
     final userMap = extractUserMap(dataWrapper ?? json) ?? extractUserMap(json);
     if (userMap != null) {
       userModel = AdminUserModel.fromJson(userMap);
@@ -111,7 +106,6 @@ class AuthModel extends AuthEntity {
       userModel = AdminUserModel.fromJson(dataWrapper);
     }
 
-    // 3. Fallback: check token in dataWrapper or root json
     if (token.isEmpty && dataWrapper != null) {
       token = extractToken(dataWrapper);
     }
@@ -119,17 +113,15 @@ class AuthModel extends AuthEntity {
       token = extractToken(json);
     }
 
-    return AuthModel(
-      token: token,
-      user: userModel,
-      message: message,
-    );
+    return AuthModel(token: token, user: userModel, message: message);
   }
 
   factory AuthModel.fromEntity(AuthEntity entity) {
     return AuthModel(
       token: entity.token,
-      user: entity.user != null ? AdminUserModel.fromEntity(entity.user!) : null,
+      user: entity.user != null
+          ? AdminUserModel.fromEntity(entity.user!)
+          : null,
       message: entity.message,
     );
   }
@@ -137,10 +129,11 @@ class AuthModel extends AuthEntity {
   Map<String, dynamic> toJson() {
     return {
       'token': token,
-      'user': (user is AdminUserModel
-              ? user as AdminUserModel
-              : (user != null ? AdminUserModel.fromEntity(user!) : null))
-          ?.toJson(),
+      'user':
+          (user is AdminUserModel
+                  ? user as AdminUserModel
+                  : (user != null ? AdminUserModel.fromEntity(user!) : null))
+              ?.toJson(),
       'message': message,
     };
   }

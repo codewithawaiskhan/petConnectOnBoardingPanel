@@ -20,7 +20,8 @@ class TaxonomyRemoteDataSourceImpl implements TaxonomyRemoteDataSource {
 
   @override
   Future<Response> getServices({String? specialityObjectId}) async {
-    final endpoint = (specialityObjectId != null && specialityObjectId.isNotEmpty)
+    final endpoint =
+        (specialityObjectId != null && specialityObjectId.isNotEmpty)
         ? '${ApiEndpoints.services}?specialityObjectId=$specialityObjectId'
         : ApiEndpoints.services;
     return await apiServices.getData(endpoint);

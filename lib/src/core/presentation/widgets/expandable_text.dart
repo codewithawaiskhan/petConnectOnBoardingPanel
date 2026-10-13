@@ -20,7 +20,8 @@ class ExpandableText extends StatefulWidget {
   State<ExpandableText> createState() => _ExpandableTextState();
 }
 
-class _ExpandableTextState extends State<ExpandableText> with AppColors, Constants {
+class _ExpandableTextState extends State<ExpandableText>
+    with AppColors, Constants {
   bool isExpanded = false;
 
   @override
@@ -53,7 +54,11 @@ class _ExpandableTextState extends State<ExpandableText> with AppColors, Constan
         textPainter.layout(maxWidth: constraints.maxWidth);
 
         if (!textPainter.didExceedMaxLines) {
-          return AppText(text: widget.text, style: textStyle, textAlign: TextAlign.justify);
+          return AppText(
+            text: widget.text,
+            style: textStyle,
+            textAlign: TextAlign.justify,
+          );
         }
 
         if (widget.trimOnly) {
@@ -87,14 +92,18 @@ class _ExpandableTextState extends State<ExpandableText> with AppColors, Constan
         }
 
         final linkSpan = TextSpan(text: "See More", style: linkStyle);
-        final linkPainter = TextPainter(text: linkSpan, textDirection: TextDirection.ltr);
+        final linkPainter = TextPainter(
+          text: linkSpan,
+          textDirection: TextDirection.ltr,
+        );
         linkPainter.layout(maxWidth: constraints.maxWidth);
 
         final position = textPainter.getPositionForOffset(
           Offset(constraints.maxWidth - linkPainter.width, textPainter.height),
         );
 
-        final endOffset = textPainter.getOffsetBefore(position.offset) ?? position.offset;
+        final endOffset =
+            textPainter.getOffsetBefore(position.offset) ?? position.offset;
         final firstHalf = widget.text.substring(0, endOffset);
 
         return RichText(

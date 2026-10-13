@@ -23,9 +23,5 @@ class AuthEntity {
   final AdminUserEntity? user;
   final String? message;
 
-  const AuthEntity({
-    required this.token,
-    this.user,
-    this.message,
-  });
+  const AuthEntity({required this.token, this.user, this.message});
 }

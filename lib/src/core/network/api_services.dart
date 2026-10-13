@@ -8,7 +8,8 @@ import '../error/app_exceptions.dart';
 import 'models/response/response.dart';
 
 class ApiServices {
-  static const String noInternetMessage = 'Connection to API server failed due to internet connection';
+  static const String noInternetMessage =
+      'Connection to API server failed due to internet connection';
   final int timeoutInSeconds = 30;
 
   String? token;
@@ -21,11 +22,15 @@ class ApiServices {
       'Accept': 'application/json',
     };
     if (this.token != null && this.token!.isNotEmpty && this.token != 'null') {
-      _mainHeaders!['Authorization'] = 'Bearer ${this.token!.replaceFirst('Bearer ', '').trim()}';
+      _mainHeaders!['Authorization'] =
+          'Bearer ${this.token!.replaceFirst('Bearer ', '').trim()}';
     }
   }
 
-  Map<String, String> _resolveHeaders(Map<String, String>? headers, {bool isJson = true}) {
+  Map<String, String> _resolveHeaders(
+    Map<String, String>? headers, {
+    bool isJson = true,
+  }) {
     final Map<String, String> resolved = {
       if (isJson) 'Content-Type': 'application/json; charset=UTF-8',
       'Accept': 'application/json',
@@ -34,7 +39,8 @@ class ApiServices {
     };
 
     if (token != null && token!.trim().isNotEmpty && token != 'null') {
-      resolved['Authorization'] = 'Bearer ${token!.replaceFirst('Bearer ', '').trim()}';
+      resolved['Authorization'] =
+          'Bearer ${token!.replaceFirst('Bearer ', '').trim()}';
     }
 
     final auth = resolved['Authorization'];
@@ -47,7 +53,11 @@ class ApiServices {
     return resolved;
   }
 
-  Future<Response> getData(String uri, {Map<String, dynamic>? query, Map<String, String>? headers}) async {
+  Future<Response> getData(
+    String uri, {
+    Map<String, dynamic>? query,
+    Map<String, String>? headers,
+  }) async {
     final finalHeaders = _resolveHeaders(headers, isJson: false);
     return _safeApiCall(
       uri: uri,
@@ -55,47 +65,65 @@ class ApiServices {
     );
   }
 
-  Future<Response> postData(String uri, dynamic body, {Map<String, String>? headers}) async {
+  Future<Response> postData(
+    String uri,
+    dynamic body, {
+    Map<String, String>? headers,
+  }) async {
     final finalHeaders = _resolveHeaders(headers, isJson: true);
     final String encodedBody = body is String ? body : jsonEncode(body);
     return _safeApiCall(
       uri: uri,
       body: encodedBody,
-      request: () => http.post(Uri.parse(uri), body: encodedBody, headers: finalHeaders),
+      request: () =>
+          http.post(Uri.parse(uri), body: encodedBody, headers: finalHeaders),
     );
   }
 
-  Future<Response> patchData(String uri, dynamic body, {Map<String, String>? headers}) async {
+  Future<Response> patchData(
+    String uri,
+    dynamic body, {
+    Map<String, String>? headers,
+  }) async {
     final finalHeaders = _resolveHeaders(headers, isJson: true);
     final String encodedBody = body is String ? body : jsonEncode(body);
     return _safeApiCall(
       uri: uri,
       body: encodedBody,
-      request: () => http.patch(Uri.parse(uri), body: encodedBody, headers: finalHeaders),
+      request: () =>
+          http.patch(Uri.parse(uri), body: encodedBody, headers: finalHeaders),
     );
   }
 
-  Future<Response> putData(String uri, dynamic body, {Map<String, String>? headers}) async {
+  Future<Response> putData(
+    String uri,
+    dynamic body, {
+    Map<String, String>? headers,
+  }) async {
     final finalHeaders = _resolveHeaders(headers, isJson: true);
     final String encodedBody = body is String ? body : jsonEncode(body);
     return _safeApiCall(
       uri: uri,
       body: encodedBody,
-      request: () => http.put(Uri.parse(uri), body: encodedBody, headers: finalHeaders),
+      request: () =>
+          http.put(Uri.parse(uri), body: encodedBody, headers: finalHeaders),
     );
   }
 
-  Future<Response> deleteData(String uri, {dynamic body, Map<String, String>? headers}) async {
+  Future<Response> deleteData(
+    String uri, {
+    dynamic body,
+    Map<String, String>? headers,
+  }) async {
     final finalHeaders = _resolveHeaders(headers, isJson: body != null);
-    final dynamic encodedBody = body != null ? (body is String ? body : jsonEncode(body)) : null;
+    final dynamic encodedBody = body != null
+        ? (body is String ? body : jsonEncode(body))
+        : null;
     return _safeApiCall(
       uri: uri,
       body: encodedBody,
-      request: () => http.delete(
-        Uri.parse(uri),
-        body: encodedBody,
-        headers: finalHeaders,
-      ),
+      request: () =>
+          http.delete(Uri.parse(uri), body: encodedBody, headers: finalHeaders),
     );
   }
 
@@ -109,7 +137,10 @@ class ApiServices {
       uri: uri,
       body: body,
       request: () async {
-        http.MultipartRequest request = http.MultipartRequest('PUT', Uri.parse(uri));
+        http.MultipartRequest request = http.MultipartRequest(
+          'PUT',
+          Uri.parse(uri),
+        );
         final finalHeaders = _resolveHeaders(headers, isJson: false);
         request.headers.addAll(finalHeaders);
 
@@ -136,22 +167,37 @@ class ApiServices {
     required Future<http.Response> Function() request,
   }) async {
     try {
-      if (kDebugMode) debugPrint('====> API Call: $uri\nToken: $token');
-      if (body != null && kDebugMode) debugPrint('====> API Body: $body');
+      if (kDebugMode) {
+        debugPrint('====> API Call: $uri\nToken: $token');
+      }
+      if (body != null && kDebugMode) {
+        debugPrint('====> API Body: $body');
+      }
 
-      http.Response response0 = await request().timeout(Duration(seconds: timeoutInSeconds));
+      http.Response response0 = await request().timeout(
+        Duration(seconds: timeoutInSeconds),
+      );
       Response response = handleResponse(response0);
 
-      if (kDebugMode) debugPrint('====> API Response: [${response.statusCode}] $uri\n${response.body}');
+      if (kDebugMode) {
+        debugPrint(
+          '====> API Response: [${response.statusCode}] $uri\n${response.body}',
+        );
+      }
 
       return response;
     } on http.ClientException {
-      throw NetworkException("No Internet connection. Please check your network.");
+      throw NetworkException(
+        "No Internet connection. Please check your network.",
+      );
     } on TimeoutException {
       throw NetworkException("Connection timed out. Please try again.");
     } catch (e) {
-      if (e.toString().contains('SocketException') || e.toString().contains('ClientException')) {
-        throw NetworkException("No Internet connection. Please check your network.");
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('ClientException')) {
+        throw NetworkException(
+          "No Internet connection. Please check your network.",
+        );
       }
       if (kDebugMode) debugPrint('====> API Error in $uri: $e');
       if (e is AppException) rethrow;
@@ -177,15 +223,18 @@ class ApiServices {
       );
     }
 
-    // Error extract
     String? finalMessage;
     dynamic rawMessage;
 
-    if (body != null && body["data"] != null && body["data"]["message"] != null) {
+    if (body != null &&
+        body["data"] != null &&
+        body["data"]["message"] != null) {
       rawMessage = body["data"]["message"];
     } else if (body != null && body["message"] != null) {
       rawMessage = body["message"];
-    } else if (body != null && body["data"] != null && body["data"]["error"] != null) {
+    } else if (body != null &&
+        body["data"] != null &&
+        body["data"]["error"] != null) {
       rawMessage = body["data"]["error"];
     } else if (body != null && body["error"] != null) {
       rawMessage = body["error"];
@@ -208,9 +257,15 @@ class ApiServices {
     } else if (response.statusCode == 403) {
       throw ForbiddenException(finalMessage ?? "Access denied", 403);
     } else if (response.statusCode >= 400 && response.statusCode < 500) {
-      throw BadRequestException(finalMessage ?? "Invalid request", response.statusCode);
+      throw BadRequestException(
+        finalMessage ?? "Invalid request",
+        response.statusCode,
+      );
     } else if (response.statusCode >= 500) {
-      throw ServerException("Server error (${response.statusCode}) Please try again later", response.statusCode);
+      throw ServerException(
+        "Server error (${response.statusCode}) Please try again later",
+        response.statusCode,
+      );
     } else {
       throw UnknownException("Something went wrong");
     }

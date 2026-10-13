@@ -5,7 +5,7 @@ class DegreeEntity {
   final String duration;
   final String startDate;
   final String? endDate;
-  final String currentlyStudyingHere; // "yes" or "no"
+  final String currentlyStudyingHere;
 
   const DegreeEntity({
     required this.degreeImageDataURI,
@@ -64,7 +64,7 @@ class WorkExperienceEntity {
   final String jobOrganizationAddress;
   final String jobStartDate;
   final String? jobEndDate;
-  final String jobCurrentlyWorkingHere; // "yes" or "no"
+  final String jobCurrentlyWorkingHere;
 
   const WorkExperienceEntity({
     required this.jobImageDataURI,
@@ -79,12 +79,12 @@ class WorkExperienceEntity {
 }
 
 class AvailableDayEntity {
-  final int dayIndex; // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  final int dayIndex;
   final bool isAvailable;
   final String? openTime;
   final String? closeTime;
-  final String? open; // total minutes elapsed since midnight (0 to 1439)
-  final String? close; // total minutes elapsed since midnight (0 to 1439)
+  final String? open;
+  final String? close;
 
   const AvailableDayEntity({
     required this.dayIndex,

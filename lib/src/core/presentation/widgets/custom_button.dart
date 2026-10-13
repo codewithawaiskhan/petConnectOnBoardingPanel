@@ -93,13 +93,12 @@ class CustomButton extends StatelessWidget with AppColors, Constants {
           child: Container(
             height: height,
             width: width == 0 ? null : width,
-            padding: padding ?? const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            padding:
+                padding ??
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             alignment: Alignment.center,
             child: isLoading
-                ? SpinKitThreeBounce(
-                    color: effectiveTextColor,
-                    size: 24.0,
-                  )
+                ? SpinKitThreeBounce(color: effectiveTextColor, size: 24.0)
                 : _buildContent(),
           ),
         ),
@@ -113,10 +112,7 @@ class CustomButton extends StatelessWidget with AppColors, Constants {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (icon != null) ...[
-            icon!,
-            const SizedBox(width: 8),
-          ],
+          if (icon != null) ...[icon!, const SizedBox(width: 8)],
           Flexible(child: textWidget()),
         ],
       );

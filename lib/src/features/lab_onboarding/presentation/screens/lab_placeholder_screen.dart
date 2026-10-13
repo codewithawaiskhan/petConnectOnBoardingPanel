@@ -28,7 +28,11 @@ class LabPlaceholderScreen extends StatelessWidget with AppColors {
                   color: tertiaryColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(50),
                 ),
-                child: Icon(Icons.biotech_rounded, color: tertiaryColor, size: 40),
+                child: Icon(
+                  Icons.biotech_rounded,
+                  color: tertiaryColor,
+                  size: 40,
+                ),
               ),
               const SizedBox(height: 20),
               AppText(
@@ -39,7 +43,8 @@ class LabPlaceholderScreen extends StatelessWidget with AppColors {
               ),
               const SizedBox(height: 8),
               AppText(
-                text: "Head office registration, laboratory branch management, and test catalog onboarding module.",
+                text:
+                    "Head office registration, laboratory branch management, and test catalog onboarding module.",
                 fontSize: 14,
                 color: textSecondaryColor,
                 textAlign: TextAlign.center,

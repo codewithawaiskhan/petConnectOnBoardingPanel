@@ -75,7 +75,8 @@ class HttpStatus {
   bool get isUnauthorized => code == unauthorized;
   bool get isForbidden => code == forbidden;
   bool get isNotFound => code == notFound;
-  bool get isServerError => between(internalServerError, networkConnectTimeoutError);
+  bool get isServerError =>
+      between(internalServerError, networkConnectTimeoutError);
 
   bool between(int begin, int end) {
     return !connectionError && code! >= begin && code! <= end;

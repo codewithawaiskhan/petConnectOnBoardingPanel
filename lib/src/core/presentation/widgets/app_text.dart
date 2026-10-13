@@ -39,15 +39,25 @@ class AppText extends StatelessWidget with AppColors {
   Widget build(BuildContext context) {
     String parseHtml(String html) {
       String cleanedHtml = html
-          .replaceAll(RegExp(r'<style[^>]*>[\s\S]*?</style>', caseSensitive: false), '')
-          .replaceAll(RegExp(r'<title[^>]*>[\s\S]*?</title>', caseSensitive: false), '');
+          .replaceAll(
+            RegExp(r'<style[^>]*>[\s\S]*?</style>', caseSensitive: false),
+            '',
+          )
+          .replaceAll(
+            RegExp(r'<title[^>]*>[\s\S]*?</title>', caseSensitive: false),
+            '',
+          );
 
       cleanedHtml = cleanedHtml
           .replaceAll(RegExp(r'<br\s*/?>', caseSensitive: false), '\n')
-          .replaceAll(RegExp(r'</p>|</div>|</li>', caseSensitive: false), '\n\n');
+          .replaceAll(
+            RegExp(r'</p>|</div>|</li>', caseSensitive: false),
+            '\n\n',
+          );
 
       final document = html_parser.parse(cleanedHtml);
-      String parsedText = document.body?.text ?? document.documentElement?.text ?? "";
+      String parsedText =
+          document.body?.text ?? document.documentElement?.text ?? "";
 
       parsedText = parsedText.replaceAll(RegExp(r'\n{3,}'), '\n\n');
 
@@ -60,7 +70,8 @@ class AppText extends StatelessWidget with AppColors {
       textDirection: textDirection,
       maxLines: maxLines,
       overflow: overflow ?? TextOverflow.ellipsis,
-      style: style ??
+      style:
+          style ??
           TextStyle(
             fontSize: fontSize ?? 12,
             fontWeight: fontWeight,

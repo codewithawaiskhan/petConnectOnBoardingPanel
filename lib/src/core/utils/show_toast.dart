@@ -9,7 +9,11 @@ class CustomAnimatedToast extends StatefulWidget {
   final String message;
   final VoidCallback onDismissed;
 
-  const CustomAnimatedToast({super.key, required this.message, required this.onDismissed});
+  const CustomAnimatedToast({
+    super.key,
+    required this.message,
+    required this.onDismissed,
+  });
 
   static void show(BuildContext context, String message) {
     final overlayState = Overlay.of(context);
@@ -49,24 +53,28 @@ class _CustomAnimatedToastState extends State<CustomAnimatedToast>
   void initState() {
     super.initState();
 
-    _entryController = AnimationController(vsync: this, duration: const Duration(milliseconds: 150));
+    _entryController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.9,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _entryController, curve: Curves.easeOutQuad));
+    _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
+      CurvedAnimation(parent: _entryController, curve: Curves.easeOutQuad),
+    );
 
-    _offsetAnimation = Tween<double>(
-      begin: 10.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(parent: _entryController, curve: Curves.easeOutQuad));
+    _offsetAnimation = Tween<double>(begin: 10.0, end: 0.0).animate(
+      CurvedAnimation(parent: _entryController, curve: Curves.easeOutQuad),
+    );
 
     _entryFadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(parent: _entryController, curve: Curves.easeOut));
 
-    _exitController = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
+    _exitController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
 
     _exitFadeAnimation = Tween<double>(
       begin: 1.0,
@@ -107,7 +115,8 @@ class _CustomAnimatedToastState extends State<CustomAnimatedToast>
           child: AnimatedBuilder(
             animation: Listenable.merge([_entryController, _exitController]),
             builder: (context, child) {
-              final opacity = _exitController.isAnimating || _exitController.isCompleted
+              final opacity =
+                  _exitController.isAnimating || _exitController.isCompleted
                   ? _exitFadeAnimation.value
                   : _entryFadeAnimation.value;
 
@@ -115,12 +124,19 @@ class _CustomAnimatedToastState extends State<CustomAnimatedToast>
                 opacity: opacity,
                 child: Transform.translate(
                   offset: Offset(0, _offsetAnimation.value),
-                  child: Transform.scale(scale: _scaleAnimation.value, alignment: Alignment.center, child: child),
+                  child: Transform.scale(
+                    scale: _scaleAnimation.value,
+                    alignment: Alignment.center,
+                    child: child,
+                  ),
                 ),
               );
             },
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: largeSpace, vertical: normalSpace),
+              padding: EdgeInsets.symmetric(
+                horizontal: largeSpace,
+                vertical: normalSpace,
+              ),
               decoration: BoxDecoration(
                 color: whiteColor,
                 borderRadius: BorderRadius.circular(radiusSmall),
@@ -129,7 +145,11 @@ class _CustomAnimatedToastState extends State<CustomAnimatedToast>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.info_outline_rounded, color: primaryColor, size: barIconSize),
+                  Icon(
+                    Icons.info_outline_rounded,
+                    color: primaryColor,
+                    size: barIconSize,
+                  ),
                   SizedBox(height: smMediumSpace),
                   AppText(
                     text: widget.message,
@@ -156,7 +176,11 @@ void successMessage(BuildContext context, String message) {
     title: Text(
       message,
       maxLines: 2,
-      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: Colors.black,
+      ),
     ),
   ).show(context);
 }
@@ -166,7 +190,11 @@ void errorMessage(BuildContext context, String message) {
     description: Text(
       message,
       maxLines: 2,
-      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: Colors.black,
+      ),
     ),
     animationType: AnimationType.fromTop,
     animationDuration: const Duration(milliseconds: 1000),

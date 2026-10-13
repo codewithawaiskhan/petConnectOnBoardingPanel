@@ -1,33 +1,65 @@
+import 'dart:math';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/utils/responsive_extensions.dart';
+import '../../domain/entities/dashboard_stats_entity.dart';
+import '../providers/dashboard_provider.dart';
 
-class DashboardHomeScreen extends StatelessWidget with AppColors {
+class DashboardHomeScreen extends StatefulWidget {
   const DashboardHomeScreen({super.key});
+
+  @override
+  State<DashboardHomeScreen> createState() => _DashboardHomeScreenState();
+}
+
+class _DashboardHomeScreenState extends State<DashboardHomeScreen>
+    with AppColors {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DashboardProvider>().fetchDashboardStats();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.isDesktop ? 32 : 16,
-          vertical: 24,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildWelcomeBanner(context),
-            const SizedBox(height: 24),
-            _buildMetricsGrid(context),
-            const SizedBox(height: 28),
-            _buildQuickActionsAndRecentSection(context),
-            const SizedBox(height: 40),
-          ],
-        ),
+      body: Consumer<DashboardProvider>(
+        builder: (context, provider, _) {
+          return RefreshIndicator(
+            color: primaryColor,
+            onRefresh: () => provider.fetchDashboardStats(isRefresh: true),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(
+                horizontal: context.isDesktop ? 32 : 16,
+                vertical: 24,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildWelcomeBanner(context),
+                  const SizedBox(height: 24),
+                  if (provider.isLoading)
+                    _buildMetricsShimmerGrid(context)
+                  else
+                    _buildMetricsGrid(context, provider.stats),
+                  const SizedBox(height: 28),
+                  _buildQuickActionsAndChartSection(context, provider),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -41,10 +73,7 @@ class DashboardHomeScreen extends StatelessWidget with AppColors {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: borderColor),
         gradient: LinearGradient(
-          colors: [
-            primaryColor.withValues(alpha: 0.08),
-            whiteColor,
-          ],
+          colors: [primaryColor.withValues(alpha: 0.08), whiteColor],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -56,7 +85,10 @@ class DashboardHomeScreen extends StatelessWidget with AppColors {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: primaryColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
@@ -77,7 +109,8 @@ class DashboardHomeScreen extends StatelessWidget with AppColors {
                 ),
                 const SizedBox(height: 6),
                 AppText(
-                  text: "Manage provider verifications, onboard medical veterinarians, and oversee clinical lab branches.",
+                  text:
+                      "Manage provider verifications, onboard medical veterinarians, and oversee clinical lab branches.",
                   fontSize: 14,
                   color: textSecondaryColor,
                 ),
@@ -99,42 +132,42 @@ class DashboardHomeScreen extends StatelessWidget with AppColors {
     );
   }
 
-  Widget _buildMetricsGrid(BuildContext context) {
+  Widget _buildMetricsGrid(BuildContext context, DashboardStatsEntity stats) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final crossAxisCount = constraints.maxWidth > 900
             ? 4
             : constraints.maxWidth > 550
-                ? 2
-                : 1;
+            ? 2
+            : 1;
 
         final metrics = [
           _MetricData(
             title: "Total Veterinarians",
-            count: "128",
-            subtitle: "+12 this month",
+            count: "${stats.totalDoctorsCount}",
+            subtitle: "+${stats.newThisMonthDoctorsCount} this month",
             icon: Icons.medical_services_rounded,
             color: primaryColor,
           ),
           _MetricData(
             title: "Service Providers",
-            count: "64",
-            subtitle: "+5 active facilities",
+            count: "${stats.totalServiceProvidersCount}",
+            subtitle: "+${stats.newThisMonthServiceProvidersCount} this month",
             icon: Icons.pets_rounded,
             color: skyBlueColor,
           ),
           _MetricData(
             title: "Diagnostic Labs",
-            count: "32",
-            subtitle: "3 branches pending",
+            count: "${stats.totalLabsCount}",
+            subtitle: "+${stats.newThisMonthLabsCount} this month",
             icon: Icons.biotech_rounded,
             color: tertiaryColor,
           ),
           _MetricData(
-            title: "Pending Verifications",
-            count: "18",
-            subtitle: "Requires action",
-            icon: Icons.verified_user_outlined,
+            title: "Pet Parents",
+            count: "${stats.totalPetParentsCount}",
+            subtitle: "+${stats.newThisMonthPetParentsCount} this month",
+            icon: Icons.people_outline_rounded,
             color: yellowColor,
           ),
         ];
@@ -207,10 +240,50 @@ class DashboardHomeScreen extends StatelessWidget with AppColors {
     );
   }
 
-  Widget _buildQuickActionsAndRecentSection(BuildContext context) {
+  Widget _buildMetricsShimmerGrid(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isTwoColumn = constraints.maxWidth > 800;
+        final crossAxisCount = constraints.maxWidth > 900
+            ? 4
+            : constraints.maxWidth > 550
+            ? 2
+            : 1;
+
+        return Shimmer.fromColors(
+          baseColor: baseShimmerColor,
+          highlightColor: highlightShimmerColor,
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              mainAxisExtent: 130,
+            ),
+            itemCount: 4,
+            itemBuilder: (context, index) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: whiteColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: borderColor),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildQuickActionsAndChartSection(
+    BuildContext context,
+    DashboardProvider provider,
+  ) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isTwoColumn = constraints.maxWidth > 860;
 
         final quickActions = Container(
           padding: const EdgeInsets.all(24),
@@ -259,7 +332,7 @@ class DashboardHomeScreen extends StatelessWidget with AppColors {
           ),
         );
 
-        final recentActivity = Container(
+        final monthlyChart = Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: whiteColor,
@@ -269,38 +342,59 @@ class DashboardHomeScreen extends StatelessWidget with AppColors {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppText(
-                text: "Recent Applications",
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: textPrimaryColor,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppText(
+                        text: "New This Month Overview",
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: textPrimaryColor,
+                      ),
+                      const SizedBox(height: 4),
+                      AppText(
+                        text: "Monthly registrations across all roles",
+                        fontSize: 12,
+                        color: textSecondaryColor,
+                      ),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: primaryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: AppText(
+                      text: "Live Stats",
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: primaryColor,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
-              AppText(
-                text: "Latest verification submissions",
-                fontSize: 12,
-                color: textSecondaryColor,
-              ),
-              const SizedBox(height: 18),
-              _buildRecentItem(
-                name: "Dr. Bryan Clarke",
-                role: "Veterinary Specialist (DVM)",
-                status: "Pending Review",
-                statusColor: yellowColor,
-              ),
-              const Divider(height: 18),
-              _buildRecentItem(
-                name: "Infinite Labs (Head Office)",
-                role: "Diagnostic Laboratory",
-                status: "Approved",
-                statusColor: successColor,
-              ),
-              const Divider(height: 18),
-              _buildRecentItem(
-                name: "Melissa Monroe",
-                role: "Service Provider (Care)",
-                status: "Pending Review",
-                statusColor: yellowColor,
+              const SizedBox(height: 24),
+              SizedBox(
+                height: 200,
+                child: provider.isLoading
+                    ? Shimmer.fromColors(
+                        baseColor: baseShimmerColor,
+                        highlightColor: highlightShimmerColor,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: whiteColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      )
+                    : _buildMonthlyBarChart(provider.stats),
               ),
             ],
           ),
@@ -312,19 +406,128 @@ class DashboardHomeScreen extends StatelessWidget with AppColors {
             children: [
               Expanded(flex: 3, child: quickActions),
               const SizedBox(width: 20),
-              Expanded(flex: 3, child: recentActivity),
+              Expanded(flex: 4, child: monthlyChart),
             ],
           );
         } else {
           return Column(
-            children: [
-              quickActions,
-              const SizedBox(height: 20),
-              recentActivity,
-            ],
+            children: [quickActions, const SizedBox(height: 20), monthlyChart],
           );
         }
       },
+    );
+  }
+
+  Widget _buildMonthlyBarChart(DashboardStatsEntity stats) {
+    final values = [
+      stats.newThisMonthDoctorsCount.toDouble(),
+      stats.newThisMonthServiceProvidersCount.toDouble(),
+      stats.newThisMonthLabsCount.toDouble(),
+      stats.newThisMonthPetParentsCount.toDouble(),
+    ];
+
+    final maxVal = values.reduce(max);
+    final topLimit = (maxVal > 5 ? maxVal + 2 : 6.0);
+
+    final colors = [primaryColor, skyBlueColor, tertiaryColor, yellowColor];
+
+    final labels = ["Vets", "SPs", "Labs", "Parents"];
+
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: topLimit,
+        barTouchData: BarTouchData(
+          touchTooltipData: BarTouchTooltipData(
+            getTooltipColor: (_) => primaryColor,
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              return BarTooltipItem(
+                "${labels[group.x]}: ${rod.toY.toInt()}",
+                TextStyle(
+                  color: whiteColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              );
+            },
+          ),
+        ),
+        titlesData: FlTitlesData(
+          show: true,
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 32,
+              getTitlesWidget: (value, meta) {
+                final index = value.toInt();
+                if (index < 0 || index >= labels.length) {
+                  return const SizedBox.shrink();
+                }
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: AppText(
+                    text: labels[index],
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: textPrimaryColor,
+                  ),
+                );
+              },
+            ),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 28,
+              interval: topLimit > 10 ? (topLimit / 4).roundToDouble() : 2,
+              getTitlesWidget: (value, meta) {
+                return AppText(
+                  text: value.toInt().toString(),
+                  fontSize: 11,
+                  color: textSecondaryColor,
+                );
+              },
+            ),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+        ),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: topLimit > 10
+              ? (topLimit / 4).roundToDouble()
+              : 2,
+          getDrawingHorizontalLine: (value) =>
+              FlLine(color: borderColor, strokeWidth: 1),
+        ),
+        borderData: FlBorderData(show: false),
+        barGroups: List.generate(4, (index) {
+          return BarChartGroupData(
+            x: index,
+            barRods: [
+              BarChartRodData(
+                toY: values[index],
+                color: colors[index],
+                width: 28,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(6),
+                  topRight: Radius.circular(6),
+                ),
+                backDrawRodData: BackgroundBarChartRodData(
+                  show: true,
+                  toY: topLimit,
+                  color: backgroundColor,
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
     );
   }
 
@@ -360,67 +563,18 @@ class DashboardHomeScreen extends StatelessWidget with AppColors {
                     fontWeight: FontWeight.w600,
                     color: textPrimaryColor,
                   ),
-                  AppText(
-                    text: desc,
-                    fontSize: 12,
-                    color: textSecondaryColor,
-                  ),
+                  AppText(text: desc, fontSize: 12, color: textSecondaryColor),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: textSecondaryColor, size: 20),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: textSecondaryColor,
+              size: 20,
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildRecentItem({
-    required String name,
-    required String role,
-    required String status,
-    required Color statusColor,
-  }) {
-    return Row(
-      children: [
-        CircleAvatar(
-          radius: 18,
-          backgroundColor: primaryColor.withValues(alpha: 0.1),
-          child: AppText(
-            text: name.substring(0, 1),
-            fontWeight: FontWeight.w700,
-            color: primaryColor,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppText(
-                text: name,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: textPrimaryColor,
-              ),
-              AppText(text: role, fontSize: 11, color: textSecondaryColor),
-            ],
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: statusColor.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: AppText(
-            text: status,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: statusColor,
-          ),
-        ),
-      ],
     );
   }
 }

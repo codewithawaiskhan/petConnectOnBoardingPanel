@@ -9,7 +9,6 @@ import '../../../../shared/taxonomy/domain/usecases/taxonomy_usecases.dart';
 import '../../domain/entities/service_provider_onboarding_entity.dart';
 import '../../domain/usecases/service_provider_onboarding_usecases.dart';
 
-
 class DayScheduleItem {
   final int dayIndex;
   final String dayName;
@@ -64,7 +63,9 @@ class DegreeFormItem {
   String duration = '';
   String startDate = '';
   String? endDate = '';
-  final ValueNotifier<bool> isCurrentlyStudyingNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> isCurrentlyStudyingNotifier = ValueNotifier<bool>(
+    false,
+  );
   String? fileName;
 
   bool get isCurrentlyStudyingHere => isCurrentlyStudyingNotifier.value;
@@ -115,7 +116,9 @@ class WorkExperienceFormItem {
   String jobOrganizationAddress = '';
   String jobStartDate = '';
   String? jobEndDate;
-  final ValueNotifier<bool> isCurrentlyWorkingNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> isCurrentlyWorkingNotifier = ValueNotifier<bool>(
+    false,
+  );
   String? fileName;
 
   bool get isCurrentlyWorkingHere => isCurrentlyWorkingNotifier.value;
@@ -157,7 +160,6 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  // Personal Credentials
   String fullName = '';
   String email = '';
   String phone = '';
@@ -173,7 +175,6 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
   String? profileImageDataURI;
   String? profileImageFileName;
 
-  // Business Details
   String businessName = '';
   String businessEmail = '';
   String businessPhone = '';
@@ -183,33 +184,26 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
   String? businessImageDataURI;
   String? businessImageFileName;
 
-  // Pricing
   num pricePerAppointment = 0;
   num startingPricePerAppointment = 0;
   String currencyCode = 'USD';
 
-  // Taxonomies: Pet Categories
   List<PetCategoryEntity> petCategories = [];
   bool isPetCategoriesLoading = false;
   List<String> selectedPetCategories = [];
 
-  // Specialities & Services Flow (Specialty Filter -> Services Selection)
   List<SpecialityEntity> specialities = [];
   bool isSpecialitiesLoading = false;
   String specialityObjectId = '';
-  String? get selectedSpecialityId => specialityObjectId.isNotEmpty ? specialityObjectId : null;
+  String? get selectedSpecialityId =>
+      specialityObjectId.isNotEmpty ? specialityObjectId : null;
 
   List<ServiceEntity> services = [];
   bool isServicesLoading = false;
-  List<String> selectedServices = []; // sent to servicesOffered in payload
+  List<String> selectedServices = [];
 
-
-  // Service Locations: Strictly "Home" and "Office"
   List<String> selectedServiceLocations = ['Home', 'Office'];
-  final List<String> availableLocations = const [
-    'Home',
-    'Office',
-  ];
+  final List<String> availableLocations = const ['Home', 'Office'];
 
   final List<String> allLanguages = const [
     'English',
@@ -223,12 +217,10 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
     'Russian',
   ];
 
-  // Nested Lists
   final List<DegreeFormItem> degrees = [];
   final List<LicenseFormItem> licenses = [];
   final List<WorkExperienceFormItem> workExperiences = [];
 
-  // Available Days (7 Days: 0 = Sun to 6 = Sat)
   final List<DayScheduleItem> availableDays = [];
 
   void _initDefaultAvailableDays() {
@@ -244,11 +236,7 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
     availableDays.clear();
     for (int i = 0; i < 7; i++) {
       availableDays.add(
-        DayScheduleItem(
-          dayIndex: i,
-          dayName: days[i],
-          isAvailable: i != 0, // Sunday closed by default
-        ),
+        DayScheduleItem(dayIndex: i, dayName: days[i], isAvailable: i != 0),
       );
     }
   }
@@ -259,7 +247,6 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
     if (workExperiences.isEmpty) workExperiences.add(WorkExperienceFormItem());
   }
 
-  // --- Dynamic List Operations ---
   void addDegree() {
     degrees.add(DegreeFormItem());
     notifyListeners();
@@ -340,7 +327,6 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- Working Days & Time Picker Flow (Exact Match with Vet) ---
   void toggleDayAvailability(int index, bool val) {
     if (index >= 0 && index < availableDays.length) {
       availableDays[index].isAvailable = val;
@@ -348,7 +334,11 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> selectDayTime(BuildContext context, int index, bool isOpenTime) async {
+  Future<void> selectDayTime(
+    BuildContext context,
+    int index,
+    bool isOpenTime,
+  ) async {
     if (index < 0 || index >= availableDays.length) return;
     final day = availableDays[index];
     final currentStr = isOpenTime ? day.openTime : day.closeTime;
@@ -356,8 +346,9 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
     final initialHour = parts.isNotEmpty
         ? (int.tryParse(parts[0]) ?? (isOpenTime ? 9 : 17))
         : (isOpenTime ? 9 : 17);
-    final initialMinute =
-        parts.length > 1 ? (int.tryParse(parts[1]) ?? 30) : 30;
+    final initialMinute = parts.length > 1
+        ? (int.tryParse(parts[1]) ?? 30)
+        : 30;
 
     final picked = await showTimePicker(
       context: context,
@@ -376,7 +367,6 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
     }
   }
 
-  // --- Pet Categories ---
   Future<void> fetchPetCategories() async {
     isPetCategoriesLoading = true;
     notifyListeners();
@@ -399,7 +389,6 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- Specialities & Services Flow ---
   Future<void> fetchSpecialities() async {
     isSpecialitiesLoading = true;
     notifyListeners();
@@ -425,7 +414,9 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
     isServicesLoading = true;
     notifyListeners();
     try {
-      services = await taxonomyUseCases.getServices(specialityObjectId: specialityId);
+      services = await taxonomyUseCases.getServices(
+        specialityObjectId: specialityId,
+      );
     } catch (e) {
       debugPrint('Error fetching services: $e');
     } finally {
@@ -443,7 +434,6 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- Web-Safe Base64 Data URI File Pickers ---
   Future<void> pickProfileImage() async {
     final result = await _pickFileBytes(['jpg', 'jpeg', 'png', 'webp']);
     if (result != null) {
@@ -489,7 +479,9 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, String>?> _pickFileBytes(List<String> allowedExtensions) async {
+  Future<Map<String, String>?> _pickFileBytes(
+    List<String> allowedExtensions,
+  ) async {
     try {
       final FilePickerResult? picked = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -503,12 +495,11 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
         if (bytes != null) {
           final base64String = base64Encode(bytes);
           final extension = (platformFile.extension ?? 'jpeg').toLowerCase();
-          final mime = extension == 'pdf' ? 'application/pdf' : 'image/$extension';
+          final mime = extension == 'pdf'
+              ? 'application/pdf'
+              : 'image/$extension';
           final dataUri = 'data:$mime;base64,$base64String';
-          return {
-            'dataUri': dataUri,
-            'fileName': platformFile.name,
-          };
+          return {'dataUri': dataUri, 'fileName': platformFile.name};
         }
       }
     } catch (e) {
@@ -517,9 +508,7 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
     return null;
   }
 
-  // --- Submission to Backend ---
   Future<bool> submitData(BuildContext context) async {
-    // 1. Personal Validations
     if (fullName.trim().isEmpty) {
       showToast(context, 'Full Name is required', isError: true);
       return false;
@@ -533,7 +522,11 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
       return false;
     }
     if (password.trim().isEmpty || password.length < 6) {
-      showToast(context, 'Password must be at least 6 characters', isError: true);
+      showToast(
+        context,
+        'Password must be at least 6 characters',
+        isError: true,
+      );
       return false;
     }
     if (password != confirmPassword) {
@@ -545,7 +538,6 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
       return false;
     }
 
-    // 2. Business Validations
     if (businessName.trim().isEmpty) {
       showToast(context, 'Business Name is required', isError: true);
       return false;
@@ -563,17 +555,28 @@ class ServiceProviderOnboardingProvider extends ChangeNotifier {
       return false;
     }
 
-    // 3. Taxonomy Validations
     if (selectedPetCategories.isEmpty) {
-      showToast(context, 'Please select at least one pet category', isError: true);
+      showToast(
+        context,
+        'Please select at least one pet category',
+        isError: true,
+      );
       return false;
     }
     if (selectedServices.isEmpty) {
-      showToast(context, 'Please select at least one service offered', isError: true);
+      showToast(
+        context,
+        'Please select at least one service offered',
+        isError: true,
+      );
       return false;
     }
     if (selectedServiceLocations.isEmpty) {
-      showToast(context, 'Please select at least one service location', isError: true);
+      showToast(
+        context,
+        'Please select at least one service location',
+        isError: true,
+      );
       return false;
     }
 

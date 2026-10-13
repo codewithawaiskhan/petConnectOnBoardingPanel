@@ -5,7 +5,14 @@ import '../../app/config/api_endpoints.dart';
 import '../constants/app_colors.dart';
 
 class ShowImage with ApiEndpoints, AppColors {
-  Widget _buildCachedNetworkImage(String url, double? w, double? h, BoxFit fit, double? radius, String? errorImage) {
+  Widget _buildCachedNetworkImage(
+    String url,
+    double? w,
+    double? h,
+    BoxFit fit,
+    double? radius,
+    String? errorImage,
+  ) {
     final cacheW = (w != null && w != double.infinity) ? (w * 2).toInt() : null;
     final cacheH = (h != null && h != double.infinity) ? (h * 2).toInt() : null;
 
@@ -19,7 +26,12 @@ class ShowImage with ApiEndpoints, AppColors {
       placeholder: (context, url) => _shimmerWidget(w, h, radius),
       errorWidget: (context, url, error) {
         if (errorImage != null) {
-          return CachedNetworkImage(imageUrl: errorImage, width: w, height: h, fit: fit);
+          return CachedNetworkImage(
+            imageUrl: errorImage,
+            width: w,
+            height: h,
+            fit: fit,
+          );
         }
         return _errorWidget(w, h, radius);
       },
@@ -40,7 +52,10 @@ class ShowImage with ApiEndpoints, AppColors {
     final imageHeight = height ?? size;
 
     if (image == null || image.isEmpty) {
-      return _applyClipping(_errorWidget(imageWidth, imageHeight, radius), radius);
+      return _applyClipping(
+        _errorWidget(imageWidth, imageHeight, radius),
+        radius,
+      );
     }
 
     final isBase64 = image.startsWith("data:image");
@@ -55,10 +70,13 @@ class ShowImage with ApiEndpoints, AppColors {
           fit: fit,
           width: imageWidth,
           height: imageHeight,
-          cacheWidth: (imageWidth != null ? (imageWidth * 2).toInt() : 200).clamp(50, 400),
-          cacheHeight: (imageHeight != null ? (imageHeight * 2).toInt() : 200).clamp(50, 400),
+          cacheWidth: (imageWidth != null ? (imageWidth * 2).toInt() : 200)
+              .clamp(50, 400),
+          cacheHeight: (imageHeight != null ? (imageHeight * 2).toInt() : 200)
+              .clamp(50, 400),
           gaplessPlayback: true,
-          errorBuilder: (_, _, _) => _errorWidget(imageWidth, imageHeight, radius),
+          errorBuilder: (_, _, _) =>
+              _errorWidget(imageWidth, imageHeight, radius),
         );
       } else if (isAsset) {
         content = Image.asset(
@@ -66,13 +84,21 @@ class ShowImage with ApiEndpoints, AppColors {
           fit: fit,
           width: imageWidth,
           height: imageHeight,
-          errorBuilder: (_, _, _) => _errorWidget(imageWidth, imageHeight, radius),
+          errorBuilder: (_, _, _) =>
+              _errorWidget(imageWidth, imageHeight, radius),
         );
       } else {
         final isFullUrl = image.startsWith("http") || image.startsWith("https");
         final imageUrl = isFullUrl ? image : "${ApiEndpoints.baseUrl}/$image";
 
-        content = _buildCachedNetworkImage(imageUrl, imageWidth, imageHeight, fit, radius, errorImage);
+        content = _buildCachedNetworkImage(
+          imageUrl,
+          imageWidth,
+          imageHeight,
+          fit,
+          radius,
+          errorImage,
+        );
       }
     } catch (e) {
       content = _errorWidget(imageWidth, imageHeight, radius);
@@ -83,7 +109,10 @@ class ShowImage with ApiEndpoints, AppColors {
 
   Widget _applyClipping(Widget child, double? radius) {
     if (radius != null) {
-      return ClipRRect(borderRadius: BorderRadius.circular(radius), child: child);
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: child,
+      );
     } else {
       return ClipOval(child: child);
     }

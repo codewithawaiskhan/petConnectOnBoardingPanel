@@ -20,7 +20,9 @@ class DialogUtils {
         return Dialog(
           backgroundColor: AppColorsHelper().whiteColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConstantsHelper().radiusMedium),
+            borderRadius: BorderRadius.circular(
+              AppConstantsHelper().radiusMedium,
+            ),
             side: BorderSide(
               color: AppColorsHelper().borderColor,
               width: AppConstantsHelper().smallBorder,
@@ -62,7 +64,9 @@ class DialogUtils {
                           }
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: AppConstantsHelper().smMediumSpace),
+                          padding: EdgeInsets.symmetric(
+                            vertical: AppConstantsHelper().smMediumSpace,
+                          ),
                           alignment: Alignment.center,
                           child: AppText(
                             text: cancelText,
@@ -84,7 +88,9 @@ class DialogUtils {
                           onConfirm();
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: AppConstantsHelper().smMediumSpace),
+                          padding: EdgeInsets.symmetric(
+                            vertical: AppConstantsHelper().smMediumSpace,
+                          ),
                           alignment: Alignment.center,
                           child: AppText(
                             text: confirmText,

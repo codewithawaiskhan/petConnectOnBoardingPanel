@@ -15,10 +15,7 @@ class AdminAuthRemoteDataSourceImpl implements AdminAuthRemoteDataSource {
   Future<Response> login(String identifier, String password) async {
     return await apiServices.postData(
       ApiEndpoints.adminLogin,
-      {
-        'identifier': identifier,
-        'password': password,
-      },
+      {'identifier': identifier, 'password': password},
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
         'Accept': 'application/json',

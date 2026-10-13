@@ -24,7 +24,10 @@ extension NavigatorExt on BuildContext {
   Route _createRoute(Widget page, [String? name]) {
     final currentRouteName = ModalRoute.of(this)?.settings.name;
     return MaterialPageRoute(
-      settings: RouteSettings(name: name, arguments: {'previous_route': currentRouteName}),
+      settings: RouteSettings(
+        name: name,
+        arguments: {'previous_route': currentRouteName},
+      ),
       builder: (context) => page,
     );
   }

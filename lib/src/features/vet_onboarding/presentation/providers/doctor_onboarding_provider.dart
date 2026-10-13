@@ -62,7 +62,9 @@ class DegreeFormItem {
   String duration = '';
   String startDate = '';
   String? endDate = '';
-  final ValueNotifier<bool> isCurrentlyStudyingNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> isCurrentlyStudyingNotifier = ValueNotifier<bool>(
+    false,
+  );
   String? fileName;
 
   bool get isCurrentlyStudyingHere => isCurrentlyStudyingNotifier.value;
@@ -138,7 +140,9 @@ class WorkExperienceFormItem {
   String jobOrganizationAddress = '';
   String jobStartDate = '';
   String? jobEndDate;
-  final ValueNotifier<bool> isCurrentlyWorkingNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> isCurrentlyWorkingNotifier = ValueNotifier<bool>(
+    false,
+  );
   String? fileName;
 
   bool get isCurrentlyWorkingHere => isCurrentlyWorkingNotifier.value;
@@ -179,7 +183,6 @@ class DoctorOnboardingProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  // Personal Credentials
   String fullName = '';
   String email = '';
   String phone = '';
@@ -193,8 +196,7 @@ class DoctorOnboardingProvider extends ChangeNotifier {
   String? profileImageDataURI;
   String? profileImageFileName;
 
-  // Taxonomy & Speciality Selection
-  List<String> selectedPetCategories = ['681362c4f0fea77adde87550']; // Default species treated (Dogs/Cats)
+  List<String> selectedPetCategories = ['681362c4f0fea77adde87550'];
   String specialityObjectId = '';
   List<String> servicesOffered = [];
 
@@ -203,20 +205,18 @@ class DoctorOnboardingProvider extends ChangeNotifier {
   bool isSpecialitiesLoading = false;
   bool isServicesLoading = false;
 
-  String? get selectedSpecialityId => specialityObjectId.isNotEmpty ? specialityObjectId : null;
+  String? get selectedSpecialityId =>
+      specialityObjectId.isNotEmpty ? specialityObjectId : null;
   List<String> get selectedServices => servicesOffered;
 
-  // Pricing
   num price = 0;
   String currencyCode = 'USD';
 
-  // Nested Lists
   final List<DegreeFormItem> degrees = [];
   final List<ClinicFormItem> clinics = [];
   final List<LicenseFormItem> licenses = [];
   final List<WorkExperienceFormItem> workExperiences = [];
 
-  // Available Days (7 Days: 0 = Sun to 6 = Sat)
   final List<DayScheduleItem> availableDays = [];
 
   void _initDefaultAvailableDays() {
@@ -227,16 +227,12 @@ class DoctorOnboardingProvider extends ChangeNotifier {
       'Wednesday',
       'Thursday',
       'Friday',
-      'Saturday'
+      'Saturday',
     ];
     availableDays.clear();
     for (int i = 0; i < 7; i++) {
       availableDays.add(
-        DayScheduleItem(
-          dayIndex: i,
-          dayName: days[i],
-          isAvailable: i != 0, // Sunday closed by default
-        ),
+        DayScheduleItem(dayIndex: i, dayName: days[i], isAvailable: i != 0),
       );
     }
   }
@@ -256,7 +252,6 @@ class DoctorOnboardingProvider extends ChangeNotifier {
     }
   }
 
-  // --- Dynamic List Manipulations ---
   void addDegree() {
     degrees.add(DegreeFormItem());
     notifyListeners();
@@ -337,13 +332,21 @@ class DoctorOnboardingProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> selectDayTime(BuildContext context, int index, bool isOpenTime) async {
+  Future<void> selectDayTime(
+    BuildContext context,
+    int index,
+    bool isOpenTime,
+  ) async {
     if (index < 0 || index >= availableDays.length) return;
     final day = availableDays[index];
     final currentStr = isOpenTime ? day.openTime : day.closeTime;
     final parts = currentStr.split(':');
-    final initialHour = parts.isNotEmpty ? (int.tryParse(parts[0]) ?? (isOpenTime ? 9 : 17)) : (isOpenTime ? 9 : 17);
-    final initialMinute = parts.length > 1 ? (int.tryParse(parts[1]) ?? 30) : 30;
+    final initialHour = parts.isNotEmpty
+        ? (int.tryParse(parts[0]) ?? (isOpenTime ? 9 : 17))
+        : (isOpenTime ? 9 : 17);
+    final initialMinute = parts.length > 1
+        ? (int.tryParse(parts[1]) ?? 30)
+        : 30;
 
     final picked = await showTimePicker(
       context: context,
@@ -351,7 +354,8 @@ class DoctorOnboardingProvider extends ChangeNotifier {
     );
 
     if (picked != null) {
-      final formatted = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+      final formatted =
+          '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
       if (isOpenTime) {
         day.openTime = formatted;
       } else {
@@ -361,7 +365,6 @@ class DoctorOnboardingProvider extends ChangeNotifier {
     }
   }
 
-  // --- Specialities & Services ---
   Future<void> fetchSpecialities() async {
     isSpecialitiesLoading = true;
     notifyListeners();
@@ -388,7 +391,9 @@ class DoctorOnboardingProvider extends ChangeNotifier {
     isServicesLoading = true;
     notifyListeners();
     try {
-      services = await taxonomyUseCases.getServices(specialityObjectId: specialityId);
+      services = await taxonomyUseCases.getServices(
+        specialityObjectId: specialityId,
+      );
     } catch (e) {
       debugPrint('Error fetching services: $e');
     } finally {
@@ -406,7 +411,6 @@ class DoctorOnboardingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- Web-Safe Base64 Data URI File Picker ---
   Future<void> pickProfileImage() async {
     final result = await _pickFileBytes(['jpg', 'jpeg', 'png', 'webp']);
     if (result != null) {
@@ -452,7 +456,9 @@ class DoctorOnboardingProvider extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, String>?> _pickFileBytes(List<String> allowedExtensions) async {
+  Future<Map<String, String>?> _pickFileBytes(
+    List<String> allowedExtensions,
+  ) async {
     try {
       final FilePickerResult? picked = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -466,12 +472,11 @@ class DoctorOnboardingProvider extends ChangeNotifier {
         if (bytes != null) {
           final base64String = base64Encode(bytes);
           final extension = (platformFile.extension ?? 'jpeg').toLowerCase();
-          final mime = extension == 'pdf' ? 'application/pdf' : 'image/$extension';
+          final mime = extension == 'pdf'
+              ? 'application/pdf'
+              : 'image/$extension';
           final dataUri = 'data:$mime;base64,$base64String';
-          return {
-            'dataUri': dataUri,
-            'fileName': platformFile.name,
-          };
+          return {'dataUri': dataUri, 'fileName': platformFile.name};
         }
       }
     } catch (e) {
@@ -480,9 +485,7 @@ class DoctorOnboardingProvider extends ChangeNotifier {
     return null;
   }
 
-  // --- Submission to Backend ---
   Future<bool> submitData(BuildContext context) async {
-    // 1. Basic Validations
     if (fullName.trim().isEmpty) {
       showToast(context, 'Full Name is required', isError: true);
       return false;
@@ -496,7 +499,11 @@ class DoctorOnboardingProvider extends ChangeNotifier {
       return false;
     }
     if (password.trim().isEmpty || password.length < 6) {
-      showToast(context, 'Password must be at least 6 characters', isError: true);
+      showToast(
+        context,
+        'Password must be at least 6 characters',
+        isError: true,
+      );
       return false;
     }
     if (password != confirmPassword) {
@@ -508,7 +515,11 @@ class DoctorOnboardingProvider extends ChangeNotifier {
       return false;
     }
     if (specialityObjectId.trim().isEmpty) {
-      showToast(context, 'Please select your medical speciality', isError: true);
+      showToast(
+        context,
+        'Please select your medical speciality',
+        isError: true,
+      );
       return false;
     }
 

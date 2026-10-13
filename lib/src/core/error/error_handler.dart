@@ -6,7 +6,9 @@ class ErrorHandler {
     if (error.runtimeType.toString() == 'SocketException' ||
         error.toString().contains('SocketException') ||
         error.toString().contains('ClientException')) {
-      return const NetworkFailure('No Internet connection. Please check your network.');
+      return const NetworkFailure(
+        'No Internet connection. Please check your network.',
+      );
     }
 
     if (error is AppException) {
@@ -14,11 +16,10 @@ class ErrorHandler {
           ? error.message
           : 'An unexpected error occurred. Please try again.';
 
-      // Handle 401
       if (error is UnauthorizedException) {
         return AuthenticationFailure(errorMessage);
       }
-      // Handle 403
+
       if (error is ForbiddenException) {
         return ForbiddenFailure(errorMessage);
       }
@@ -40,9 +41,11 @@ class ErrorHandler {
       if (error is UnknownException) {
         return UnknownFailure(errorMessage);
       }
-      // Default case
+
       return UnknownFailure(errorMessage);
     }
-    return const UnknownFailure('An unexpected error occurred. Please try again.');
+    return const UnknownFailure(
+      'An unexpected error occurred. Please try again.',
+    );
   }
 }

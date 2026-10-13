@@ -5,9 +5,17 @@ import '../models/doctor_onboarding_model.dart';
 
 abstract class VetOnboardingRemoteDataSource {
   Future<Response> submitDoctorDataEntry(DoctorOnboardingModel model);
+  Future<Response> getDoctors({
+    int page = 1,
+    int pageSize = 10,
+    String? status,
+    String? keyword,
+  });
+  Future<Response> getDoctorDetail(String id);
 }
 
-class VetOnboardingRemoteDataSourceImpl implements VetOnboardingRemoteDataSource {
+class VetOnboardingRemoteDataSourceImpl
+    implements VetOnboardingRemoteDataSource {
   final ApiServices apiServices;
 
   VetOnboardingRemoteDataSourceImpl({required this.apiServices});
@@ -19,5 +27,35 @@ class VetOnboardingRemoteDataSourceImpl implements VetOnboardingRemoteDataSource
       model.toJson(),
     );
   }
-}
 
+  @override
+  Future<Response> getDoctors({
+    int page = 1,
+    int pageSize = 10,
+    String? status,
+    String? keyword,
+  }) async {
+    final queryParams = <String, String>{
+      'page': page.toString(),
+      'pageSize': pageSize.toString(),
+      'sortBy': 'createdAt_descending',
+    };
+    if (status != null && status.isNotEmpty && status != 'All') {
+      queryParams['status'] = status;
+    }
+    if (keyword != null && keyword.trim().isNotEmpty) {
+      queryParams['keyword'] = keyword.trim();
+    }
+
+    final uri = Uri.parse(
+      ApiEndpoints.doctors,
+    ).replace(queryParameters: queryParams).toString();
+
+    return await apiServices.getData(uri);
+  }
+
+  @override
+  Future<Response> getDoctorDetail(String id) async {
+    return await apiServices.getData(ApiEndpoints.doctorDetail(id));
+  }
+}

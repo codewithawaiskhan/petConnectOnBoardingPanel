@@ -8,7 +8,9 @@ class TaxonomyUseCases {
 
   const TaxonomyUseCases({required this.repository});
 
-  Future<List<SpecialityEntity>> getSpecialities({bool forceRefresh = false}) async {
+  Future<List<SpecialityEntity>> getSpecialities({
+    bool forceRefresh = false,
+  }) async {
     return await repository.getSpecialities(forceRefresh: forceRefresh);
   }
 
@@ -22,7 +24,9 @@ class TaxonomyUseCases {
     );
   }
 
-  Future<List<PetCategoryEntity>> getPetCategories({bool forceRefresh = false}) async {
+  Future<List<PetCategoryEntity>> getPetCategories({
+    bool forceRefresh = false,
+  }) async {
     return await repository.getPetCategories(forceRefresh: forceRefresh);
   }
 }

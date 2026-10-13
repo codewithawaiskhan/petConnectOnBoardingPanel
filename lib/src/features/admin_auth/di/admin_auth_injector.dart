@@ -11,15 +11,15 @@ import '../presentation/providers/admin_auth_provider.dart';
 void initAdminAuthDependencies() {
   final sl = GetIt.instance;
 
-  // DataSources
   sl.registerLazySingleton<AdminAuthRemoteDataSource>(
     () => AdminAuthRemoteDataSourceImpl(apiServices: sl<ApiServices>()),
   );
   sl.registerLazySingleton<AdminAuthLocalDataSource>(
-    () => AdminAuthLocalDataSourceImpl(sharedPreferences: sl<SharedPreferences>()),
+    () => AdminAuthLocalDataSourceImpl(
+      sharedPreferences: sl<SharedPreferences>(),
+    ),
   );
 
-  // Repository
   sl.registerLazySingleton<AdminAuthRepository>(
     () => AdminAuthRepositoryImpl(
       remoteDataSource: sl<AdminAuthRemoteDataSource>(),
@@ -28,12 +28,10 @@ void initAdminAuthDependencies() {
     ),
   );
 
-  // UseCase
   sl.registerLazySingleton<AdminAuthUseCases>(
     () => AdminAuthUseCases(repository: sl<AdminAuthRepository>()),
   );
 
-  // Provider
   sl.registerLazySingleton<AdminAuthProvider>(
     () => AdminAuthProvider(useCases: sl<AdminAuthUseCases>()),
   );

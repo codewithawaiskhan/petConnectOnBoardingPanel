@@ -14,8 +14,11 @@ class ServiceModel extends ServiceEntity {
     return ServiceModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
-      specialityObjectId: json['specialityObjectId']?.toString() ?? json['speciality']?.toString(),
-      imageDataURI: json['imageDataURI']?.toString() ?? json['image']?.toString(),
+      specialityObjectId:
+          json['specialityObjectId']?.toString() ??
+          json['speciality']?.toString(),
+      imageDataURI:
+          json['imageDataURI']?.toString() ?? json['image']?.toString(),
       description: json['description']?.toString(),
       status: json['status']?.toString(),
     );

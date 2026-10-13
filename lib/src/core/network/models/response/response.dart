@@ -13,39 +13,31 @@ class Response<T> {
     this.body,
   });
 
-  /// The response headers.
   final Map<String, String>? headers;
 
-  /// The status code returned by the server.
   final int? statusCode;
 
-  /// Human-readable context for [statusCode].
   final String? statusText;
 
-  /// [HttpStatus] from [Response].
   HttpStatus get status => HttpStatus(statusCode);
 
-  /// `hasError` is true when statusCode is not between 200 and 299.
   bool get hasError => status.hasError;
 
-  /// `isOk` is true when statusCode is between 200 and 299.
   bool get isOk => !hasError;
 
-  /// `unauthorized` is true when statusCode is equal 401.
   bool get unauthorized => status.isUnauthorized;
 
-  /// The response body as a Stream of Bytes.
   final Stream<List<int>>? bodyBytes;
 
-  /// The response body as a String.
   final String? bodyString;
 
-  /// The decoded body of this [Response].
   final T? body;
 }
 
 Future<String> bodyBytesToString(
-    Stream<List<int>> bodyBytes, Map<String, String> headers) {
+  Stream<List<int>> bodyBytes,
+  Map<String, String> headers,
+) {
   return bodyBytes.bytesToString(_encodingForHeaders(headers));
 }
 
@@ -74,10 +66,12 @@ class HeaderValue {
     }
   }
 
-  static HeaderValue parse(String value,
-      {String parameterSeparator = ';',
-      String? valueSeparator,
-      bool preserveBackslash = false}) {
+  static HeaderValue parse(
+    String value, {
+    String parameterSeparator = ';',
+    String? valueSeparator,
+    bool preserveBackslash = false,
+  }) {
     var result = HeaderValue();
     result._parse(value, parameterSeparator, valueSeparator, preserveBackslash);
     return result;
@@ -111,8 +105,12 @@ class HeaderValue {
     return stringBuffer.toString();
   }
 
-  void _parse(String value, String parameterSeparator, String? valueSeparator,
-      bool preserveBackslash) {
+  void _parse(
+    String value,
+    String parameterSeparator,
+    String? valueSeparator,
+    bool preserveBackslash,
+  ) {
     var index = 0;
 
     bool done() => index == value.length;

@@ -164,7 +164,8 @@ class WorkExperienceModel extends WorkExperienceEntity {
       jobOrganizationAddress: json['jobOrganizationAddress']?.toString() ?? '',
       jobStartDate: json['jobStartDate']?.toString() ?? '',
       jobEndDate: json['jobEndDate']?.toString(),
-      jobCurrentlyWorkingHere: json['jobCurrentlyWorkingHere']?.toString() ?? 'no',
+      jobCurrentlyWorkingHere:
+          json['jobCurrentlyWorkingHere']?.toString() ?? 'no',
     );
   }
 
@@ -231,9 +232,7 @@ class AvailableDayModel extends AvailableDayEntity {
   }
 
   Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{
-      'isAvailable': isAvailable,
-    };
+    final map = <String, dynamic>{'isAvailable': isAvailable};
     if (openTime != null) map['openTime'] = openTime;
     if (closeTime != null) map['closeTime'] = closeTime;
     if (open != null) map['open'] = open;
@@ -243,10 +242,7 @@ class AvailableDayModel extends AvailableDayEntity {
 }
 
 class PricePerAppointmentModel extends PricePerAppointmentEntity {
-  const PricePerAppointmentModel({
-    required super.price,
-    super.currencyCode,
-  });
+  const PricePerAppointmentModel({required super.price, super.currencyCode});
 
   factory PricePerAppointmentModel.fromJson(Map<String, dynamic> json) {
     return PricePerAppointmentModel(
@@ -255,7 +251,9 @@ class PricePerAppointmentModel extends PricePerAppointmentEntity {
     );
   }
 
-  factory PricePerAppointmentModel.fromEntity(PricePerAppointmentEntity entity) {
+  factory PricePerAppointmentModel.fromEntity(
+    PricePerAppointmentEntity entity,
+  ) {
     return PricePerAppointmentModel(
       price: entity.price,
       currencyCode: entity.currencyCode,
@@ -263,10 +261,7 @@ class PricePerAppointmentModel extends PricePerAppointmentEntity {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'price': price,
-      'currencyCode': currencyCode,
-    };
+    return {'price': price, 'currencyCode': currencyCode};
   }
 }
 
@@ -394,17 +389,29 @@ class DoctorOnboardingModel extends DoctorOnboardingEntity {
       countryName: entity.countryName,
       password: entity.password,
       confirmPassword: entity.confirmPassword,
-      degrees: entity.degrees.map<DegreeModel>((e) => DegreeModel.fromEntity(e)).toList(),
-      clinics: entity.clinics.map<ClinicModel>((e) => ClinicModel.fromEntity(e)).toList(),
-      licenses: entity.licenses.map<LicenseModel>((e) => LicenseModel.fromEntity(e)).toList(),
-      workExperiences: entity.workExperiences.map<WorkExperienceModel>((e) => WorkExperienceModel.fromEntity(e)).toList(),
+      degrees: entity.degrees
+          .map<DegreeModel>((e) => DegreeModel.fromEntity(e))
+          .toList(),
+      clinics: entity.clinics
+          .map<ClinicModel>((e) => ClinicModel.fromEntity(e))
+          .toList(),
+      licenses: entity.licenses
+          .map<LicenseModel>((e) => LicenseModel.fromEntity(e))
+          .toList(),
+      workExperiences: entity.workExperiences
+          .map<WorkExperienceModel>((e) => WorkExperienceModel.fromEntity(e))
+          .toList(),
       petCategories: List<String>.from(entity.petCategories),
       specialityObjectId: entity.specialityObjectId,
       servicesOffered: List<String>.from(entity.servicesOffered),
       bio: entity.bio,
       timeZone: entity.timeZone,
-      availableDays: entity.availableDays.map<AvailableDayModel>((e) => AvailableDayModel.fromEntity(e)).toList(),
-      pricePerAppointment: PricePerAppointmentModel.fromEntity(entity.pricePerAppointment),
+      availableDays: entity.availableDays
+          .map<AvailableDayModel>((e) => AvailableDayModel.fromEntity(e))
+          .toList(),
+      pricePerAppointment: PricePerAppointmentModel.fromEntity(
+        entity.pricePerAppointment,
+      ),
     );
   }
 
@@ -417,20 +424,48 @@ class DoctorOnboardingModel extends DoctorOnboardingEntity {
       'countryName': countryName,
       'password': password,
       'confirmPassword': confirmPassword,
-      'degrees': degrees.map((e) => (e is DegreeModel ? e : DegreeModel.fromEntity(e)).toJson()).toList(),
-      'clinics': clinics.map((e) => (e is ClinicModel ? e : ClinicModel.fromEntity(e)).toJson()).toList(),
-      'licenses': licenses.map((e) => (e is LicenseModel ? e : LicenseModel.fromEntity(e)).toJson()).toList(),
-      'workExperiences': workExperiences.map((e) => (e is WorkExperienceModel ? e : WorkExperienceModel.fromEntity(e)).toJson()).toList(),
+      'degrees': degrees
+          .map(
+            (e) => (e is DegreeModel ? e : DegreeModel.fromEntity(e)).toJson(),
+          )
+          .toList(),
+      'clinics': clinics
+          .map(
+            (e) => (e is ClinicModel ? e : ClinicModel.fromEntity(e)).toJson(),
+          )
+          .toList(),
+      'licenses': licenses
+          .map(
+            (e) =>
+                (e is LicenseModel ? e : LicenseModel.fromEntity(e)).toJson(),
+          )
+          .toList(),
+      'workExperiences': workExperiences
+          .map(
+            (e) =>
+                (e is WorkExperienceModel
+                        ? e
+                        : WorkExperienceModel.fromEntity(e))
+                    .toJson(),
+          )
+          .toList(),
       'petCategories': petCategories,
       'specialityObjectId': specialityObjectId,
       'servicesOffered': servicesOffered,
       'bio': bio,
       'timeZone': timeZone,
-      'availableDays': availableDays.map((e) => (e is AvailableDayModel ? e : AvailableDayModel.fromEntity(e)).toJson()).toList(),
-      'pricePerAppointment': (pricePerAppointment is PricePerAppointmentModel
-              ? pricePerAppointment as PricePerAppointmentModel
-              : PricePerAppointmentModel.fromEntity(pricePerAppointment))
-          .toJson(),
+      'availableDays': availableDays
+          .map(
+            (e) =>
+                (e is AvailableDayModel ? e : AvailableDayModel.fromEntity(e))
+                    .toJson(),
+          )
+          .toList(),
+      'pricePerAppointment':
+          (pricePerAppointment is PricePerAppointmentModel
+                  ? pricePerAppointment as PricePerAppointmentModel
+                  : PricePerAppointmentModel.fromEntity(pricePerAppointment))
+              .toJson(),
     };
 
     if (profileImageDataURI != null && profileImageDataURI!.trim().isNotEmpty) {

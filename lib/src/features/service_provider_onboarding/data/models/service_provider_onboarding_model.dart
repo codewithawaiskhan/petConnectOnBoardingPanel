@@ -112,7 +112,10 @@ class WorkExperienceModel extends WorkExperienceEntity {
       jobOrganizationAddress: json['jobOrganizationAddress']?.toString() ?? '',
       jobStartDate: json['jobStartDate']?.toString() ?? '',
       jobEndDate: json['jobEndDate']?.toString(),
-      jobCurrentlyWorkingHere: json['jobCurrentlyWorkingHere']?.toString() ?? json['currentlyWorkingHere']?.toString() ?? 'no',
+      jobCurrentlyWorkingHere:
+          json['jobCurrentlyWorkingHere']?.toString() ??
+          json['currentlyWorkingHere']?.toString() ??
+          'no',
     );
   }
 
@@ -179,9 +182,7 @@ class AvailableDayModel extends AvailableDayEntity {
   }
 
   Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{
-      'isAvailable': isAvailable,
-    };
+    final map = <String, dynamic>{'isAvailable': isAvailable};
     if (openTime != null) map['openTime'] = openTime;
     if (closeTime != null) map['closeTime'] = closeTime;
     if (open != null) map['open'] = open;
@@ -191,10 +192,7 @@ class AvailableDayModel extends AvailableDayEntity {
 }
 
 class PricePerAppointmentModel extends PricePerAppointmentEntity {
-  const PricePerAppointmentModel({
-    required super.price,
-    super.currencyCode,
-  });
+  const PricePerAppointmentModel({required super.price, super.currencyCode});
 
   factory PricePerAppointmentModel.fromJson(Map<String, dynamic> json) {
     return PricePerAppointmentModel(
@@ -203,7 +201,9 @@ class PricePerAppointmentModel extends PricePerAppointmentEntity {
     );
   }
 
-  factory PricePerAppointmentModel.fromEntity(PricePerAppointmentEntity entity) {
+  factory PricePerAppointmentModel.fromEntity(
+    PricePerAppointmentEntity entity,
+  ) {
     return PricePerAppointmentModel(
       price: entity.price,
       currencyCode: entity.currencyCode,
@@ -211,10 +211,7 @@ class PricePerAppointmentModel extends PricePerAppointmentEntity {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'price': price,
-      'currencyCode': currencyCode,
-    };
+    return {'price': price, 'currencyCode': currencyCode};
   }
 }
 
@@ -321,7 +318,8 @@ class ServiceProviderOnboardingModel extends ServiceProviderOnboardingEntity {
         ? json['pricePerAppointment'] as Map<String, dynamic>
         : <String, dynamic>{};
 
-    final startingPriceMap = json['startingPricePerAppointment'] is Map<String, dynamic>
+    final startingPriceMap =
+        json['startingPricePerAppointment'] is Map<String, dynamic>
         ? json['startingPricePerAppointment'] as Map<String, dynamic>
         : <String, dynamic>{};
 
@@ -335,7 +333,10 @@ class ServiceProviderOnboardingModel extends ServiceProviderOnboardingEntity {
       password: json['password']?.toString() ?? '',
       confirmPassword: json['confirmPassword']?.toString() ?? '',
       designation: json['designation']?.toString(),
-      timeZone: json['timeZone']?.toString() ?? json['timezone']?.toString() ?? 'America/New_York',
+      timeZone:
+          json['timeZone']?.toString() ??
+          json['timezone']?.toString() ??
+          'America/New_York',
       bio: json['bio']?.toString() ?? '',
       gender: json['gender']?.toString() ?? 'Male',
       knownLanguages: languages,
@@ -347,7 +348,9 @@ class ServiceProviderOnboardingModel extends ServiceProviderOnboardingEntity {
       latitude: json['latitude']?.toString() ?? '',
       longitude: json['longitude']?.toString() ?? '',
       pricePerAppointment: PricePerAppointmentModel.fromJson(priceMap),
-      startingPricePerAppointment: PricePerAppointmentModel.fromJson(startingPriceMap),
+      startingPricePerAppointment: PricePerAppointmentModel.fromJson(
+        startingPriceMap,
+      ),
       degrees: degreesList,
       licenses: licensesList,
       workExperiences: experienceList,
@@ -358,7 +361,9 @@ class ServiceProviderOnboardingModel extends ServiceProviderOnboardingEntity {
     );
   }
 
-  factory ServiceProviderOnboardingModel.fromEntity(ServiceProviderOnboardingEntity entity) {
+  factory ServiceProviderOnboardingModel.fromEntity(
+    ServiceProviderOnboardingEntity entity,
+  ) {
     return ServiceProviderOnboardingModel(
       profileImageDataURI: entity.profileImageDataURI,
       fullName: entity.fullName,
@@ -380,12 +385,24 @@ class ServiceProviderOnboardingModel extends ServiceProviderOnboardingEntity {
       businessZIPCode: entity.businessZIPCode,
       latitude: entity.latitude,
       longitude: entity.longitude,
-      pricePerAppointment: PricePerAppointmentModel.fromEntity(entity.pricePerAppointment),
-      startingPricePerAppointment: PricePerAppointmentModel.fromEntity(entity.startingPricePerAppointment),
-      degrees: entity.degrees.map<DegreeModel>((e) => DegreeModel.fromEntity(e)).toList(),
-      licenses: entity.licenses.map<LicenseModel>((e) => LicenseModel.fromEntity(e)).toList(),
-      workExperiences: entity.workExperiences.map<WorkExperienceModel>((e) => WorkExperienceModel.fromEntity(e)).toList(),
-      availableDays: entity.availableDays.map<AvailableDayModel>((e) => AvailableDayModel.fromEntity(e)).toList(),
+      pricePerAppointment: PricePerAppointmentModel.fromEntity(
+        entity.pricePerAppointment,
+      ),
+      startingPricePerAppointment: PricePerAppointmentModel.fromEntity(
+        entity.startingPricePerAppointment,
+      ),
+      degrees: entity.degrees
+          .map<DegreeModel>((e) => DegreeModel.fromEntity(e))
+          .toList(),
+      licenses: entity.licenses
+          .map<LicenseModel>((e) => LicenseModel.fromEntity(e))
+          .toList(),
+      workExperiences: entity.workExperiences
+          .map<WorkExperienceModel>((e) => WorkExperienceModel.fromEntity(e))
+          .toList(),
+      availableDays: entity.availableDays
+          .map<AvailableDayModel>((e) => AvailableDayModel.fromEntity(e))
+          .toList(),
       petCategories: List<String>.from(entity.petCategories),
       servicesOffered: List<String>.from(entity.servicesOffered),
       serviceLocations: List<String>.from(entity.serviceLocations),
@@ -411,18 +428,45 @@ class ServiceProviderOnboardingModel extends ServiceProviderOnboardingEntity {
       'businessZIPCode': businessZIPCode,
       'latitude': latitude,
       'longitude': longitude,
-      'pricePerAppointment': (pricePerAppointment is PricePerAppointmentModel
-              ? pricePerAppointment as PricePerAppointmentModel
-              : PricePerAppointmentModel.fromEntity(pricePerAppointment))
-          .toJson(),
-      'startingPricePerAppointment': (startingPricePerAppointment is PricePerAppointmentModel
-              ? startingPricePerAppointment as PricePerAppointmentModel
-              : PricePerAppointmentModel.fromEntity(startingPricePerAppointment))
-          .toJson(),
-      'degrees': degrees.map((e) => (e is DegreeModel ? e : DegreeModel.fromEntity(e)).toJson()).toList(),
-      'licenses': licenses.map((e) => (e is LicenseModel ? e : LicenseModel.fromEntity(e)).toJson()).toList(),
-      'workExperiences': workExperiences.map((e) => (e is WorkExperienceModel ? e : WorkExperienceModel.fromEntity(e)).toJson()).toList(),
-      'availableDays': availableDays.map((e) => (e is AvailableDayModel ? e : AvailableDayModel.fromEntity(e)).toJson()).toList(),
+      'pricePerAppointment':
+          (pricePerAppointment is PricePerAppointmentModel
+                  ? pricePerAppointment as PricePerAppointmentModel
+                  : PricePerAppointmentModel.fromEntity(pricePerAppointment))
+              .toJson(),
+      'startingPricePerAppointment':
+          (startingPricePerAppointment is PricePerAppointmentModel
+                  ? startingPricePerAppointment as PricePerAppointmentModel
+                  : PricePerAppointmentModel.fromEntity(
+                      startingPricePerAppointment,
+                    ))
+              .toJson(),
+      'degrees': degrees
+          .map(
+            (e) => (e is DegreeModel ? e : DegreeModel.fromEntity(e)).toJson(),
+          )
+          .toList(),
+      'licenses': licenses
+          .map(
+            (e) =>
+                (e is LicenseModel ? e : LicenseModel.fromEntity(e)).toJson(),
+          )
+          .toList(),
+      'workExperiences': workExperiences
+          .map(
+            (e) =>
+                (e is WorkExperienceModel
+                        ? e
+                        : WorkExperienceModel.fromEntity(e))
+                    .toJson(),
+          )
+          .toList(),
+      'availableDays': availableDays
+          .map(
+            (e) =>
+                (e is AvailableDayModel ? e : AvailableDayModel.fromEntity(e))
+                    .toJson(),
+          )
+          .toList(),
       'petCategories': petCategories,
       'servicesOffered': servicesOffered,
       'serviceLocations': serviceLocations,
@@ -431,7 +475,8 @@ class ServiceProviderOnboardingModel extends ServiceProviderOnboardingEntity {
     if (profileImageDataURI != null && profileImageDataURI!.trim().isNotEmpty) {
       map['profileImageDataURI'] = profileImageDataURI;
     }
-    if (businessImageDataURI != null && businessImageDataURI!.trim().isNotEmpty) {
+    if (businessImageDataURI != null &&
+        businessImageDataURI!.trim().isNotEmpty) {
       map['businessImageDataURI'] = businessImageDataURI;
     }
     if (designation != null && designation!.trim().isNotEmpty) {
@@ -442,7 +487,8 @@ class ServiceProviderOnboardingModel extends ServiceProviderOnboardingEntity {
   }
 }
 
-class ServiceProviderDataEntryResponseModel extends ServiceProviderDataEntryResponseEntity {
+class ServiceProviderDataEntryResponseModel
+    extends ServiceProviderDataEntryResponseEntity {
   const ServiceProviderDataEntryResponseModel({
     required super.success,
     required super.message,
@@ -450,7 +496,9 @@ class ServiceProviderDataEntryResponseModel extends ServiceProviderDataEntryResp
     super.userId,
   });
 
-  factory ServiceProviderDataEntryResponseModel.fromJson(Map<String, dynamic> json) {
+  factory ServiceProviderDataEntryResponseModel.fromJson(
+    Map<String, dynamic> json,
+  ) {
     String msg = 'Service Provider data submitted successfully';
     String? spId;
     String? uId;

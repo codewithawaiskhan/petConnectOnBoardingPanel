@@ -11,7 +11,6 @@ import '../models/speciality_model.dart';
 class TaxonomyRepositoryImpl implements TaxonomyRepository {
   final TaxonomyRemoteDataSource remoteDataSource;
 
-  // In-memory single-source caches
   List<SpecialityEntity>? _cachedSpecialities;
   final Map<String, List<ServiceEntity>> _cachedServicesBySpeciality = {};
   List<ServiceEntity>? _cachedAllServices;
@@ -39,8 +38,12 @@ class TaxonomyRepositoryImpl implements TaxonomyRepository {
   }
 
   @override
-  Future<List<SpecialityEntity>> getSpecialities({bool forceRefresh = false}) async {
-    if (!forceRefresh && _cachedSpecialities != null && _cachedSpecialities!.isNotEmpty) {
+  Future<List<SpecialityEntity>> getSpecialities({
+    bool forceRefresh = false,
+  }) async {
+    if (!forceRefresh &&
+        _cachedSpecialities != null &&
+        _cachedSpecialities!.isNotEmpty) {
       return _cachedSpecialities!;
     }
 
@@ -48,8 +51,9 @@ class TaxonomyRepositoryImpl implements TaxonomyRepository {
     final List<dynamic> rawList = _extractList(response.body);
 
     final result = rawList
-        .map<SpecialityEntity>((e) =>
-            SpecialityModel.fromJson(e as Map<String, dynamic>).toEntity())
+        .map<SpecialityEntity>(
+          (e) => SpecialityModel.fromJson(e as Map<String, dynamic>).toEntity(),
+        )
         .toList();
 
     _cachedSpecialities = result;
@@ -62,7 +66,8 @@ class TaxonomyRepositoryImpl implements TaxonomyRepository {
     bool forceRefresh = false,
   }) async {
     if (!forceRefresh) {
-      if (specialityObjectId != null && _cachedServicesBySpeciality.containsKey(specialityObjectId)) {
+      if (specialityObjectId != null &&
+          _cachedServicesBySpeciality.containsKey(specialityObjectId)) {
         return _cachedServicesBySpeciality[specialityObjectId]!;
       }
       if (specialityObjectId == null && _cachedAllServices != null) {
@@ -76,8 +81,9 @@ class TaxonomyRepositoryImpl implements TaxonomyRepository {
     final List<dynamic> rawList = _extractList(response.body);
 
     final result = rawList
-        .map<ServiceEntity>((e) =>
-            ServiceModel.fromJson(e as Map<String, dynamic>).toEntity())
+        .map<ServiceEntity>(
+          (e) => ServiceModel.fromJson(e as Map<String, dynamic>).toEntity(),
+        )
         .toList();
 
     if (specialityObjectId != null) {
@@ -90,8 +96,12 @@ class TaxonomyRepositoryImpl implements TaxonomyRepository {
   }
 
   @override
-  Future<List<PetCategoryEntity>> getPetCategories({bool forceRefresh = false}) async {
-    if (!forceRefresh && _cachedPetCategories != null && _cachedPetCategories!.isNotEmpty) {
+  Future<List<PetCategoryEntity>> getPetCategories({
+    bool forceRefresh = false,
+  }) async {
+    if (!forceRefresh &&
+        _cachedPetCategories != null &&
+        _cachedPetCategories!.isNotEmpty) {
       return _cachedPetCategories!;
     }
 
@@ -99,8 +109,10 @@ class TaxonomyRepositoryImpl implements TaxonomyRepository {
     final List<dynamic> rawList = _extractList(response.body);
 
     final result = rawList
-        .map<PetCategoryEntity>((e) =>
-            PetCategoryModel.fromJson(e as Map<String, dynamic>).toEntity())
+        .map<PetCategoryEntity>(
+          (e) =>
+              PetCategoryModel.fromJson(e as Map<String, dynamic>).toEntity(),
+        )
         .toList();
 
     _cachedPetCategories = result;

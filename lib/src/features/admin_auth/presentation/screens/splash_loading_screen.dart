@@ -31,10 +31,7 @@ class SplashLoadingScreen extends StatelessWidget with AppColors {
               color: textSecondaryColor,
             ),
             const SizedBox(height: 24),
-            SpinKitThreeBounce(
-              color: primaryColor,
-              size: 24.0,
-            ),
+            SpinKitThreeBounce(color: primaryColor, size: 24.0),
           ],
         ),
       ),

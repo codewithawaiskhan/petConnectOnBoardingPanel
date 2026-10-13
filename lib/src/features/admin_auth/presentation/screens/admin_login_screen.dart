@@ -70,10 +70,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with AppColors {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Logo / Branding Header
-                  const Center(
-                    child: AppLogo(size: 64),
-                  ),
+                  const Center(child: AppLogo(size: 64)),
                   const SizedBox(height: 20),
                   Center(
                     child: AppText(
@@ -94,7 +91,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with AppColors {
                   ),
                   const SizedBox(height: 32),
 
-                  // Identifier Field
                   CustomTextField(
                     controller: _identifierController,
                     title: "Email",
@@ -108,7 +104,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with AppColors {
                   ),
                   const SizedBox(height: 18),
 
-                  // Password Field
                   CustomTextField(
                     controller: _passwordController,
                     title: "Password",
@@ -123,7 +118,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with AppColors {
                   ),
                   const SizedBox(height: 28),
 
-                  // Login Action Button
                   CustomButton(
                     text: "Sign In",
                     height: 50,

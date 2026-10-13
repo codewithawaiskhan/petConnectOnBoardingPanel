@@ -87,7 +87,8 @@ class CustomTextFormField extends StatefulWidget {
   State<CustomTextFormField> createState() => _CustomTextFormFieldState();
 }
 
-class _CustomTextFormFieldState extends State<CustomTextFormField> with AppColors, Constants {
+class _CustomTextFormFieldState extends State<CustomTextFormField>
+    with AppColors, Constants {
   bool obscure = true;
 
   @override
@@ -104,7 +105,10 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> with AppColor
           fontFamily: fontAeonik,
         ),
         prefixIcon: widget.isIcon && widget.prefixIcon != null
-            ? Padding(padding: EdgeInsets.all(widget.paddingSize), child: widget.prefixIcon)
+            ? Padding(
+                padding: EdgeInsets.all(widget.paddingSize),
+                child: widget.prefixIcon,
+              )
             : null,
         suffixIcon: widget.isObSecure
             ? IconButton(
@@ -116,15 +120,21 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> with AppColor
                 ),
               )
             : widget.suffixIcon != null
-                ? Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: widget.suffixIcon)
-                : null,
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: widget.suffixIcon,
+              )
+            : null,
         suffixText: widget.suffixText,
         counterText: "",
         filled: true,
         fillColor: (widget.isEnable || widget.filled)
             ? widget.fillColor ?? whiteColor
             : borderColor,
-        contentPadding: EdgeInsets.symmetric(horizontal: widget.isIcon ? 5 : 15, vertical: 15),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: widget.isIcon ? 5 : 15,
+          vertical: 15,
+        ),
         border: widget.hasBorder
             ? OutlineInputBorder(
                 borderRadius: borderRadius,
@@ -134,19 +144,28 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> with AppColor
         enabledBorder: widget.hasBorder
             ? OutlineInputBorder(
                 borderRadius: borderRadius,
-                borderSide: BorderSide(color: widget.enableBorderColor ?? borderColor, width: border),
+                borderSide: BorderSide(
+                  color: widget.enableBorderColor ?? borderColor,
+                  width: border,
+                ),
               )
             : InputBorder.none,
         focusedBorder: widget.hasBorder
             ? OutlineInputBorder(
                 borderRadius: borderRadius,
-                borderSide: BorderSide(color: widget.focusBorderColor ?? primaryColor, width: border),
+                borderSide: BorderSide(
+                  color: widget.focusBorderColor ?? primaryColor,
+                  width: border,
+                ),
               )
             : InputBorder.none,
         disabledBorder: widget.hasBorder
             ? OutlineInputBorder(
                 borderRadius: borderRadius,
-                borderSide: BorderSide(color: widget.disabledBorderColor ?? borderColor, width: border),
+                borderSide: BorderSide(
+                  color: widget.disabledBorderColor ?? borderColor,
+                  width: border,
+                ),
               )
             : InputBorder.none,
       );

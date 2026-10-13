@@ -8,17 +8,16 @@ import '../domain/usecases/taxonomy_usecases.dart';
 void initTaxonomyDependencies() {
   final sl = GetIt.instance;
 
-  // DataSources
   sl.registerLazySingleton<TaxonomyRemoteDataSource>(
     () => TaxonomyRemoteDataSourceImpl(apiServices: sl<ApiServices>()),
   );
 
-  // Repository (Singleton to preserve in-memory cache)
   sl.registerLazySingleton<TaxonomyRepository>(
-    () => TaxonomyRepositoryImpl(remoteDataSource: sl<TaxonomyRemoteDataSource>()),
+    () => TaxonomyRepositoryImpl(
+      remoteDataSource: sl<TaxonomyRemoteDataSource>(),
+    ),
   );
 
-  // UseCases
   sl.registerLazySingleton<TaxonomyUseCases>(
     () => TaxonomyUseCases(repository: sl<TaxonomyRepository>()),
   );

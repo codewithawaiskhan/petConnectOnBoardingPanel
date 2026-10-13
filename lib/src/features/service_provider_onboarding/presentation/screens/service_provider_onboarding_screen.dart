@@ -18,7 +18,8 @@ class ServiceProviderOnboardingScreen extends StatefulWidget {
 }
 
 class _ServiceProviderOnboardingScreenState
-    extends State<ServiceProviderOnboardingScreen> with AppColors {
+    extends State<ServiceProviderOnboardingScreen>
+    with AppColors {
   static const List<String> _timeZones = [
     'America/New_York',
     'America/Chicago',
@@ -38,7 +39,6 @@ class _ServiceProviderOnboardingScreenState
 
   static const List<String> _genderOptions = ['Male', 'Female', 'Other'];
 
-  // Personal Info Controllers
   late final TextEditingController _nameController;
   late final TextEditingController _emailController;
   late final TextEditingController _phoneController;
@@ -49,7 +49,6 @@ class _ServiceProviderOnboardingScreenState
   late final TextEditingController _countryNameController;
   late final TextEditingController _bioController;
 
-  // Business Info Controllers
   late final TextEditingController _businessNameController;
   late final TextEditingController _businessEmailController;
   late final TextEditingController _businessPhoneController;
@@ -57,7 +56,6 @@ class _ServiceProviderOnboardingScreenState
   late final TextEditingController _latitudeController;
   late final TextEditingController _longitudeController;
 
-  // Pricing Controllers
   late final TextEditingController _startingPriceController;
   late final TextEditingController _priceController;
 
@@ -190,8 +188,9 @@ class _ServiceProviderOnboardingScreenState
   }) {
     if (dataUri != null && dataUri.isNotEmpty) {
       try {
-        final cleanBase64 =
-            dataUri.contains(',') ? dataUri.split(',').last : dataUri;
+        final cleanBase64 = dataUri.contains(',')
+            ? dataUri.split(',').last
+            : dataUri;
         final bytes = base64Decode(cleanBase64);
         return ClipRRect(
           borderRadius: BorderRadius.circular(radius),
@@ -266,7 +265,7 @@ class _ServiceProviderOnboardingScreenState
                   const SizedBox(height: 24),
                   _buildWorkExperiencesSection(context),
                   const SizedBox(height: 32),
-                  // Final Submit Button: Perfectly aligned to bottom-right
+
                   Align(
                     alignment: Alignment.centerRight,
                     child: Selector<ServiceProviderOnboardingProvider, bool>(
@@ -403,7 +402,6 @@ class _ServiceProviderOnboardingScreenState
     );
   }
 
-  // --- 1. Personal Information Section ---
   Widget _buildPersonalCredentialsSection(BuildContext context) {
     final provider = context.read<ServiceProviderOnboardingProvider>();
     return _buildCardContainer(
@@ -416,7 +414,7 @@ class _ServiceProviderOnboardingScreenState
             Icons.person_outline_rounded,
           ),
           const SizedBox(height: 20),
-          // Profile Photo at VERY TOP
+
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -443,7 +441,8 @@ class _ServiceProviderOnboardingScreenState
                         selector: (_, p) => p.profileImageFileName,
                         builder: (context, fileName, _) {
                           return AppText(
-                            text: fileName ??
+                            text:
+                                fileName ??
                                 "JPEG, PNG or WebP up to 5MB. Click button to upload.",
                             fontSize: 12,
                             color: textSecondaryColor,
@@ -456,8 +455,11 @@ class _ServiceProviderOnboardingScreenState
                 CustomButton(
                   text: "Upload Photo",
                   isIcon: true,
-                  icon: Icon(Icons.cloud_upload_outlined,
-                      size: 16, color: primaryColor),
+                  icon: Icon(
+                    Icons.cloud_upload_outlined,
+                    size: 16,
+                    color: primaryColor,
+                  ),
                   isOutlined: true,
                   height: 40,
                   width: 150,
@@ -568,8 +570,10 @@ class _ServiceProviderOnboardingScreenState
                       child: DropdownButton<String>(
                         value: gender,
                         isExpanded: true,
-                        icon: Icon(Icons.keyboard_arrow_down_rounded,
-                            color: textSecondaryColor),
+                        icon: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: textSecondaryColor,
+                        ),
                         items: _genderOptions.map((g) {
                           return DropdownMenuItem<String>(
                             value: g,
@@ -608,8 +612,10 @@ class _ServiceProviderOnboardingScreenState
                             ? currentTimeZone
                             : _timeZones.first,
                         isExpanded: true,
-                        icon: Icon(Icons.keyboard_arrow_down_rounded,
-                            color: textSecondaryColor),
+                        icon: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: textSecondaryColor,
+                        ),
                         items: _timeZones.map((tz) {
                           return DropdownMenuItem<String>(
                             value: tz,
@@ -631,7 +637,7 @@ class _ServiceProviderOnboardingScreenState
             ),
           ]),
           const SizedBox(height: 16),
-          // Known Languages Multi-Select
+
           _buildField(
             label: "Known Languages",
             child: Consumer<ServiceProviderOnboardingProvider>(
@@ -645,8 +651,9 @@ class _ServiceProviderOnboardingScreenState
                       label: AppText(
                         text: lang,
                         fontSize: 13,
-                        fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.w400,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                         color: isSelected ? primaryColor : textPrimaryColor,
                       ),
                       selected: isSelected,
@@ -681,7 +688,6 @@ class _ServiceProviderOnboardingScreenState
     );
   }
 
-  // --- 2. Business Details Section ---
   Widget _buildBusinessDetailsSection(BuildContext context) {
     final provider = context.read<ServiceProviderOnboardingProvider>();
     return _buildCardContainer(
@@ -694,7 +700,7 @@ class _ServiceProviderOnboardingScreenState
             Icons.store_mall_directory_outlined,
           ),
           const SizedBox(height: 20),
-          // Business Photo Upload at VERY TOP
+
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -732,7 +738,8 @@ class _ServiceProviderOnboardingScreenState
                         selector: (_, p) => p.businessImageFileName,
                         builder: (context, fileName, _) {
                           return AppText(
-                            text: fileName ??
+                            text:
+                                fileName ??
                                 "JPEG or PNG up to 5MB. Click button to upload.",
                             fontSize: 12,
                             color: textSecondaryColor,
@@ -745,8 +752,11 @@ class _ServiceProviderOnboardingScreenState
                 CustomButton(
                   text: "Upload Photo",
                   isIcon: true,
-                  icon: Icon(Icons.cloud_upload_outlined,
-                      size: 16, color: primaryColor),
+                  icon: Icon(
+                    Icons.cloud_upload_outlined,
+                    size: 16,
+                    color: primaryColor,
+                  ),
                   isOutlined: true,
                   height: 40,
                   width: 150,
@@ -822,7 +832,6 @@ class _ServiceProviderOnboardingScreenState
     );
   }
 
-  // --- 3. Services & Pricing Section ---
   Widget _buildServicesAndPricingSection(BuildContext context) {
     final provider = context.read<ServiceProviderOnboardingProvider>();
     return _buildCardContainer(
@@ -835,7 +844,7 @@ class _ServiceProviderOnboardingScreenState
             Icons.price_check_outlined,
           ),
           const SizedBox(height: 20),
-          // Pet Categories Multi-Select
+
           _buildField(
             label: "Pet Categories Handled *",
             child: Consumer<ServiceProviderOnboardingProvider>(
@@ -859,8 +868,7 @@ class _ServiceProviderOnboardingScreenState
                   spacing: 8,
                   runSpacing: 8,
                   children: p.petCategories.map((cat) {
-                    final isSelected =
-                        p.selectedPetCategories.contains(cat.id);
+                    final isSelected = p.selectedPetCategories.contains(cat.id);
                     return FilterChip(
                       label: AppText(
                         text: cat.title,
@@ -868,8 +876,7 @@ class _ServiceProviderOnboardingScreenState
                         fontWeight: isSelected
                             ? FontWeight.w600
                             : FontWeight.w400,
-                        color:
-                            isSelected ? primaryColor : textPrimaryColor,
+                        color: isSelected ? primaryColor : textPrimaryColor,
                       ),
                       selected: isSelected,
                       selectedColor: primaryColor.withValues(alpha: 0.12),
@@ -881,8 +888,7 @@ class _ServiceProviderOnboardingScreenState
                           color: isSelected ? primaryColor : borderColor,
                         ),
                       ),
-                      onSelected: (_) =>
-                          p.togglePetCategory(cat.id),
+                      onSelected: (_) => p.togglePetCategory(cat.id),
                     );
                   }).toList(),
                 );
@@ -892,11 +898,12 @@ class _ServiceProviderOnboardingScreenState
           const SizedBox(height: 24),
           const Divider(height: 1),
           const SizedBox(height: 20),
-          // Speciality Dropdown Filter (Matching Vet flow)
+
           Consumer<ServiceProviderOnboardingProvider>(
             builder: (context, p, _) {
               final currentSpecialityId = p.selectedSpecialityId;
-              final hasValidSpeciality = currentSpecialityId != null &&
+              final hasValidSpeciality =
+                  currentSpecialityId != null &&
                   p.specialities.any((s) => s.id == currentSpecialityId);
 
               return Column(
@@ -916,7 +923,9 @@ class _ServiceProviderOnboardingScreenState
                           width: 14,
                           height: 14,
                           child: CircularProgressIndicator(
-                              strokeWidth: 1.5, color: primaryColor),
+                            strokeWidth: 1.5,
+                            color: primaryColor,
+                          ),
                         ),
                       ],
                     ],
@@ -941,8 +950,10 @@ class _ServiceProviderOnboardingScreenState
                           color: textSecondaryColor,
                         ),
                         isExpanded: true,
-                        icon: Icon(Icons.keyboard_arrow_down_rounded,
-                            color: textSecondaryColor),
+                        icon: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: textSecondaryColor,
+                        ),
                         onChanged: (val) {
                           if (val != null) {
                             p.selectSpeciality(val);
@@ -952,15 +963,16 @@ class _ServiceProviderOnboardingScreenState
                           return DropdownMenuItem<String>(
                             value: spec.id,
                             child: AppText(
-                                text: spec.title,
-                                fontSize: 13,
-                                color: textPrimaryColor),
+                              text: spec.title,
+                              fontSize: 13,
+                              color: textPrimaryColor,
+                            ),
                           );
                         }).toList(),
                       ),
                     ),
                   ),
-                  // Services Offered Chips under selected speciality
+
                   if (p.selectedSpecialityId != null) ...[
                     const SizedBox(height: 18),
                     Row(
@@ -977,7 +989,9 @@ class _ServiceProviderOnboardingScreenState
                             width: 14,
                             height: 14,
                             child: CircularProgressIndicator(
-                                strokeWidth: 1.5, color: primaryColor),
+                              strokeWidth: 1.5,
+                              color: primaryColor,
+                            ),
                           ),
                         ],
                       ],
@@ -999,11 +1013,14 @@ class _ServiceProviderOnboardingScreenState
                               width: 16,
                               height: 16,
                               child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: primaryColor),
+                                strokeWidth: 2,
+                                color: primaryColor,
+                              ),
                             ),
                             const SizedBox(width: 10),
                             AppText(
-                              text: "Loading services for selected speciality...",
+                              text:
+                                  "Loading services for selected speciality...",
                               fontSize: 13,
                               color: textSecondaryColor,
                             ),
@@ -1024,22 +1041,27 @@ class _ServiceProviderOnboardingScreenState
                         spacing: 10,
                         runSpacing: 10,
                         children: p.services.map((service) {
-                          final isSelected =
-                              p.selectedServices.contains(service.id);
+                          final isSelected = p.selectedServices.contains(
+                            service.id,
+                          );
                           return InkWell(
                             borderRadius: BorderRadius.circular(20),
                             onTap: () => p.toggleServiceSelection(service.id),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 8),
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? primaryColor.withValues(alpha: 0.1)
                                     : whiteColor,
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: isSelected ? primaryColor : borderColor,
+                                  color: isSelected
+                                      ? primaryColor
+                                      : borderColor,
                                   width: isSelected ? 1.5 : 1,
                                 ),
                               ),
@@ -1080,7 +1102,7 @@ class _ServiceProviderOnboardingScreenState
           const SizedBox(height: 24),
           const Divider(height: 1),
           const SizedBox(height: 20),
-          // Service Locations: Strictly "Home" and "Office"
+
           _buildField(
             label: "Service Delivery Locations *",
             child: Consumer<ServiceProviderOnboardingProvider>(
@@ -1089,13 +1111,14 @@ class _ServiceProviderOnboardingScreenState
                   spacing: 12,
                   runSpacing: 8,
                   children: p.availableLocations.map((loc) {
-                    final isSelected =
-                        p.selectedServiceLocations.contains(loc);
+                    final isSelected = p.selectedServiceLocations.contains(loc);
                     return FilterChip(
                       label: AppText(
                         text: loc,
                         fontSize: 13,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                         color: isSelected ? primaryColor : textPrimaryColor,
                       ),
                       selected: isSelected,
@@ -1117,18 +1140,18 @@ class _ServiceProviderOnboardingScreenState
             ),
           ),
           const SizedBox(height: 24),
-          // Pricing side-by-side: startingPricePerAppointment & pricePerAppointment
+
           _buildResponsiveRow([
             _buildField(
               label: "Starting Price Per Appointment (USD)",
               child: CustomTextField(
                 controller: _startingPriceController,
                 hintText: "Enter starting price",
-                textInputType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                textInputType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 onChanged: (val) {
-                  provider.startingPricePerAppointment =
-                      num.tryParse(val) ?? 0;
+                  provider.startingPricePerAppointment = num.tryParse(val) ?? 0;
                 },
               ),
             ),
@@ -1137,8 +1160,9 @@ class _ServiceProviderOnboardingScreenState
               child: CustomTextField(
                 controller: _priceController,
                 hintText: "Enter standard appointment price",
-                textInputType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                textInputType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 onChanged: (val) {
                   provider.pricePerAppointment = num.tryParse(val) ?? 0;
                 },
@@ -1150,7 +1174,6 @@ class _ServiceProviderOnboardingScreenState
     );
   }
 
-  // --- 4. Working Hours Section (Exact Match with Vet) ---
   Widget _buildWorkingHoursSection(BuildContext context) {
     return _buildCardContainer(
       child: Column(
@@ -1193,16 +1216,21 @@ class _ServiceProviderOnboardingScreenState
                       AppText(
                         text: day.isAvailable ? "Open" : "Closed",
                         fontSize: 12,
-                        color: day.isAvailable ? primaryColor : textSecondaryColor,
+                        color: day.isAvailable
+                            ? primaryColor
+                            : textSecondaryColor,
                       ),
                       const Spacer(),
                       if (day.isAvailable) ...[
                         InkWell(
-                          onTap: () => provider.selectDayTime(context, index, true),
+                          onTap: () =>
+                              provider.selectDayTime(context, index, true),
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
                               color: backgroundColor,
                               borderRadius: BorderRadius.circular(8),
@@ -1211,8 +1239,11 @@ class _ServiceProviderOnboardingScreenState
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.access_time_rounded,
-                                    color: primaryColor, size: 16),
+                                Icon(
+                                  Icons.access_time_rounded,
+                                  color: primaryColor,
+                                  size: 16,
+                                ),
                                 const SizedBox(width: 6),
                                 AppText(
                                   text: day.openTime,
@@ -1239,7 +1270,9 @@ class _ServiceProviderOnboardingScreenState
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
                               color: backgroundColor,
                               borderRadius: BorderRadius.circular(8),
@@ -1248,8 +1281,11 @@ class _ServiceProviderOnboardingScreenState
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.access_time_rounded,
-                                    color: primaryColor, size: 16),
+                                Icon(
+                                  Icons.access_time_rounded,
+                                  color: primaryColor,
+                                  size: 16,
+                                ),
                                 const SizedBox(width: 6),
                                 AppText(
                                   text: day.closeTime,
@@ -1273,7 +1309,6 @@ class _ServiceProviderOnboardingScreenState
     );
   }
 
-  // --- 5. Degrees & Certifications Section ---
   Widget _buildDegreesSection(BuildContext context) {
     return _buildCardContainer(
       child: Column(
@@ -1310,7 +1345,8 @@ class _ServiceProviderOnboardingScreenState
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: provider.degrees.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 16),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final degree = provider.degrees[index];
                   return Container(
@@ -1323,7 +1359,6 @@ class _ServiceProviderOnboardingScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // File Upload at VERY TOP of item
                         Row(
                           children: [
                             _buildImagePreview(
@@ -1338,7 +1373,8 @@ class _ServiceProviderOnboardingScreenState
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   AppText(
-                                    text: degree.fileName ??
+                                    text:
+                                        degree.fileName ??
                                         "Upload Degree / Certificate Photo",
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
@@ -1356,8 +1392,11 @@ class _ServiceProviderOnboardingScreenState
                             CustomButton(
                               text: "Upload",
                               isIcon: true,
-                              icon: Icon(Icons.upload_file_outlined,
-                                  size: 15, color: primaryColor),
+                              icon: Icon(
+                                Icons.upload_file_outlined,
+                                size: 15,
+                                color: primaryColor,
+                              ),
                               isOutlined: true,
                               height: 36,
                               width: 110,
@@ -1367,8 +1406,11 @@ class _ServiceProviderOnboardingScreenState
                             if (provider.degrees.length > 1) ...[
                               const SizedBox(width: 8),
                               IconButton(
-                                icon: Icon(Icons.delete_outline_rounded,
-                                    color: Colors.red[400], size: 20),
+                                icon: Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Colors.red[400],
+                                  size: 20,
+                                ),
                                 onPressed: () => provider.removeDegree(index),
                               ),
                             ],
@@ -1422,7 +1464,9 @@ class _ServiceProviderOnboardingScreenState
                                       activeColor: primaryColor,
                                       onChanged: (val) {
                                         provider.toggleDegreeCurrentlyStudying(
-                                            index, val ?? false);
+                                          index,
+                                          val ?? false,
+                                        );
                                       },
                                     ),
                                     const SizedBox(width: 6),
@@ -1459,7 +1503,6 @@ class _ServiceProviderOnboardingScreenState
     );
   }
 
-  // --- 6. Licenses Section ---
   Widget _buildLicensesSection(BuildContext context) {
     return _buildCardContainer(
       child: Column(
@@ -1496,7 +1539,8 @@ class _ServiceProviderOnboardingScreenState
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: provider.licenses.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 16),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final license = provider.licenses[index];
                   return Container(
@@ -1509,7 +1553,6 @@ class _ServiceProviderOnboardingScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Upload at VERY TOP of item
                         Row(
                           children: [
                             _buildImagePreview(
@@ -1524,7 +1567,8 @@ class _ServiceProviderOnboardingScreenState
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   AppText(
-                                    text: license.fileName ??
+                                    text:
+                                        license.fileName ??
                                         "Upload License Document Photo",
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
@@ -1532,7 +1576,8 @@ class _ServiceProviderOnboardingScreenState
                                   ),
                                   const SizedBox(height: 2),
                                   AppText(
-                                    text: "Official certification / permit proof",
+                                    text:
+                                        "Official certification / permit proof",
                                     fontSize: 11,
                                     color: textSecondaryColor,
                                   ),
@@ -1542,8 +1587,11 @@ class _ServiceProviderOnboardingScreenState
                             CustomButton(
                               text: "Upload",
                               isIcon: true,
-                              icon: Icon(Icons.upload_file_outlined,
-                                  size: 15, color: primaryColor),
+                              icon: Icon(
+                                Icons.upload_file_outlined,
+                                size: 15,
+                                color: primaryColor,
+                              ),
                               isOutlined: true,
                               height: 36,
                               width: 110,
@@ -1553,8 +1601,11 @@ class _ServiceProviderOnboardingScreenState
                             if (provider.licenses.length > 1) ...[
                               const SizedBox(width: 8),
                               IconButton(
-                                icon: Icon(Icons.delete_outline_rounded,
-                                    color: Colors.red[400], size: 20),
+                                icon: Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Colors.red[400],
+                                  size: 20,
+                                ),
                                 onPressed: () => provider.removeLicense(index),
                               ),
                             ],
@@ -1573,7 +1624,8 @@ class _ServiceProviderOnboardingScreenState
                             label: "State Abbreviation",
                             child: CustomTextField(
                               hintText: "Enter state abbreviation",
-                              onChanged: (val) => license.stateAbbreviation = val,
+                              onChanged: (val) =>
+                                  license.stateAbbreviation = val,
                             ),
                           ),
                         ]),
@@ -1590,7 +1642,8 @@ class _ServiceProviderOnboardingScreenState
                             label: "Expiry Date",
                             child: CustomTextField(
                               hintText: "YYYY-MM-DD",
-                              onChanged: (val) => license.licenseExpiryDate = val,
+                              onChanged: (val) =>
+                                  license.licenseExpiryDate = val,
                             ),
                           ),
                         ]),
@@ -1606,7 +1659,6 @@ class _ServiceProviderOnboardingScreenState
     );
   }
 
-  // --- 7. Work Experiences Section ---
   Widget _buildWorkExperiencesSection(BuildContext context) {
     return _buildCardContainer(
       child: Column(
@@ -1643,7 +1695,8 @@ class _ServiceProviderOnboardingScreenState
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: provider.workExperiences.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 16),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final job = provider.workExperiences[index];
                   return Container(
@@ -1656,7 +1709,6 @@ class _ServiceProviderOnboardingScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Upload at VERY TOP of item
                         Row(
                           children: [
                             _buildImagePreview(
@@ -1671,7 +1723,8 @@ class _ServiceProviderOnboardingScreenState
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   AppText(
-                                    text: job.fileName ??
+                                    text:
+                                        job.fileName ??
                                         "Upload Experience Letter Photo",
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
@@ -1690,8 +1743,11 @@ class _ServiceProviderOnboardingScreenState
                             CustomButton(
                               text: "Upload",
                               isIcon: true,
-                              icon: Icon(Icons.upload_file_outlined,
-                                  size: 15, color: primaryColor),
+                              icon: Icon(
+                                Icons.upload_file_outlined,
+                                size: 15,
+                                color: primaryColor,
+                              ),
                               isOutlined: true,
                               height: 36,
                               width: 110,
@@ -1701,8 +1757,11 @@ class _ServiceProviderOnboardingScreenState
                             if (provider.workExperiences.length > 1) ...[
                               const SizedBox(width: 8),
                               IconButton(
-                                icon: Icon(Icons.delete_outline_rounded,
-                                    color: Colors.red[400], size: 20),
+                                icon: Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Colors.red[400],
+                                  size: 20,
+                                ),
                                 onPressed: () =>
                                     provider.removeWorkExperience(index),
                               ),
@@ -1722,7 +1781,8 @@ class _ServiceProviderOnboardingScreenState
                             label: "Organization / Company Name",
                             child: CustomTextField(
                               hintText: "Enter organization name",
-                              onChanged: (val) => job.jobOrganizationTitle = val,
+                              onChanged: (val) =>
+                                  job.jobOrganizationTitle = val,
                             ),
                           ),
                         ]),
@@ -1733,14 +1793,16 @@ class _ServiceProviderOnboardingScreenState
                             child: CustomTextField(
                               hintText: "Enter years of experience",
                               textInputType: TextInputType.number,
-                              onChanged: (val) => job.jobYearsOfExperience = val,
+                              onChanged: (val) =>
+                                  job.jobYearsOfExperience = val,
                             ),
                           ),
                           _buildField(
                             label: "Organization Address",
                             child: CustomTextField(
                               hintText: "Enter organization physical address",
-                              onChanged: (val) => job.jobOrganizationAddress = val,
+                              onChanged: (val) =>
+                                  job.jobOrganizationAddress = val,
                             ),
                           ),
                         ]),
@@ -1766,7 +1828,9 @@ class _ServiceProviderOnboardingScreenState
                                       activeColor: primaryColor,
                                       onChanged: (val) {
                                         provider.toggleJobCurrentlyWorking(
-                                            index, val ?? false);
+                                          index,
+                                          val ?? false,
+                                        );
                                       },
                                     ),
                                     const SizedBox(width: 6),
@@ -1803,7 +1867,6 @@ class _ServiceProviderOnboardingScreenState
     );
   }
 
-  // --- Helper Layout Builders ---
   Widget _buildField({required String label, required Widget child}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1825,22 +1888,24 @@ class _ServiceProviderOnboardingScreenState
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: children
-            .map((c) => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: c,
-                  ),
-                ))
+            .map(
+              (c) => Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: c,
+                ),
+              ),
+            )
             .toList(),
       );
     }
 
     return Column(
       children: children
-          .map((c) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: c,
-              ))
+          .map(
+            (c) =>
+                Padding(padding: const EdgeInsets.only(bottom: 12), child: c),
+          )
           .toList(),
     );
   }

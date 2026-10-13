@@ -5,7 +5,7 @@ class DegreeEntity {
   final String duration;
   final String startDate;
   final String? endDate;
-  final String currentlyStudyingHere; // "yes" or "no"
+  final String currentlyStudyingHere;
 
   const DegreeEntity({
     required this.degreeImageDataURI,
@@ -42,7 +42,7 @@ class WorkExperienceEntity {
   final String jobOrganizationAddress;
   final String jobStartDate;
   final String? jobEndDate;
-  final String jobCurrentlyWorkingHere; // "yes" or "no"
+  final String jobCurrentlyWorkingHere;
 
   const WorkExperienceEntity({
     required this.jobImageDataURI,
@@ -57,12 +57,12 @@ class WorkExperienceEntity {
 }
 
 class AvailableDayEntity {
-  final int dayIndex; // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  final int dayIndex;
   final bool isAvailable;
   final String? openTime;
   final String? closeTime;
-  final String? open; // total minutes elapsed since midnight (0 to 1439)
-  final String? close; // total minutes elapsed since midnight (0 to 1439)
+  final String? open;
+  final String? close;
 
   const AvailableDayEntity({
     required this.dayIndex,
@@ -85,7 +85,6 @@ class PricePerAppointmentEntity {
 }
 
 class ServiceProviderOnboardingEntity {
-  // Basic Details
   final String? profileImageDataURI;
   final String fullName;
   final String email;
@@ -100,7 +99,6 @@ class ServiceProviderOnboardingEntity {
   final String gender;
   final List<String> knownLanguages;
 
-  // Business Details
   final String? businessImageDataURI;
   final String businessName;
   final String businessEmail;
@@ -109,11 +107,9 @@ class ServiceProviderOnboardingEntity {
   final String latitude;
   final String longitude;
 
-  // Pricing
   final PricePerAppointmentEntity pricePerAppointment;
   final PricePerAppointmentEntity startingPricePerAppointment;
 
-  // Nested Lists & Taxonomies
   final List<DegreeEntity> degrees;
   final List<LicenseEntity> licenses;
   final List<WorkExperienceEntity> workExperiences;

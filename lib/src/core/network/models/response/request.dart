@@ -9,9 +9,7 @@ extension BodyBytesStream on Stream<List<int>> {
   Future<Uint8List> toBytes() {
     var completer = Completer<Uint8List>();
     var sink = ByteConversionSink.withCallback(
-      (bytes) => completer.complete(
-        Uint8List.fromList(bytes),
-      ),
+      (bytes) => completer.complete(Uint8List.fromList(bytes)),
     );
     listen(
       (val) => sink.add(val),

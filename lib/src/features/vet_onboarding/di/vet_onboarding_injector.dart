@@ -6,31 +6,38 @@ import '../data/repositories/vet_onboarding_repository_impl.dart';
 import '../domain/repositories/vet_onboarding_repository.dart';
 import '../domain/usecases/vet_onboarding_usecases.dart';
 import '../presentation/providers/doctor_onboarding_provider.dart';
+import '../presentation/providers/vet_detail_provider.dart';
+import '../presentation/providers/vets_list_provider.dart';
 
 void initVetOnboardingDependencies() {
   final sl = GetIt.instance;
 
-  // DataSources
   sl.registerLazySingleton<VetOnboardingRemoteDataSource>(
     () => VetOnboardingRemoteDataSourceImpl(apiServices: sl<ApiServices>()),
   );
 
-  // Repository
   sl.registerLazySingleton<VetOnboardingRepository>(
-    () => VetOnboardingRepositoryImpl(remoteDataSource: sl<VetOnboardingRemoteDataSource>()),
+    () => VetOnboardingRepositoryImpl(
+      remoteDataSource: sl<VetOnboardingRemoteDataSource>(),
+    ),
   );
 
-  // UseCase
   sl.registerLazySingleton<VetOnboardingUseCases>(
     () => VetOnboardingUseCases(repository: sl<VetOnboardingRepository>()),
   );
 
-  // Provider
   sl.registerFactory<DoctorOnboardingProvider>(
     () => DoctorOnboardingProvider(
       useCases: sl<VetOnboardingUseCases>(),
       taxonomyUseCases: sl<TaxonomyUseCases>(),
     ),
   );
-}
 
+  sl.registerFactory<VetsListProvider>(
+    () => VetsListProvider(useCases: sl<VetOnboardingUseCases>()),
+  );
+
+  sl.registerFactory<VetDetailProvider>(
+    () => VetDetailProvider(useCases: sl<VetOnboardingUseCases>()),
+  );
+}

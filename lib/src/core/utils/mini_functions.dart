@@ -7,7 +7,11 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../app/config/api_endpoints.dart';
 
 class MiniFunctions {
-  static String formatAmount(String amount, {bool useCommaSeparator = false, bool alwaysOneDecimals = false}) {
+  static String formatAmount(
+    String amount, {
+    bool useCommaSeparator = false,
+    bool alwaysOneDecimals = false,
+  }) {
     double value = double.tryParse(amount) ?? 0;
 
     String formatted;
@@ -15,7 +19,9 @@ class MiniFunctions {
     if (alwaysOneDecimals) {
       formatted = value.toStringAsFixed(1);
     } else {
-      formatted = value % 1 == 0 ? value.toStringAsFixed(0) : value.toStringAsFixed(2);
+      formatted = value % 1 == 0
+          ? value.toStringAsFixed(0)
+          : value.toStringAsFixed(2);
     }
 
     if (useCommaSeparator) {
@@ -48,7 +54,10 @@ class MiniFunctions {
     return value.toLowerCase().trim().replaceAll(RegExp(r'\s+'), '_');
   }
 
-  static String formatDisplayString(String value, {bool capitalizeEveryWord = false}) {
+  static String formatDisplayString(
+    String value, {
+    bool capitalizeEveryWord = false,
+  }) {
     if (value.isEmpty) return '';
     String formatted = value.replaceAll('_', ' ');
 
@@ -72,7 +81,13 @@ class MiniFunctions {
     try {
       final dob = DateTime.parse(dobString);
       final now = DateTime.now();
-      final age = now.year - dob.year - ((now.month < dob.month || (now.month == dob.month && now.day < dob.day)) ? 1 : 0);
+      final age =
+          now.year -
+          dob.year -
+          ((now.month < dob.month ||
+                  (now.month == dob.month && now.day < dob.day))
+              ? 1
+              : 0);
       return showYear ? "$age year" : "$age";
     } catch (e) {
       return showYear ? "0 year" : "0";
@@ -86,7 +101,9 @@ class MiniFunctions {
     if (imageUrl.startsWith("data:image") && imageUrl.contains("base64,")) {
       return imageUrl;
     }
-    String fullImageUrl = imageUrl.startsWith("http") ? imageUrl : "${ApiEndpoints.baseUrl}/$imageUrl";
+    String fullImageUrl = imageUrl.startsWith("http")
+        ? imageUrl
+        : "${ApiEndpoints.baseUrl}/$imageUrl";
     final response = await http.get(Uri.parse(fullImageUrl));
 
     if (response.statusCode == 200) {
@@ -119,7 +136,9 @@ class MiniFunctions {
     }
 
     try {
-      final url = attachment.startsWith("http") ? attachment : "${ApiEndpoints.baseUrl}/$attachment";
+      final url = attachment.startsWith("http")
+          ? attachment
+          : "${ApiEndpoints.baseUrl}/$attachment";
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
@@ -130,7 +149,8 @@ class MiniFunctions {
           mimeType = "application/pdf";
         } else if (attachment.toLowerCase().endsWith('.png')) {
           mimeType = "image/png";
-        } else if (attachment.toLowerCase().endsWith('.jpg') || attachment.toLowerCase().endsWith('.jpeg')) {
+        } else if (attachment.toLowerCase().endsWith('.jpg') ||
+            attachment.toLowerCase().endsWith('.jpeg')) {
           mimeType = "image/jpeg";
         } else if (attachment.toLowerCase().endsWith('.gif')) {
           mimeType = "image/gif";
@@ -160,7 +180,9 @@ class MiniFunctions {
         date = DateFormat('dd/MM/yyyy').parse(cleanInput);
       } else if (RegExp(r'^\d{1,2}/\d{1,2}/\d{2}$').hasMatch(cleanInput)) {
         date = DateFormat('dd/MM/yy').parse(cleanInput);
-      } else if (RegExp(r'^[A-Za-z]{3}\s\d{1,2},\s\d{4}$').hasMatch(cleanInput)) {
+      } else if (RegExp(
+        r'^[A-Za-z]{3}\s\d{1,2},\s\d{4}$',
+      ).hasMatch(cleanInput)) {
         date = DateFormat('MMM dd, yyyy').parse(cleanInput);
       } else if (RegExp(r'^[A-Za-z]+\s\d{1,2},\s\d{4}$').hasMatch(cleanInput)) {
         date = DateFormat('MMMM dd, yyyy').parse(cleanInput);
@@ -223,7 +245,8 @@ class MiniFunctions {
 
   static bool isBase64(String str) {
     try {
-      return base64.encode(base64.decode(str)) == str.replaceAll('\n', '').replaceAll('\r', '');
+      return base64.encode(base64.decode(str)) ==
+          str.replaceAll('\n', '').replaceAll('\r', '');
     } catch (e) {
       return false;
     }
@@ -290,9 +313,13 @@ class MiniFunctions {
   }
 
   String generateRandomId([int length = 20]) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const chars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = Random();
 
-    return List.generate(length, (_) => chars[random.nextInt(chars.length)]).join();
+    return List.generate(
+      length,
+      (_) => chars[random.nextInt(chars.length)],
+    ).join();
   }
 }

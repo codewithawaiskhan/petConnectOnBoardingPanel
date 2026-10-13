@@ -21,9 +21,13 @@ class AdminAuthRepositoryImpl implements AdminAuthRepository {
 
   @override
   Future<AuthEntity> login(String identifier, String password) async {
-    final Response response = await remoteDataSource.login(identifier, password);
+    final Response response = await remoteDataSource.login(
+      identifier,
+      password,
+    );
 
-    final Map<String, dynamic> rawResponse = response.body is Map<String, dynamic>
+    final Map<String, dynamic> rawResponse =
+        response.body is Map<String, dynamic>
         ? response.body as Map<String, dynamic>
         : <String, dynamic>{};
 
@@ -32,9 +36,13 @@ class AdminAuthRepositoryImpl implements AdminAuthRepository {
     if (authModel.token.trim().isNotEmpty) {
       await localDataSource.cacheToken(authModel.token);
       apiServices.updateHeader(authModel.token);
-      debugPrint('AdminAuthRepository: Token successfully cached to SharedPreferences');
+      debugPrint(
+        'AdminAuthRepository: Token successfully cached to SharedPreferences',
+      );
     } else {
-      debugPrint('AdminAuthRepository: WARNING - No token found in login response to cache!');
+      debugPrint(
+        'AdminAuthRepository: WARNING - No token found in login response to cache!',
+      );
     }
 
     if (authModel.user != null) {
@@ -42,7 +50,9 @@ class AdminAuthRepositoryImpl implements AdminAuthRepository {
           ? authModel.user as AdminUserModel
           : AdminUserModel.fromEntity(authModel.user!);
       await localDataSource.cacheUser(jsonEncode(userModel.toJson()));
-      debugPrint('AdminAuthRepository: User details cached to SharedPreferences');
+      debugPrint(
+        'AdminAuthRepository: User details cached to SharedPreferences',
+      );
     }
 
     return authModel;

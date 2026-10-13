@@ -16,7 +16,8 @@ class VetOnboardingScreen extends StatefulWidget {
   State<VetOnboardingScreen> createState() => _VetOnboardingScreenState();
 }
 
-class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColors {
+class _VetOnboardingScreenState extends State<VetOnboardingScreen>
+    with AppColors {
   static const List<String> _timeZones = [
     'America/New_York',
     'America/Chicago',
@@ -34,7 +35,6 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
     'UTC',
   ];
 
-  // Personal Info Controllers
   late final TextEditingController _nameController;
   late final TextEditingController _emailController;
   late final TextEditingController _phoneController;
@@ -127,7 +127,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
         }
 
         return InkWell(
-          onTap: () => context.read<DoctorOnboardingProvider>().pickProfileImage(),
+          onTap: () =>
+              context.read<DoctorOnboardingProvider>().pickProfileImage(),
           borderRadius: BorderRadius.circular(36),
           child: Container(
             width: 72,
@@ -153,7 +154,9 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
   }) {
     if (dataUri != null && dataUri.isNotEmpty) {
       try {
-        final cleanBase64 = dataUri.contains(',') ? dataUri.split(',').last : dataUri;
+        final cleanBase64 = dataUri.contains(',')
+            ? dataUri.split(',').last
+            : dataUri;
         final bytes = base64Decode(cleanBase64);
         return ClipRRect(
           borderRadius: BorderRadius.circular(radius),
@@ -173,7 +176,11 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                 borderRadius: BorderRadius.circular(radius),
                 border: Border.all(color: borderColor),
               ),
-              child: Icon(Icons.insert_drive_file_outlined, color: primaryColor, size: height * 0.45),
+              child: Icon(
+                Icons.insert_drive_file_outlined,
+                color: primaryColor,
+                size: height * 0.45,
+              ),
             ),
           ),
         );
@@ -325,7 +332,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
         ),
         const SizedBox(height: 6),
         AppText(
-          text: "Provide your professional credentials, medical licenses, clinics, and consultation availability.",
+          text:
+              "Provide your professional credentials, medical licenses, clinics, and consultation availability.",
           fontSize: 14,
           color: textSecondaryColor,
         ),
@@ -344,7 +352,7 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
             Icons.person_outline_rounded,
           ),
           const SizedBox(height: 20),
-          // Profile Photo Picker at TOP
+
           Row(
             children: [
               _buildProfileAvatar(context),
@@ -356,7 +364,9 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       CustomButton(
-                        text: fileName != null ? "Change Avatar" : "Upload Profile Photo",
+                        text: fileName != null
+                            ? "Change Avatar"
+                            : "Upload Profile Photo",
                         width: 220,
                         height: 42,
                         fontSize: 13,
@@ -364,11 +374,15 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                         textColor: primaryColor,
                         isIcon: true,
                         icon: Icon(
-                          fileName != null ? Icons.check_circle_rounded : Icons.upload_file_rounded,
+                          fileName != null
+                              ? Icons.check_circle_rounded
+                              : Icons.upload_file_rounded,
                           color: primaryColor,
                           size: 18,
                         ),
-                        onTap: () => context.read<DoctorOnboardingProvider>().pickProfileImage(),
+                        onTap: () => context
+                            .read<DoctorOnboardingProvider>()
+                            .pickProfileImage(),
                       ),
                       if (fileName != null) ...[
                         const SizedBox(height: 4),
@@ -560,9 +574,7 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                 ),
               ),
               const SizedBox(width: 16),
-              Expanded(
-                child: _buildTimeZoneDropdown(context),
-              ),
+              Expanded(child: _buildTimeZoneDropdown(context)),
             ],
           ),
           const SizedBox(height: 20),
@@ -578,7 +590,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
     return Consumer<DoctorOnboardingProvider>(
       builder: (context, provider, _) {
         final currentSpecialityId = provider.selectedSpecialityId;
-        final hasValidSpeciality = currentSpecialityId != null &&
+        final hasValidSpeciality =
+            currentSpecialityId != null &&
             provider.specialities.any((s) => s.id == currentSpecialityId);
 
         return Column(
@@ -597,7 +610,10 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                   SizedBox(
                     width: 14,
                     height: 14,
-                    child: CircularProgressIndicator(strokeWidth: 1.5, color: primaryColor),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.5,
+                      color: primaryColor,
+                    ),
                   ),
                 ],
               ],
@@ -622,7 +638,10 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                     color: textSecondaryColor,
                   ),
                   isExpanded: true,
-                  icon: Icon(Icons.keyboard_arrow_down_rounded, color: textSecondaryColor),
+                  icon: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: textSecondaryColor,
+                  ),
                   onChanged: (val) {
                     if (val != null) {
                       provider.selectSpeciality(val);
@@ -631,7 +650,11 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                   items: provider.specialities.map((spec) {
                     return DropdownMenuItem<String>(
                       value: spec.id,
-                      child: AppText(text: spec.title, fontSize: 13, color: textPrimaryColor),
+                      child: AppText(
+                        text: spec.title,
+                        fontSize: 13,
+                        color: textPrimaryColor,
+                      ),
                     );
                   }).toList(),
                 ),
@@ -652,14 +675,18 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                     SizedBox(
                       width: 14,
                       height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 1.5, color: primaryColor),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 1.5,
+                        color: primaryColor,
+                      ),
                     ),
                   ],
                 ],
               ),
               const SizedBox(height: 4),
               AppText(
-                text: "Select the clinical procedures and consultation services you offer.",
+                text:
+                    "Select the clinical procedures and consultation services you offer.",
                 fontSize: 12,
                 color: textSecondaryColor,
               ),
@@ -672,7 +699,10 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                       SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: primaryColor),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: primaryColor,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       AppText(
@@ -697,15 +727,22 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                   spacing: 10,
                   runSpacing: 10,
                   children: provider.services.map((service) {
-                    final isSelected = provider.selectedServices.contains(service.id);
+                    final isSelected = provider.selectedServices.contains(
+                      service.id,
+                    );
                     return InkWell(
                       borderRadius: BorderRadius.circular(20),
                       onTap: () => provider.toggleServiceSelection(service.id),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
-                          color: isSelected ? primaryColor.withValues(alpha: 0.1) : whiteColor,
+                          color: isSelected
+                              ? primaryColor.withValues(alpha: 0.1)
+                              : whiteColor,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: isSelected ? primaryColor : borderColor,
@@ -716,16 +753,24 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              isSelected ? Icons.check_circle_rounded : Icons.add_circle_outline_rounded,
+                              isSelected
+                                  ? Icons.check_circle_rounded
+                                  : Icons.add_circle_outline_rounded,
                               size: 16,
-                              color: isSelected ? primaryColor : textSecondaryColor,
+                              color: isSelected
+                                  ? primaryColor
+                                  : textSecondaryColor,
                             ),
                             const SizedBox(width: 6),
                             AppText(
                               text: service.title,
                               fontSize: 13,
-                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                              color: isSelected ? primaryColor : textPrimaryColor,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                              color: isSelected
+                                  ? primaryColor
+                                  : textPrimaryColor,
                             ),
                           ],
                         ),
@@ -754,7 +799,9 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
         Selector<DoctorOnboardingProvider, String>(
           selector: (_, p) => p.timeZone,
           builder: (context, timeZone, _) {
-            final validZone = _timeZones.contains(timeZone) ? timeZone : _timeZones.first;
+            final validZone = _timeZones.contains(timeZone)
+                ? timeZone
+                : _timeZones.first;
             return Container(
               height: 48,
               padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -767,7 +814,10 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                 child: DropdownButton<String>(
                   value: validZone,
                   isExpanded: true,
-                  icon: Icon(Icons.keyboard_arrow_down_rounded, color: textSecondaryColor),
+                  icon: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: textSecondaryColor,
+                  ),
                   onChanged: (val) {
                     if (val != null) {
                       context.read<DoctorOnboardingProvider>().setTimeZone(val);
@@ -776,7 +826,11 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                   items: _timeZones.map((tz) {
                     return DropdownMenuItem<String>(
                       value: tz,
-                      child: AppText(text: tz, fontSize: 13, color: textPrimaryColor),
+                      child: AppText(
+                        text: tz,
+                        fontSize: 13,
+                        color: textPrimaryColor,
+                      ),
                     );
                   }).toList(),
                 ),
@@ -816,26 +870,35 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                           text: day.dayName,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: day.isAvailable ? textPrimaryColor : textSecondaryColor,
+                          color: day.isAvailable
+                              ? textPrimaryColor
+                              : textSecondaryColor,
                         ),
                       ),
                       Checkbox(
                         value: day.isAvailable,
                         activeColor: primaryColor,
-                        onChanged: (val) => provider.toggleDayAvailability(index, val ?? false),
+                        onChanged: (val) =>
+                            provider.toggleDayAvailability(index, val ?? false),
                       ),
                       AppText(
                         text: day.isAvailable ? "Open" : "Closed",
                         fontSize: 12,
-                        color: day.isAvailable ? primaryColor : textSecondaryColor,
+                        color: day.isAvailable
+                            ? primaryColor
+                            : textSecondaryColor,
                       ),
                       const Spacer(),
                       if (day.isAvailable) ...[
                         InkWell(
-                          onTap: () => provider.selectDayTime(context, index, true),
+                          onTap: () =>
+                              provider.selectDayTime(context, index, true),
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
                               color: backgroundColor,
                               borderRadius: BorderRadius.circular(8),
@@ -844,7 +907,11 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.access_time_rounded, color: primaryColor, size: 16),
+                                Icon(
+                                  Icons.access_time_rounded,
+                                  color: primaryColor,
+                                  size: 16,
+                                ),
                                 const SizedBox(width: 6),
                                 AppText(
                                   text: day.openTime,
@@ -866,10 +933,14 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                           ),
                         ),
                         InkWell(
-                          onTap: () => provider.selectDayTime(context, index, false),
+                          onTap: () =>
+                              provider.selectDayTime(context, index, false),
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
                               color: backgroundColor,
                               borderRadius: BorderRadius.circular(8),
@@ -878,7 +949,11 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.access_time_rounded, color: primaryColor, size: 16),
+                                Icon(
+                                  Icons.access_time_rounded,
+                                  color: primaryColor,
+                                  size: 16,
+                                ),
                                 const SizedBox(width: 6),
                                 AppText(
                                   text: day.closeTime,
@@ -901,7 +976,6 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
       ),
     );
   }
-
 
   Widget _buildDegreesSection(BuildContext context) {
     return _buildCardContainer(
@@ -927,7 +1001,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                 textColor: primaryColor,
                 isIcon: true,
                 icon: Icon(Icons.add_rounded, color: primaryColor, size: 18),
-                onTap: () => context.read<DoctorOnboardingProvider>().addDegree(),
+                onTap: () =>
+                    context.read<DoctorOnboardingProvider>().addDegree(),
               ),
             ],
           ),
@@ -938,7 +1013,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: provider.degrees.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 18),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 18),
                 itemBuilder: (context, index) {
                   final item = provider.degrees[index];
                   return Container(
@@ -962,13 +1038,17 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                             ),
                             if (provider.degrees.length > 1)
                               IconButton(
-                                icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
                                 onPressed: () => provider.removeDegree(index),
                               ),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        // Image Preview & Upload at TOP
+
                         Row(
                           children: [
                             _buildImagePreview(
@@ -983,16 +1063,24 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 CustomButton(
-                                  text: item.fileName != null ? "Change Certificate" : "Upload Degree Proof",
+                                  text: item.fileName != null
+                                      ? "Change Certificate"
+                                      : "Upload Degree Proof",
                                   width: 220,
                                   height: 38,
                                   fontSize: 12,
                                   isOutlined: true,
-                                  textColor: item.fileName != null ? successColor : primaryColor,
+                                  textColor: item.fileName != null
+                                      ? successColor
+                                      : primaryColor,
                                   isIcon: true,
                                   icon: Icon(
-                                    item.fileName != null ? Icons.check_circle_rounded : Icons.upload_file_rounded,
-                                    color: item.fileName != null ? successColor : primaryColor,
+                                    item.fileName != null
+                                        ? Icons.check_circle_rounded
+                                        : Icons.upload_file_rounded,
+                                    color: item.fileName != null
+                                        ? successColor
+                                        : primaryColor,
                                     size: 16,
                                   ),
                                   onTap: () => provider.pickDegreeImage(index),
@@ -1044,7 +1132,11 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                                     Checkbox(
                                       value: isCurrentlyStudying,
                                       activeColor: primaryColor,
-                                      onChanged: (val) => provider.toggleDegreeCurrentlyStudying(index, val ?? false),
+                                      onChanged: (val) => provider
+                                          .toggleDegreeCurrentlyStudying(
+                                            index,
+                                            val ?? false,
+                                          ),
                                     ),
                                     AppText(
                                       text: "Currently studying here",
@@ -1070,8 +1162,10 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                                       child: CustomTextField(
                                         initialValue: item.startDate,
                                         title: "Start Date *",
-                                        hintText: "Enter start date (e.g. 2015-09-01)",
-                                        onChanged: (val) => item.startDate = val,
+                                        hintText:
+                                            "Enter start date (e.g. 2015-09-01)",
+                                        onChanged: (val) =>
+                                            item.startDate = val,
                                       ),
                                     ),
                                     if (!isCurrentlyStudying) ...[
@@ -1080,8 +1174,10 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                                         child: CustomTextField(
                                           initialValue: item.endDate ?? '',
                                           title: "End Date *",
-                                          hintText: "Enter end date (e.g. 2020-06-30)",
-                                          onChanged: (val) => item.endDate = val,
+                                          hintText:
+                                              "Enter end date (e.g. 2020-06-30)",
+                                          onChanged: (val) =>
+                                              item.endDate = val,
                                         ),
                                       ),
                                     ],
@@ -1127,7 +1223,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                 textColor: primaryColor,
                 isIcon: true,
                 icon: Icon(Icons.add_rounded, color: primaryColor, size: 18),
-                onTap: () => context.read<DoctorOnboardingProvider>().addClinic(),
+                onTap: () =>
+                    context.read<DoctorOnboardingProvider>().addClinic(),
               ),
             ],
           ),
@@ -1138,7 +1235,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: provider.clinics.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 18),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 18),
                 itemBuilder: (context, index) {
                   final item = provider.clinics[index];
                   return Container(
@@ -1162,13 +1260,17 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                             ),
                             if (provider.clinics.length > 1)
                               IconButton(
-                                icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
                                 onPressed: () => provider.removeClinic(index),
                               ),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        // Image Preview & Upload at TOP
+
                         Row(
                           children: [
                             _buildImagePreview(
@@ -1183,16 +1285,24 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 CustomButton(
-                                  text: item.fileName != null ? "Change Photo" : "Upload Clinic Photo",
+                                  text: item.fileName != null
+                                      ? "Change Photo"
+                                      : "Upload Clinic Photo",
                                   width: 220,
                                   height: 38,
                                   fontSize: 12,
                                   isOutlined: true,
-                                  textColor: item.fileName != null ? successColor : primaryColor,
+                                  textColor: item.fileName != null
+                                      ? successColor
+                                      : primaryColor,
                                   isIcon: true,
                                   icon: Icon(
-                                    item.fileName != null ? Icons.check_circle_rounded : Icons.add_photo_alternate_rounded,
-                                    color: item.fileName != null ? successColor : primaryColor,
+                                    item.fileName != null
+                                        ? Icons.check_circle_rounded
+                                        : Icons.add_photo_alternate_rounded,
+                                    color: item.fileName != null
+                                        ? successColor
+                                        : primaryColor,
                                     size: 16,
                                   ),
                                   onTap: () => provider.pickClinicImage(index),
@@ -1321,7 +1431,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                 textColor: primaryColor,
                 isIcon: true,
                 icon: Icon(Icons.add_rounded, color: primaryColor, size: 18),
-                onTap: () => context.read<DoctorOnboardingProvider>().addLicense(),
+                onTap: () =>
+                    context.read<DoctorOnboardingProvider>().addLicense(),
               ),
             ],
           ),
@@ -1332,7 +1443,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: provider.licenses.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 18),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 18),
                 itemBuilder: (context, index) {
                   final item = provider.licenses[index];
                   return Container(
@@ -1356,13 +1468,17 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                             ),
                             if (provider.licenses.length > 1)
                               IconButton(
-                                icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
                                 onPressed: () => provider.removeLicense(index),
                               ),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        // Image Preview & Upload at TOP
+
                         Row(
                           children: [
                             _buildImagePreview(
@@ -1377,16 +1493,24 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 CustomButton(
-                                  text: item.fileName != null ? "Change Certificate" : "Upload License Certificate",
+                                  text: item.fileName != null
+                                      ? "Change Certificate"
+                                      : "Upload License Certificate",
                                   width: 240,
                                   height: 38,
                                   fontSize: 12,
                                   isOutlined: true,
-                                  textColor: item.fileName != null ? successColor : primaryColor,
+                                  textColor: item.fileName != null
+                                      ? successColor
+                                      : primaryColor,
                                   isIcon: true,
                                   icon: Icon(
-                                    item.fileName != null ? Icons.check_circle_rounded : Icons.verified_user_rounded,
-                                    color: item.fileName != null ? successColor : primaryColor,
+                                    item.fileName != null
+                                        ? Icons.check_circle_rounded
+                                        : Icons.verified_user_rounded,
+                                    color: item.fileName != null
+                                        ? successColor
+                                        : primaryColor,
                                     size: 16,
                                   ),
                                   onTap: () => provider.pickLicenseImage(index),
@@ -1431,7 +1555,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                                 initialValue: item.stateAbbreviation,
                                 title: "Abbreviation *",
                                 hintText: "Enter abbreviation",
-                                onChanged: (val) => item.stateAbbreviation = val,
+                                onChanged: (val) =>
+                                    item.stateAbbreviation = val,
                               ),
                             ),
                           ],
@@ -1479,7 +1604,9 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                 textColor: primaryColor,
                 isIcon: true,
                 icon: Icon(Icons.add_rounded, color: primaryColor, size: 18),
-                onTap: () => context.read<DoctorOnboardingProvider>().addWorkExperience(),
+                onTap: () => context
+                    .read<DoctorOnboardingProvider>()
+                    .addWorkExperience(),
               ),
             ],
           ),
@@ -1490,7 +1617,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: provider.workExperiences.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 18),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 18),
                 itemBuilder: (context, index) {
                   final item = provider.workExperiences[index];
                   return Container(
@@ -1514,13 +1642,18 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                             ),
                             if (provider.workExperiences.length > 1)
                               IconButton(
-                                icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                                onPressed: () => provider.removeWorkExperience(index),
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
+                                onPressed: () =>
+                                    provider.removeWorkExperience(index),
                               ),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        // Image Preview & Upload at TOP
+
                         Row(
                           children: [
                             _buildImagePreview(
@@ -1535,16 +1668,24 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 CustomButton(
-                                  text: item.fileName != null ? "Change Document" : "Upload Employment Proof",
+                                  text: item.fileName != null
+                                      ? "Change Document"
+                                      : "Upload Employment Proof",
                                   width: 235,
                                   height: 38,
                                   fontSize: 12,
                                   isOutlined: true,
-                                  textColor: item.fileName != null ? successColor : primaryColor,
+                                  textColor: item.fileName != null
+                                      ? successColor
+                                      : primaryColor,
                                   isIcon: true,
                                   icon: Icon(
-                                    item.fileName != null ? Icons.check_circle_rounded : Icons.badge_rounded,
-                                    color: item.fileName != null ? successColor : primaryColor,
+                                    item.fileName != null
+                                        ? Icons.check_circle_rounded
+                                        : Icons.badge_rounded,
+                                    color: item.fileName != null
+                                        ? successColor
+                                        : primaryColor,
                                     size: 16,
                                   ),
                                   onTap: () => provider.pickJobImage(index),
@@ -1579,7 +1720,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                                 initialValue: item.jobOrganizationTitle,
                                 title: "Organization Name *",
                                 hintText: "Enter organization name",
-                                onChanged: (val) => item.jobOrganizationTitle = val,
+                                onChanged: (val) =>
+                                    item.jobOrganizationTitle = val,
                               ),
                             ),
                           ],
@@ -1592,7 +1734,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                                 initialValue: item.jobYearsOfExperience,
                                 title: "Years of Experience *",
                                 hintText: "Enter years of experience",
-                                onChanged: (val) => item.jobYearsOfExperience = val,
+                                onChanged: (val) =>
+                                    item.jobYearsOfExperience = val,
                               ),
                             ),
                             const SizedBox(width: 14),
@@ -1601,7 +1744,8 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                                 initialValue: item.jobOrganizationAddress,
                                 title: "Organization Address *",
                                 hintText: "Enter organization address",
-                                onChanged: (val) => item.jobOrganizationAddress = val,
+                                onChanged: (val) =>
+                                    item.jobOrganizationAddress = val,
                               ),
                             ),
                           ],
@@ -1618,7 +1762,11 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                                     Checkbox(
                                       value: isCurrentlyWorking,
                                       activeColor: primaryColor,
-                                      onChanged: (val) => provider.toggleJobCurrentlyWorking(index, val ?? false),
+                                      onChanged: (val) =>
+                                          provider.toggleJobCurrentlyWorking(
+                                            index,
+                                            val ?? false,
+                                          ),
                                     ),
                                     AppText(
                                       text: "Currently working here",
@@ -1635,8 +1783,10 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                                       child: CustomTextField(
                                         initialValue: item.jobStartDate,
                                         title: "Start Date *",
-                                        hintText: "Enter start date (e.g. 2018-01-01)",
-                                        onChanged: (val) => item.jobStartDate = val,
+                                        hintText:
+                                            "Enter start date (e.g. 2018-01-01)",
+                                        onChanged: (val) =>
+                                            item.jobStartDate = val,
                                       ),
                                     ),
                                     if (!isCurrentlyWorking) ...[
@@ -1645,8 +1795,10 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
                                         child: CustomTextField(
                                           initialValue: item.jobEndDate ?? '',
                                           title: "End Date *",
-                                          hintText: "Enter end date (e.g. 2023-12-31)",
-                                          onChanged: (val) => item.jobEndDate = val,
+                                          hintText:
+                                              "Enter end date (e.g. 2023-12-31)",
+                                          onChanged: (val) =>
+                                              item.jobEndDate = val,
                                         ),
                                       ),
                                     ],
@@ -1684,8 +1836,13 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen> with AppColor
             fillColor: primaryColor,
             isLoading: isLoading,
             isIcon: true,
-            icon: const Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 18),
-            onTap: () => context.read<DoctorOnboardingProvider>().submitData(context),
+            icon: const Icon(
+              Icons.check_circle_outline_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+            onTap: () =>
+                context.read<DoctorOnboardingProvider>().submitData(context),
           );
         },
       ),

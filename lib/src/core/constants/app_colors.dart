@@ -26,17 +26,14 @@ mixin AppColors {
   Color get softGoldenColor => const Color(0xffFFDFA4);
   Color get dividerColor => const Color(0x26AEC8E2);
   Color get baseShimmerColor => const Color(0xff9D9D9D).withValues(alpha: 0.3);
-  Color get highlightShimmerColor => const Color(0xff9D9D9D).withValues(alpha: 0.1);
+  Color get highlightShimmerColor =>
+      const Color(0xff9D9D9D).withValues(alpha: 0.1);
 
-  // icons colors
   Color get unSelectedIconColor => const Color(0xffB9BABD);
 
   Gradient get backgroundGradient => LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [
-      primaryColor.withValues(alpha: 0.08),
-      backgroundColor,
-    ],
+    colors: [primaryColor.withValues(alpha: 0.08), backgroundColor],
   );
 }

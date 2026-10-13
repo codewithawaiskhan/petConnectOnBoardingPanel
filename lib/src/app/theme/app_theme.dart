@@ -37,10 +37,7 @@ class AppTheme with AppColors {
           fontWeight: FontWeight.w600,
         ),
       ),
-      dividerTheme: DividerThemeData(
-        color: dividerColor,
-        thickness: 1,
-      ),
+      dividerTheme: DividerThemeData(color: dividerColor, thickness: 1),
     );
   }
 }
