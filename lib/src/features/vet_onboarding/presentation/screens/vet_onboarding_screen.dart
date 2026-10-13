@@ -6,6 +6,7 @@ import '../../../../core/presentation/widgets/app_logo.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
+import '../../../../shared/presentation/widgets/custom_date_picker_field.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../providers/doctor_onboarding_provider.dart';
 
@@ -1159,11 +1160,10 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen>
                                     ),
                                     const SizedBox(width: 14),
                                     Expanded(
-                                      child: CustomTextField(
+                                      child: CustomDatePickerField(
                                         initialValue: item.startDate,
                                         title: "Start Date *",
-                                        hintText:
-                                            "Enter start date (e.g. 2015-09-01)",
+                                        hintText: "YYYY-MM-DD",
                                         onChanged: (val) =>
                                             item.startDate = val,
                                       ),
@@ -1171,11 +1171,10 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen>
                                     if (!isCurrentlyStudying) ...[
                                       const SizedBox(width: 14),
                                       Expanded(
-                                        child: CustomTextField(
+                                        child: CustomDatePickerField(
                                           initialValue: item.endDate ?? '',
                                           title: "End Date *",
-                                          hintText:
-                                              "Enter end date (e.g. 2020-06-30)",
+                                          hintText: "YYYY-MM-DD",
                                           onChanged: (val) =>
                                               item.endDate = val,
                                         ),
@@ -1562,10 +1561,10 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen>
                           ],
                         ),
                         const SizedBox(height: 12),
-                        CustomTextField(
+                        CustomDatePickerField(
                           initialValue: item.licenseExpiryDate,
                           title: "Expiry Date (ISO 8601) *",
-                          hintText: "Enter expiry date (e.g. 2028-12-31)",
+                          hintText: "YYYY-MM-DD",
                           onChanged: (val) => item.licenseExpiryDate = val,
                         ),
                       ],
@@ -1780,11 +1779,10 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen>
                                 Row(
                                   children: [
                                     Expanded(
-                                      child: CustomTextField(
+                                      child: CustomDatePickerField(
                                         initialValue: item.jobStartDate,
                                         title: "Start Date *",
-                                        hintText:
-                                            "Enter start date (e.g. 2018-01-01)",
+                                        hintText: "YYYY-MM-DD",
                                         onChanged: (val) =>
                                             item.jobStartDate = val,
                                       ),
@@ -1792,11 +1790,10 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen>
                                     if (!isCurrentlyWorking) ...[
                                       const SizedBox(width: 14),
                                       Expanded(
-                                        child: CustomTextField(
+                                        child: CustomDatePickerField(
                                           initialValue: item.jobEndDate ?? '',
                                           title: "End Date *",
-                                          hintText:
-                                              "Enter end date (e.g. 2023-12-31)",
+                                          hintText: "YYYY-MM-DD",
                                           onChanged: (val) =>
                                               item.jobEndDate = val,
                                         ),

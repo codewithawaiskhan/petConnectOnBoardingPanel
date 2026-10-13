@@ -6,6 +6,7 @@ import '../../../../core/presentation/widgets/app_logo.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
+import '../../../../shared/presentation/widgets/custom_date_picker_field.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../providers/service_provider_onboarding_provider.dart';
 
@@ -1444,7 +1445,8 @@ class _ServiceProviderOnboardingScreenState
                           ),
                           _buildField(
                             label: "Start Date",
-                            child: CustomTextField(
+                            child: CustomDatePickerField(
+                              initialValue: degree.startDate,
                               hintText: "YYYY-MM-DD",
                               onChanged: (val) => degree.startDate = val,
                             ),
@@ -1481,7 +1483,8 @@ class _ServiceProviderOnboardingScreenState
                                   const SizedBox(height: 8),
                                   _buildField(
                                     label: "End Date",
-                                    child: CustomTextField(
+                                    child: CustomDatePickerField(
+                                      initialValue: degree.endDate,
                                       hintText: "YYYY-MM-DD",
                                       onChanged: (val) => degree.endDate = val,
                                     ),
@@ -1640,7 +1643,8 @@ class _ServiceProviderOnboardingScreenState
                           ),
                           _buildField(
                             label: "Expiry Date",
-                            child: CustomTextField(
+                            child: CustomDatePickerField(
+                              initialValue: license.licenseExpiryDate,
                               hintText: "YYYY-MM-DD",
                               onChanged: (val) =>
                                   license.licenseExpiryDate = val,
@@ -1809,7 +1813,8 @@ class _ServiceProviderOnboardingScreenState
                         const SizedBox(height: 12),
                         _buildField(
                           label: "Start Date",
-                          child: CustomTextField(
+                          child: CustomDatePickerField(
+                            initialValue: job.jobStartDate,
                             hintText: "YYYY-MM-DD",
                             onChanged: (val) => job.jobStartDate = val,
                           ),
@@ -1845,7 +1850,8 @@ class _ServiceProviderOnboardingScreenState
                                   const SizedBox(height: 8),
                                   _buildField(
                                     label: "End Date",
-                                    child: CustomTextField(
+                                    child: CustomDatePickerField(
+                                      initialValue: job.jobEndDate,
                                       hintText: "YYYY-MM-DD",
                                       onChanged: (val) => job.jobEndDate = val,
                                     ),
