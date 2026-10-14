@@ -23,6 +23,14 @@ mixin ApiEndpoints {
   static String serviceProviderDetail(String id) =>
       "$apiUrl/service-provider/$id";
 
+  static String labs = "$apiUrl/lab/";
+  static String labDetail(String id) => "$apiUrl/lab/$id";
+  static String labTestCategories = "$apiUrl/lab-test-category";
+  static String labDataEntry = "$apiUrl/lab/data-entry";
+
+  static String petParents = "$apiUrl/pet-parent/";
+  static String petParentDetail(String id) => "$apiUrl/pet-parent/$id";
+
   static const String cachedUserKey = 'CACHED_USER';
   static const String authTokenKey = 'AUTH_TOKEN';
   static const String cachedProfileKey = 'CACHED_PROFILE_KEY';

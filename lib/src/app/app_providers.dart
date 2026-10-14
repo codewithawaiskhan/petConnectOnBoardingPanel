@@ -3,6 +3,11 @@ import 'package:provider/single_child_widget.dart';
 import '../core/presentation/layout/providers/sidebar_provider.dart';
 import '../features/admin_auth/presentation/providers/admin_auth_provider.dart';
 import '../features/dashboard/presentation/providers/dashboard_provider.dart';
+import '../features/lab_onboarding/presentation/providers/lab_detail_provider.dart';
+import '../features/lab_onboarding/presentation/providers/lab_onboarding_provider.dart';
+import '../features/lab_onboarding/presentation/providers/labs_list_provider.dart';
+import '../features/pet_parents/presentation/providers/pet_parent_detail_provider.dart';
+import '../features/pet_parents/presentation/providers/pet_parents_list_provider.dart';
 import '../features/service_provider_onboarding/presentation/providers/service_provider_detail_provider.dart';
 import '../features/service_provider_onboarding/presentation/providers/service_provider_onboarding_provider.dart';
 import '../features/service_provider_onboarding/presentation/providers/service_providers_list_provider.dart';
@@ -36,5 +41,20 @@ List<SingleChildWidget> appProviders = [
   ),
   ChangeNotifierProvider<ServiceProviderDetailProvider>(
     create: (_) => sl<ServiceProviderDetailProvider>(),
+  ),
+  ChangeNotifierProvider<LabsListProvider>(
+    create: (_) => sl<LabsListProvider>(),
+  ),
+  ChangeNotifierProvider<LabDetailProvider>(
+    create: (_) => sl<LabDetailProvider>(),
+  ),
+  ChangeNotifierProvider<LabOnboardingProvider>(
+    create: (_) => sl<LabOnboardingProvider>(),
+  ),
+  ChangeNotifierProvider<PetParentsListProvider>(
+    create: (_) => sl<PetParentsListProvider>(),
+  ),
+  ChangeNotifierProvider<PetParentDetailProvider>(
+    create: (_) => sl<PetParentDetailProvider>(),
   ),
 ];

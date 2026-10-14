@@ -1,4 +1,5 @@
 import '../../domain/entities/doctor_list_entity.dart';
+import 'doctor_onboarding_model.dart';
 
 class DoctorUserModel extends DoctorUserEntity {
   const DoctorUserModel({
@@ -221,6 +222,7 @@ class DoctorItemModel extends DoctorItemEntity {
     super.petCategories = const [],
     super.services = const [],
     super.licenses = const [],
+    super.availableDays = const [],
     super.pricePerAppointment,
     super.timeZone,
     super.createdAt,
@@ -329,6 +331,21 @@ class DoctorItemModel extends DoctorItemEntity {
               )
               .toList() ??
           const [],
+      availableDays:
+          (json['availableDays'] is List)
+              ? (json['availableDays'] as List)
+                  .asMap()
+                  .entries
+                  .map<AvailableDayModel>(
+                    (entry) => AvailableDayModel.fromJson(
+                      entry.value is Map<String, dynamic>
+                          ? entry.value as Map<String, dynamic>
+                          : <String, dynamic>{},
+                      entry.key,
+                    ),
+                  )
+                  .toList()
+              : const [],
       pricePerAppointment: json['pricePerAppointment'] is Map<String, dynamic>
           ? DoctorPriceModel.fromJson(
               json['pricePerAppointment'] as Map<String, dynamic>,

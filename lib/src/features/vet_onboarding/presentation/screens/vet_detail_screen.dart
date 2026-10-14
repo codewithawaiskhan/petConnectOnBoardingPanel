@@ -5,6 +5,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/utils/responsive_extensions.dart';
+import '../../../../shared/presentation/widgets/shared_operating_schedule_card.dart';
+import '../../../../shared/presentation/widgets/shimmers/profile_detail_shimmer.dart';
 import '../../domain/entities/doctor_list_entity.dart';
 import '../providers/vet_detail_provider.dart';
 
@@ -70,7 +72,7 @@ class _VetDetailScreenState extends State<VetDetailScreen> with AppColors {
       body: Consumer<VetDetailProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading) {
-            return _buildLoadingState();
+            return ProfileDetailShimmer(isDesktop: isDesktop);
           }
 
           if (provider.errorMessage != null && provider.doctor == null) {
@@ -117,6 +119,10 @@ class _VetDetailScreenState extends State<VetDetailScreen> with AppColors {
                             _buildPricingCard(doctor),
                             const SizedBox(height: 20),
                             _buildClinicsCard(doctor),
+                            const SizedBox(height: 20),
+                            SharedOperatingScheduleCard(
+                              availableDays: doctor.availableDays,
+                            ),
                           ],
                         ),
                       ),
@@ -136,6 +142,10 @@ class _VetDetailScreenState extends State<VetDetailScreen> with AppColors {
                   _buildLicensesCard(doctor),
                   const SizedBox(height: 16),
                   _buildClinicsCard(doctor),
+                  const SizedBox(height: 16),
+                  SharedOperatingScheduleCard(
+                    availableDays: doctor.availableDays,
+                  ),
                 ],
               ],
             ),
@@ -652,28 +662,6 @@ class _VetDetailScreenState extends State<VetDetailScreen> with AppColors {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildLoadingState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(48.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation(primaryColor),
-            ),
-            const SizedBox(height: 16),
-            AppText(
-              text: "Loading doctor profile...",
-              fontSize: 14,
-              color: textSecondaryColor,
-            ),
-          ],
-        ),
-      ),
     );
   }
 

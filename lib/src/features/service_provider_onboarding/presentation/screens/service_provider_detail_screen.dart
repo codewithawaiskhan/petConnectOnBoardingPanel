@@ -5,6 +5,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/utils/responsive_extensions.dart';
+import '../../../../shared/presentation/widgets/shared_operating_schedule_card.dart';
+import '../../../../shared/presentation/widgets/shimmers/profile_detail_shimmer.dart';
 import '../../domain/entities/service_provider_list_entity.dart';
 import '../providers/service_provider_detail_provider.dart';
 
@@ -75,7 +77,7 @@ class _ServiceProviderDetailScreenState
       body: Consumer<ServiceProviderDetailProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading) {
-            return _buildLoadingState();
+            return ProfileDetailShimmer(isDesktop: isDesktop);
           }
 
           if (provider.errorMessage != null &&
@@ -123,6 +125,10 @@ class _ServiceProviderDetailScreenState
                             _buildPricingCard(sp),
                             const SizedBox(height: 20),
                             _buildServiceLocationsCard(sp),
+                            const SizedBox(height: 20),
+                            SharedOperatingScheduleCard(
+                              availableDays: sp.availableDays,
+                            ),
                           ],
                         ),
                       ),
@@ -142,6 +148,10 @@ class _ServiceProviderDetailScreenState
                   _buildServiceLocationsCard(sp),
                   const SizedBox(height: 16),
                   _buildLicensesCard(sp),
+                  const SizedBox(height: 16),
+                  SharedOperatingScheduleCard(
+                    availableDays: sp.availableDays,
+                  ),
                 ],
               ],
             ),
@@ -599,28 +609,6 @@ class _ServiceProviderDetailScreenState
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildLoadingState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(48.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation(primaryColor),
-            ),
-            const SizedBox(height: 16),
-            AppText(
-              text: "Loading service provider profile...",
-              fontSize: 14,
-              color: textSecondaryColor,
-            ),
-          ],
-        ),
-      ),
     );
   }
 

@@ -1,4 +1,5 @@
 import '../../domain/entities/service_provider_list_entity.dart';
+import 'service_provider_onboarding_model.dart';
 
 class ServiceProviderUserModel extends ServiceProviderUserEntity {
   const ServiceProviderUserModel({
@@ -169,6 +170,7 @@ class ServiceProviderItemModel extends ServiceProviderItemEntity {
     super.petCategories = const [],
     super.serviceLocations = const [],
     super.servicesOffered = const [],
+    super.availableDays = const [],
     super.otherService,
     super.createdAt,
     super.updatedAt,
@@ -269,6 +271,21 @@ class ServiceProviderItemModel extends ServiceProviderItemEntity {
               )
               .toList() ??
           const [],
+      availableDays:
+          (json['availableDays'] is List)
+              ? (json['availableDays'] as List)
+                  .asMap()
+                  .entries
+                  .map<AvailableDayModel>(
+                    (entry) => AvailableDayModel.fromJson(
+                      entry.value is Map<String, dynamic>
+                          ? entry.value as Map<String, dynamic>
+                          : <String, dynamic>{},
+                      entry.key,
+                    ),
+                  )
+                  .toList()
+              : const [],
       otherService: json['otherService']?.toString(),
       createdAt: json['createdAt']?.toString(),
       updatedAt: json['updatedAt']?.toString(),

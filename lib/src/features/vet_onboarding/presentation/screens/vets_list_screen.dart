@@ -6,6 +6,7 @@ import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
 import '../../../../core/utils/responsive_extensions.dart';
+import '../../../../shared/presentation/widgets/shimmers/data_table_shimmer.dart';
 import '../../domain/entities/doctor_list_entity.dart';
 import '../providers/vets_list_provider.dart';
 
@@ -58,7 +59,27 @@ class _VetsListScreenState extends State<VetsListScreen> with AppColors {
                   _buildFilterBar(provider, isDesktop),
                   const SizedBox(height: 20),
                   if (provider.isLoading)
-                    _buildLoadingState()
+                    DataTableShimmer(
+                      isDesktop: isDesktop,
+                      columnWidths: const {
+                        0: FlexColumnWidth(2.2),
+                        1: FlexColumnWidth(2.0),
+                        2: FlexColumnWidth(1.4),
+                        3: FlexColumnWidth(1.1),
+                        4: FlexColumnWidth(1.1),
+                        5: FlexColumnWidth(0.9),
+                        6: FlexColumnWidth(0.8),
+                      },
+                      headers: const [
+                        "Doctor",
+                        "Contact",
+                        "Designation / Category",
+                        "Fee / Appt",
+                        "Status",
+                        "Experience",
+                        "Action",
+                      ],
+                    )
                   else if (provider.errorMessage != null &&
                       provider.doctors.isEmpty)
                     _buildErrorState(provider)
@@ -613,26 +634,6 @@ class _VetsListScreenState extends State<VetsListScreen> with AppColors {
                 tooltip: "Next Page",
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoadingState() {
-    return Container(
-      padding: const EdgeInsets.all(40),
-      alignment: Alignment.center,
-      child: Column(
-        children: [
-          CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation(primaryColor),
-          ),
-          const SizedBox(height: 16),
-          AppText(
-            text: "Loading registered doctors...",
-            fontSize: 13,
-            color: textSecondaryColor,
           ),
         ],
       ),

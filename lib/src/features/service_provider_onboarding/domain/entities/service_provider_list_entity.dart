@@ -1,3 +1,5 @@
+import 'service_provider_onboarding_entity.dart';
+
 class ServiceProviderUserEntity {
   final String id;
   final String? image;
@@ -103,6 +105,7 @@ class ServiceProviderItemEntity {
   final List<ServiceProviderPetCategoryItemEntity> petCategories;
   final List<String> serviceLocations;
   final List<ServiceProviderOfferedServiceItemEntity> servicesOffered;
+  final List<AvailableDayEntity> availableDays;
   final String? otherService;
   final String? createdAt;
   final String? updatedAt;
@@ -149,6 +152,7 @@ class ServiceProviderItemEntity {
     this.petCategories = const [],
     this.serviceLocations = const [],
     this.servicesOffered = const [],
+    this.availableDays = const [],
     this.otherService,
     this.createdAt,
     this.updatedAt,

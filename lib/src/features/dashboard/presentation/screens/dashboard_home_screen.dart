@@ -8,6 +8,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/utils/responsive_extensions.dart';
+import '../../../../shared/presentation/widgets/shimmers/dashboard_stats_shimmer.dart';
 import '../../domain/entities/dashboard_stats_entity.dart';
 import '../providers/dashboard_provider.dart';
 
@@ -49,7 +50,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                   _buildWelcomeBanner(context),
                   const SizedBox(height: 24),
                   if (provider.isLoading)
-                    _buildMetricsShimmerGrid(context)
+                    const DashboardStatsShimmer()
                   else
                     _buildMetricsGrid(context, provider.stats),
                   const SizedBox(height: 28),
@@ -240,43 +241,6 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
     );
   }
 
-  Widget _buildMetricsShimmerGrid(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final crossAxisCount = constraints.maxWidth > 900
-            ? 4
-            : constraints.maxWidth > 550
-            ? 2
-            : 1;
-
-        return Shimmer.fromColors(
-          baseColor: baseShimmerColor,
-          highlightColor: highlightShimmerColor,
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              mainAxisExtent: 130,
-            ),
-            itemCount: 4,
-            itemBuilder: (context, index) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: whiteColor,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: borderColor),
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildQuickActionsAndChartSection(
     BuildContext context,
     DashboardProvider provider,
@@ -326,7 +290,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                 title: "Diagnostic Lab Onboarding",
                 desc: "Clinical tests, sample collection, ISO licenses",
                 icon: Icons.biotech_outlined,
-                onTap: () => context.go('/labs'),
+                onTap: () => context.go('/diagnostic-labs'),
               ),
             ],
           ),

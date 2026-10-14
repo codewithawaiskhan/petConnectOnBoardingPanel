@@ -1,3 +1,5 @@
+import 'doctor_onboarding_entity.dart';
+
 class DoctorUserEntity {
   final String id;
   final String? image;
@@ -124,6 +126,7 @@ class DoctorItemEntity {
   final List<String> petCategories;
   final List<DoctorServiceItemEntity> services;
   final List<DoctorLicenseItemEntity> licenses;
+  final List<AvailableDayEntity> availableDays;
   final DoctorPriceEntity? pricePerAppointment;
   final String? timeZone;
   final String? createdAt;
@@ -164,6 +167,7 @@ class DoctorItemEntity {
     this.petCategories = const [],
     this.services = const [],
     this.licenses = const [],
+    this.availableDays = const [],
     this.pricePerAppointment,
     this.timeZone,
     this.createdAt,

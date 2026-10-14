@@ -5,7 +5,11 @@ import '../../features/admin_auth/presentation/providers/admin_auth_provider.dar
 import '../../features/admin_auth/presentation/screens/admin_login_screen.dart';
 import '../../features/admin_auth/presentation/screens/splash_loading_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_home_screen.dart';
-import '../../features/lab_onboarding/presentation/screens/lab_placeholder_screen.dart';
+import '../../features/lab_onboarding/presentation/screens/lab_detail_screen.dart';
+import '../../features/lab_onboarding/presentation/screens/lab_onboarding_screen.dart';
+import '../../features/lab_onboarding/presentation/screens/labs_list_screen.dart';
+import '../../features/pet_parents/presentation/screens/pet_parent_detail_screen.dart';
+import '../../features/pet_parents/presentation/screens/pet_parents_list_screen.dart';
 import '../../features/service_provider_onboarding/presentation/screens/service_provider_detail_screen.dart';
 import '../../features/service_provider_onboarding/presentation/screens/service_provider_onboarding_screen.dart';
 import '../../features/service_provider_onboarding/presentation/screens/service_providers_list_screen.dart';
@@ -91,10 +95,26 @@ final GoRouter appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/doctors',
-              name: 'doctors',
+              path: '/pet-parents',
+              name: 'pet-parents',
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: VetOnboardingScreen()),
+                  const NoTransitionPage(child: PetParentsListScreen()),
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  name: 'pet-parent-detail',
+                  pageBuilder: (context, state) {
+                    final id = state.pathParameters['id'] ?? '';
+                    return NoTransitionPage(
+                      child: PetParentDetailScreen(id: id),
+                    );
+                  },
+                ),
+              ],
+            ),
+            GoRoute(
+              path: '/pet-parents-list',
+              redirect: (context, state) => '/pet-parents',
             ),
           ],
         ),
@@ -131,11 +151,10 @@ final GoRouter appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/service-providers',
-              name: 'service-providers',
-              pageBuilder: (context, state) => const NoTransitionPage(
-                child: ServiceProviderOnboardingScreen(),
-              ),
+              path: '/doctors',
+              name: 'doctors',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: VetOnboardingScreen()),
             ),
           ],
         ),
@@ -176,10 +195,47 @@ final GoRouter appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
+              path: '/service-providers',
+              name: 'service-providers',
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: ServiceProviderOnboardingScreen(),
+              ),
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
               path: '/labs',
               name: 'labs',
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: LabPlaceholderScreen()),
+                  const NoTransitionPage(child: LabsListScreen()),
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  name: 'lab-detail',
+                  pageBuilder: (context, state) {
+                    final id = state.pathParameters['id'] ?? '';
+                    return NoTransitionPage(child: LabDetailScreen(id: id));
+                  },
+                ),
+              ],
+            ),
+            GoRoute(
+              path: '/labs-list',
+              redirect: (context, state) => '/labs',
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/diagnostic-labs',
+              name: 'diagnostic-labs',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: LabOnboardingScreen()),
             ),
           ],
         ),

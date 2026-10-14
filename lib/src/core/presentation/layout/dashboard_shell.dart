@@ -3,10 +3,73 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../features/admin_auth/presentation/providers/admin_auth_provider.dart';
 import '../../constants/app_colors.dart';
-import '../../utils/responsive_extensions.dart';
 import '../widgets/app_logo.dart';
 import '../widgets/app_text.dart';
-import 'providers/sidebar_provider.dart';
+
+class _NavItemData {
+  final int index;
+  final String title;
+  final IconData icon;
+  final IconData activeIcon;
+
+  const _NavItemData({
+    required this.index,
+    required this.title,
+    required this.icon,
+    required this.activeIcon,
+  });
+}
+
+const List<_NavItemData> _navItems = [
+  _NavItemData(
+    index: 0,
+    title: "Dashboard",
+    icon: Icons.dashboard_outlined,
+    activeIcon: Icons.dashboard_rounded,
+  ),
+  _NavItemData(
+    index: 1,
+    title: "Pet Parents",
+    icon: Icons.family_restroom_outlined,
+    activeIcon: Icons.family_restroom_rounded,
+  ),
+  _NavItemData(
+    index: 2,
+    title: "Vets Directory",
+    icon: Icons.people_alt_outlined,
+    activeIcon: Icons.people_alt_rounded,
+  ),
+  _NavItemData(
+    index: 3,
+    title: "Onboard Veterinarian",
+    icon: Icons.medical_services_outlined,
+    activeIcon: Icons.medical_services_rounded,
+  ),
+  _NavItemData(
+    index: 4,
+    title: "Providers Directory",
+    icon: Icons.storefront_outlined,
+    activeIcon: Icons.storefront_rounded,
+  ),
+  _NavItemData(
+    index: 5,
+    title: "Onboard Provider",
+    icon: Icons.add_business_outlined,
+    activeIcon: Icons.add_business_rounded,
+  ),
+  _NavItemData(
+    index: 6,
+    title: "Labs Directory",
+    icon: Icons.science_outlined,
+    activeIcon: Icons.science_rounded,
+  ),
+  _NavItemData(
+    index: 7,
+    title: "Onboard Lab",
+    icon: Icons.biotech_outlined,
+    activeIcon: Icons.biotech_rounded,
+  ),
+];
 
 class DashboardShell extends StatelessWidget with AppColors {
   final StatefulNavigationShell navigationShell;
@@ -15,94 +78,64 @@ class DashboardShell extends StatelessWidget with AppColors {
 
   @override
   Widget build(BuildContext context) {
-    final isDesktop = context.isDesktop;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final isMedium = width >= 765 && width < 1024;
+        final isSmall = width < 765;
+        final isCollapsed = isMedium;
 
-    if (isDesktop) {
-      return Scaffold(
-        backgroundColor: backgroundColor,
-        body: Row(
-          children: [
-            _DesktopSidebar(navigationShell: navigationShell),
-            Expanded(
-              child: Column(
-                children: [
-                  _DesktopTopBar(currentIndex: navigationShell.currentIndex),
-                  Expanded(child: navigationShell),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      appBar: _buildMobileAppBar(context),
-      drawer: _MobileDrawer(navigationShell: navigationShell),
-      body: navigationShell,
-    );
-  }
-
-  PreferredSizeWidget _buildMobileAppBar(BuildContext context) {
-    return AppBar(
-      backgroundColor: whiteColor,
-      elevation: 0,
-      centerTitle: false,
-      title: Row(
-        children: [
-          const AppLogo(size: 28),
-          const SizedBox(width: 10),
-          AppText(
-            text: "PetConnect Onboarding Portal",
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: textPrimaryColor,
+        return Scaffold(
+          backgroundColor: backgroundColor,
+          appBar: _GlobalTopAppBar(
+            currentIndex: navigationShell.currentIndex,
+            isSmall: isSmall,
+            isMedium: isMedium,
           ),
-        ],
-      ),
-      actions: [
-        Consumer<AdminAuthProvider>(
-          builder: (context, auth, _) {
-            final initial = auth.adminName.isNotEmpty
-                ? auth.adminName.substring(0, 1).toUpperCase()
-                : "A";
-            return Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: CircleAvatar(
-                radius: 16,
-                backgroundColor: primaryColor,
-                child: AppText(
-                  text: initial,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: whiteColor,
+          drawer: isSmall
+              ? _MobileDrawer(navigationShell: navigationShell)
+              : null,
+          body: Row(
+            children: [
+              if (!isSmall)
+                _DesktopSidebar(
+                  navigationShell: navigationShell,
+                  isCollapsed: isCollapsed,
                 ),
-              ),
-            );
-          },
-        ),
-      ],
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(1),
-        child: Container(color: borderColor, height: 1),
-      ),
+              Expanded(child: navigationShell),
+            ],
+          ),
+        );
+      },
     );
   }
 }
 
-class _DesktopTopBar extends StatelessWidget with AppColors {
+class _GlobalTopAppBar extends StatelessWidget
+    with AppColors
+    implements PreferredSizeWidget {
   final int currentIndex;
+  final bool isSmall;
+  final bool isMedium;
 
-  const _DesktopTopBar({required this.currentIndex});
+  const _GlobalTopAppBar({
+    required this.currentIndex,
+    required this.isSmall,
+    required this.isMedium,
+  });
+
+  @override
+  Size get preferredSize => const Size.fromHeight(70);
 
   static const List<String> _titles = [
     "Dashboard Overview",
-    "Veterinarians & Doctors Onboarding",
-    "Registered Vets Directory",
-    "Service Providers Management",
-    "Registered Service Providers Directory",
-    "Diagnostic Labs & Branches",
+    "Pet Parents Directory",
+    "Veterinarians Directory",
+    "Onboard Veterinarian",
+    "Service Providers Directory",
+    "Onboard Provider",
+    "Diagnostic Labs Directory",
+    "Onboard Lab",
   ];
 
   @override
@@ -112,215 +145,128 @@ class _DesktopTopBar extends StatelessWidget with AppColors {
         : "Onboarding Portal";
 
     return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 32),
       decoration: BoxDecoration(
         color: whiteColor,
         border: Border(bottom: BorderSide(color: borderColor)),
       ),
-      child: Row(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: isSmall ? 8 : 20),
+          child: Row(
             children: [
-              Row(
-                children: [
-                  AppText(
-                    text: "Portal",
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: textSecondaryColor,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: Icon(
-                      Icons.chevron_right_rounded,
-                      size: 14,
-                      color: textSecondaryColor,
+
+              if (isSmall)
+                Builder(
+                  builder: (scaffoldContext) => IconButton(
+                    icon: Icon(
+                      Icons.menu_rounded,
+                      color: textPrimaryColor,
+                      size: 24,
                     ),
+                    tooltip: "Open Menu",
+                    onPressed: () => Scaffold.of(scaffoldContext).openDrawer(),
                   ),
-                  AppText(
-                    text: currentTitle,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: primaryColor,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 2),
-              AppText(
-                text: currentTitle,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: textPrimaryColor,
-              ),
-            ],
-          ),
-          const Spacer(),
-        ],
-      ),
-    );
-  }
-}
-
-class _DesktopSidebar extends StatelessWidget with AppColors {
-  final StatefulNavigationShell navigationShell;
-
-  const _DesktopSidebar({required this.navigationShell});
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<SidebarProvider>(
-      builder: (context, sidebar, _) {
-        final isCollapsed = sidebar.isCollapsed;
-        final width = isCollapsed ? 82.0 : 260.0;
-
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          width: width,
-          decoration: BoxDecoration(
-            color: whiteColor,
-            border: Border(right: BorderSide(color: borderColor)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                height: 70,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: borderColor)),
                 ),
-                child: isCollapsed
-                    ? Center(
-                        child: InkWell(
-                          onTap: sidebar.toggleCollapsed,
-                          borderRadius: BorderRadius.circular(8),
-                          child: const Tooltip(
-                            message: "Expand Sidebar",
-                            child: AppLogo(size: 32),
+
+              if (isSmall) ...[
+                const SizedBox(width: 4),
+                const AppLogo(size: 28),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: AppText(
+                    text: currentTitle,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: textPrimaryColor,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ] else ...[
+
+                SizedBox(
+                  width: isMedium ? 56 : 240,
+                  child: Row(
+                    children: [
+                      const AppLogo(size: 34),
+                      if (!isMedium) ...[
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AppText(
+                                text: "PetConnect",
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: textPrimaryColor,
+                                maxLines: 1,
+                              ),
+                              AppText(
+                                text: "ONBOARDING PORTAL",
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: primaryColor,
+                                maxLines: 1,
+                              ),
+                            ],
                           ),
                         ),
-                      )
-                    : ClipRect(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          physics: const NeverScrollableScrollPhysics(),
-                          child: SizedBox(
-                            width: 232,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    const AppLogo(size: 36),
-                                    const SizedBox(width: 12),
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        AppText(
-                                          text: "PetConnect",
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                          color: textPrimaryColor,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.clip,
-                                        ),
-                                        AppText(
-                                          text: "ONBOARDING PORTAL",
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w600,
-                                          color: primaryColor,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.clip,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.menu_rounded,
-                                    color: textSecondaryColor,
-                                    size: 20,
-                                  ),
-                                  onPressed: sidebar.toggleCollapsed,
-                                  tooltip: "Collapse Sidebar",
-                                ),
-                              ],
+                      ],
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 36,
+                  width: 1,
+                  color: borderColor,
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          AppText(
+                            text: "Portal",
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: textSecondaryColor,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            child: Icon(
+                              Icons.chevron_right_rounded,
+                              size: 14,
+                              color: textSecondaryColor,
                             ),
                           ),
-                        ),
+                          AppText(
+                            text: currentTitle,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: primaryColor,
+                          ),
+                        ],
                       ),
-              ),
-              const SizedBox(height: 16),
-
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isCollapsed ? 10 : 14,
+                      const SizedBox(height: 2),
+                      AppText(
+                        text: currentTitle,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: textPrimaryColor,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  children: [
-                    _buildNavItem(
-                      context: context,
-                      index: 0,
-                      title: "Dashboard",
-                      icon: Icons.dashboard_outlined,
-                      activeIcon: Icons.dashboard_rounded,
-                      isCollapsed: isCollapsed,
-                    ),
-                    const SizedBox(height: 6),
-                    _buildNavItem(
-                      context: context,
-                      index: 1,
-                      title: "Doctors / Vets",
-                      icon: Icons.medical_services_outlined,
-                      activeIcon: Icons.medical_services_rounded,
-                      isCollapsed: isCollapsed,
-                    ),
-                    const SizedBox(height: 6),
-                    _buildNavItem(
-                      context: context,
-                      index: 2,
-                      title: "Vets List",
-                      icon: Icons.people_outline_rounded,
-                      activeIcon: Icons.people_rounded,
-                      isCollapsed: isCollapsed,
-                    ),
-                    const SizedBox(height: 6),
-                    _buildNavItem(
-                      context: context,
-                      index: 3,
-                      title: "Service Providers",
-                      icon: Icons.pets_outlined,
-                      activeIcon: Icons.pets_rounded,
-                      isCollapsed: isCollapsed,
-                    ),
-                    const SizedBox(height: 6),
-                    _buildNavItem(
-                      context: context,
-                      index: 4,
-                      title: "Service Providers List",
-                      icon: Icons.storefront_outlined,
-                      activeIcon: Icons.storefront_rounded,
-                      isCollapsed: isCollapsed,
-                    ),
-                    const SizedBox(height: 6),
-                    _buildNavItem(
-                      context: context,
-                      index: 5,
-                      title: "Diagnostic Labs",
-                      icon: Icons.biotech_outlined,
-                      activeIcon: Icons.biotech_rounded,
-                      isCollapsed: isCollapsed,
-                    ),
-                  ],
                 ),
-              ),
+              ],
 
               Consumer<AdminAuthProvider>(
                 builder: (context, auth, _) {
@@ -328,120 +274,138 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
                       ? auth.adminName.substring(0, 1).toUpperCase()
                       : "A";
 
-                  return Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isCollapsed ? 10 : 14,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border(top: BorderSide(color: borderColor)),
-                    ),
-                    child: isCollapsed
-                        ? Center(
-                            child: IconButton(
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(
-                                minWidth: 36,
-                                minHeight: 36,
-                              ),
-                              icon: Icon(
-                                Icons.logout_rounded,
-                                color: textSecondaryColor,
-                                size: 20,
-                              ),
-                              tooltip: "Logout (${auth.adminEmail})",
-                              onPressed: () => auth.logout(context),
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircleAvatar(
+                        radius: 17,
+                        backgroundColor: primaryColor.withValues(alpha: 0.12),
+                        child: AppText(
+                          text: initial,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: primaryColor,
+                        ),
+                      ),
+                      if (!isSmall) ...[
+                        const SizedBox(width: 10),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AppText(
+                              text: auth.adminName.isNotEmpty
+                                  ? auth.adminName
+                                  : auth.adminRole,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: textPrimaryColor,
+                              maxLines: 1,
                             ),
-                          )
-                        : ClipRect(
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              physics: const NeverScrollableScrollPhysics(),
-                              child: SizedBox(
-                                width: 232,
-                                child: Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 16,
-                                      backgroundColor: primaryColor.withValues(
-                                        alpha: 0.12,
-                                      ),
-                                      child: AppText(
-                                        text: initial,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w700,
-                                        color: primaryColor,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          AppText(
-                                            text: auth.adminRole,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: textPrimaryColor,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.clip,
-                                          ),
-                                          AppText(
-                                            text: auth.adminEmail,
-                                            fontSize: 11,
-                                            color: textSecondaryColor,
-                                            overflow: TextOverflow.clip,
-                                            maxLines: 1,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    IconButton(
-                                      padding: EdgeInsets.zero,
-                                      constraints: const BoxConstraints(
-                                        minWidth: 28,
-                                        minHeight: 28,
-                                      ),
-                                      icon: Icon(
-                                        Icons.logout_rounded,
-                                        color: textSecondaryColor,
-                                        size: 18,
-                                      ),
-                                      tooltip: "Logout",
-                                      onPressed: () => auth.logout(context),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                            AppText(
+                              text: auth.adminEmail,
+                              fontSize: 11,
+                              color: textSecondaryColor,
+                              maxLines: 1,
                             ),
-                          ),
+                          ],
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      const SizedBox(width: 4),
+                      IconButton(
+                        icon: Icon(
+                          Icons.logout_rounded,
+                          color: textSecondaryColor,
+                          size: 20,
+                        ),
+                        tooltip: "Logout (${auth.adminEmail})",
+                        onPressed: () => auth.logout(context),
+                      ),
+                    ],
                   );
                 },
               ),
             ],
           ),
-        );
-      },
+        ),
+      ),
+    );
+  }
+}
+
+class _DesktopSidebar extends StatelessWidget with AppColors {
+  final StatefulNavigationShell navigationShell;
+  final bool isCollapsed;
+
+  const _DesktopSidebar({
+    required this.navigationShell,
+    required this.isCollapsed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final width = isCollapsed ? 76.0 : 260.0;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      width: width,
+      decoration: BoxDecoration(
+        color: whiteColor,
+        border: Border(right: BorderSide(color: borderColor)),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 14),
+          if (!isCollapsed)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: AppText(
+                  text: "MAIN NAVIGATION",
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: textSecondaryColor.withValues(alpha: 0.8),
+                  letterSpacing: 0.8,
+                ),
+              ),
+            ),
+          Expanded(
+            child: ListView.separated(
+              padding: EdgeInsets.symmetric(
+                horizontal: isCollapsed ? 10 : 14,
+                vertical: 4,
+              ),
+              itemCount: _navItems.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 4),
+              itemBuilder: (context, index) {
+                final item = _navItems[index];
+                return _buildNavItem(
+                  context: context,
+                  item: item,
+                  isCollapsed: isCollapsed,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildNavItem({
     required BuildContext context,
-    required int index,
-    required String title,
-    required IconData icon,
-    required IconData activeIcon,
+    required _NavItemData item,
     required bool isCollapsed,
   }) {
-    final isSelected = navigationShell.currentIndex == index;
+    final isSelected = navigationShell.currentIndex == item.index;
 
     final itemWidget = InkWell(
       onTap: () => navigationShell.goBranch(
-        index,
-        initialLocation: index == navigationShell.currentIndex,
+        item.index,
+        initialLocation: item.index == navigationShell.currentIndex,
       ),
       borderRadius: BorderRadius.circular(10),
       child: AnimatedContainer(
@@ -462,59 +426,51 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
         child: isCollapsed
             ? Center(
                 child: Icon(
-                  isSelected ? activeIcon : icon,
+                  isSelected ? item.activeIcon : item.icon,
                   color: isSelected ? primaryColor : unSelectedIconColor,
                   size: 20,
                 ),
               )
-            : ClipRect(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const NeverScrollableScrollPhysics(),
-                  child: SizedBox(
-                    width: 204,
-                    child: Row(
-                      children: [
-                        Icon(
-                          isSelected ? activeIcon : icon,
-                          color: isSelected
-                              ? primaryColor
-                              : unSelectedIconColor,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: AppText(
-                            text: title,
-                            fontSize: 13,
-                            fontWeight: isSelected
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                            color: isSelected ? primaryColor : textPrimaryColor,
-                            maxLines: 1,
-                            overflow: TextOverflow.clip,
-                          ),
-                        ),
-                        if (isSelected)
-                          Container(
-                            width: 6,
-                            height: 6,
-                            margin: const EdgeInsets.only(left: 6),
-                            decoration: BoxDecoration(
-                              color: primaryColor,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                      ],
+            : Row(
+                children: [
+                  Icon(
+                    isSelected ? item.activeIcon : item.icon,
+                    color: isSelected ? primaryColor : unSelectedIconColor,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: AppText(
+                      text: item.title,
+                      fontSize: 13,
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isSelected ? primaryColor : textPrimaryColor,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
+                  if (isSelected)
+                    Container(
+                      width: 6,
+                      height: 6,
+                      margin: const EdgeInsets.only(left: 6),
+                      decoration: BoxDecoration(
+                        color: primaryColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                ],
               ),
       ),
     );
 
     if (isCollapsed) {
-      return Tooltip(message: title, preferBelow: false, child: itemWidget);
+      return Tooltip(
+        message: item.title,
+        preferBelow: false,
+        child: itemWidget,
+      );
     }
 
     return itemWidget;
@@ -563,148 +519,56 @@ class _MobileDrawer extends StatelessWidget with AppColors {
             ),
             const SizedBox(height: 12),
             Expanded(
-              child: ListView(
+              child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                children: [
-                  _buildDrawerItem(
-                    context,
-                    0,
-                    "Dashboard",
-                    Icons.dashboard_outlined,
-                    Icons.dashboard_rounded,
-                  ),
-                  _buildDrawerItem(
-                    context,
-                    1,
-                    "Doctors / Vets",
-                    Icons.medical_services_outlined,
-                    Icons.medical_services_rounded,
-                  ),
-                  _buildDrawerItem(
-                    context,
-                    2,
-                    "Vets List",
-                    Icons.people_outline_rounded,
-                    Icons.people_rounded,
-                  ),
-                  _buildDrawerItem(
-                    context,
-                    3,
-                    "Service Providers",
-                    Icons.pets_outlined,
-                    Icons.pets_rounded,
-                  ),
-                  _buildDrawerItem(
-                    context,
-                    4,
-                    "Service Providers List",
-                    Icons.storefront_outlined,
-                    Icons.storefront_rounded,
-                  ),
-                  _buildDrawerItem(
-                    context,
-                    5,
-                    "Diagnostic Labs",
-                    Icons.biotech_outlined,
-                    Icons.biotech_rounded,
-                  ),
-                ],
-              ),
-            ),
+                itemCount: _navItems.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 2),
+                itemBuilder: (context, index) {
+                  final item = _navItems[index];
+                  final isSelected = navigationShell.currentIndex == item.index;
 
-            Consumer<AdminAuthProvider>(
-              builder: (context, auth, _) {
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: borderColor)),
-                  ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundColor: primaryColor.withValues(alpha: 0.12),
-                        child: AppText(
-                          text: auth.adminName.isNotEmpty
-                              ? auth.adminName.substring(0, 1).toUpperCase()
-                              : "A",
-                          fontWeight: FontWeight.w700,
-                          color: primaryColor,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AppText(
-                              text: auth.adminName,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: textPrimaryColor,
+                  return ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    tileColor: isSelected
+                        ? primaryColor.withValues(alpha: 0.1)
+                        : Colors.transparent,
+                    leading: Icon(
+                      isSelected ? item.activeIcon : item.icon,
+                      color: isSelected ? primaryColor : unSelectedIconColor,
+                    ),
+                    title: AppText(
+                      text: item.title,
+                      fontSize: 14,
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isSelected ? primaryColor : textPrimaryColor,
+                    ),
+                    trailing: isSelected
+                        ? Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: primaryColor,
+                              shape: BoxShape.circle,
                             ),
-                            AppText(
-                              text: auth.adminEmail,
-                              fontSize: 11,
-                              color: textSecondaryColor,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.logout_rounded,
-                          color: textSecondaryColor,
-                          size: 20,
-                        ),
-                        tooltip: "Logout",
-                        onPressed: () {
-                          Navigator.pop(context);
-                          auth.logout(context);
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
+                          )
+                        : null,
+                    onTap: () {
+                      Navigator.pop(context);
+                      navigationShell.goBranch(
+                        item.index,
+                        initialLocation:
+                            item.index == navigationShell.currentIndex,
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildDrawerItem(
-    BuildContext context,
-    int index,
-    String title,
-    IconData icon,
-    IconData activeIcon,
-  ) {
-    final isSelected = navigationShell.currentIndex == index;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: ListTile(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        tileColor: isSelected
-            ? primaryColor.withValues(alpha: 0.1)
-            : Colors.transparent,
-        leading: Icon(
-          isSelected ? activeIcon : icon,
-          color: isSelected ? primaryColor : unSelectedIconColor,
-        ),
-        title: AppText(
-          text: title,
-          fontSize: 14,
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-          color: isSelected ? primaryColor : textPrimaryColor,
-        ),
-        onTap: () {
-          Navigator.pop(context);
-          navigationShell.goBranch(index);
-        },
       ),
     );
   }
