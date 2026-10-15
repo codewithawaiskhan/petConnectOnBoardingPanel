@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
+import '../../../../core/presentation/widgets/status_badge.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shared_operating_schedule_card.dart';
 import '../../../../shared/presentation/widgets/shimmers/profile_detail_shimmer.dart';
@@ -266,39 +267,11 @@ class _ServiceProviderDetailScreenState
   }
 
   Widget _buildStatusBadge(String status) {
-    Color bg;
-    Color fg;
-
-    switch (status.toLowerCase()) {
-      case 'approved':
-        bg = lightGreenColor;
-        fg = successColor;
-        break;
-      case 'pending':
-        bg = lightYellowColor;
-        fg = yellowColor;
-        break;
-      case 'declined':
-        bg = peachColor;
-        fg = errorColor;
-        break;
-      default:
-        bg = borderColor;
-        fg = textSecondaryColor;
-    }
-
-    return Container(
+    return StatusBadge(
+      status: status,
+      fontSize: 12,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: AppText(
-        text: status,
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: fg,
-      ),
+      borderRadius: BorderRadius.circular(14),
     );
   }
 

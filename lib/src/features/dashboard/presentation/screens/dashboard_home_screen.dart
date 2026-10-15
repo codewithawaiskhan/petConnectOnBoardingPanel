@@ -40,10 +40,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
             onRefresh: () => provider.fetchDashboardStats(isRefresh: true),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(
-                horizontal: context.isDesktop ? 32 : 16,
-                vertical: 24,
-              ),
+              padding: EdgeInsets.all(context.isDesktop ? 24.0 : 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

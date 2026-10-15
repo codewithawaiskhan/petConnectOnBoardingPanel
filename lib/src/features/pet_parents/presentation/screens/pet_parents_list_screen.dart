@@ -7,6 +7,7 @@ import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shimmers/data_table_shimmer.dart';
+import '../../../../core/presentation/widgets/status_badge.dart';
 import '../../domain/entities/pet_parent_entity.dart';
 import '../providers/pet_parents_list_provider.dart';
 
@@ -508,21 +509,10 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
             SizedBox(
               width: 100,
               child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: successColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: AppText(
-                    text: status,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: successColor,
-                  ),
+                child: StatusBadge(
+                  status: status,
+                  isDeleted: parent.isDeleted,
+                  fontSize: 12,
                 ),
               ),
             ),
@@ -618,21 +608,36 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
                                   maxLines: 1,
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 3,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: primaryColor.withValues(alpha: 0.08),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: AppText(
-                                  text: displayId,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: primaryColor,
-                                ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  StatusBadge(
+                                    status: parent.user?.status ?? "Active",
+                                    isDeleted: parent.isDeleted,
+                                    fontSize: 10,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: primaryColor.withValues(alpha: 0.08),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: AppText(
+                                      text: displayId,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: primaryColor,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

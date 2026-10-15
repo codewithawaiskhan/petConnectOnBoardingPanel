@@ -236,69 +236,61 @@ class _ServiceProviderOnboardingScreenState
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = context.isDesktop;
+
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1100),
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: context.isDesktop ? 32 : 16,
-                vertical: 24,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 24),
-                  _buildPersonalCredentialsSection(context),
-                  const SizedBox(height: 24),
-                  _buildBusinessDetailsSection(context),
-                  const SizedBox(height: 24),
-                  _buildServicesAndPricingSection(context),
-                  const SizedBox(height: 24),
-                  _buildWorkingHoursSection(context),
-                  const SizedBox(height: 24),
-                  _buildDegreesSection(context),
-                  const SizedBox(height: 24),
-                  _buildLicensesSection(context),
-                  const SizedBox(height: 24),
-                  _buildWorkExperiencesSection(context),
-                  const SizedBox(height: 32),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(isDesktop ? 24.0 : 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(),
+            const SizedBox(height: 24),
+            _buildPersonalCredentialsSection(context),
+            const SizedBox(height: 24),
+            _buildBusinessDetailsSection(context),
+            const SizedBox(height: 24),
+            _buildServicesAndPricingSection(context),
+            const SizedBox(height: 24),
+            _buildWorkingHoursSection(context),
+            const SizedBox(height: 24),
+            _buildDegreesSection(context),
+            const SizedBox(height: 24),
+            _buildLicensesSection(context),
+            const SizedBox(height: 24),
+            _buildWorkExperiencesSection(context),
+            const SizedBox(height: 32),
 
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Selector<ServiceProviderOnboardingProvider, bool>(
-                      selector: (_, p) => p.isLoading,
-                      builder: (context, isLoading, _) {
-                        return CustomButton(
-                          text: "Submit Onboarding Application",
-                          isIcon: true,
-                          icon: Icon(
-                            Icons.check_circle_outline_rounded,
-                            size: 18,
-                            color: whiteColor,
-                          ),
-                          isLoading: isLoading,
-                          height: 48,
-                          width: 290,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          onTap: () async {
-                            await context
-                                .read<ServiceProviderOnboardingProvider>()
-                                .submitData(context);
-                          },
-                        );
-                      },
+            Align(
+              alignment: Alignment.centerRight,
+              child: Selector<ServiceProviderOnboardingProvider, bool>(
+                selector: (_, p) => p.isLoading,
+                builder: (context, isLoading, _) {
+                  return CustomButton(
+                    text: "Submit Onboarding Application",
+                    isIcon: true,
+                    icon: Icon(
+                      Icons.check_circle_outline_rounded,
+                      size: 18,
+                      color: whiteColor,
                     ),
-                  ),
-                  const SizedBox(height: 48),
-                ],
+                    isLoading: isLoading,
+                    height: 48,
+                    width: 290,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    onTap: () async {
+                      await context
+                          .read<ServiceProviderOnboardingProvider>()
+                          .submitData(context);
+                    },
+                  );
+                },
               ),
             ),
-          ),
+            const SizedBox(height: 48),
+          ],
         ),
       ),
     );

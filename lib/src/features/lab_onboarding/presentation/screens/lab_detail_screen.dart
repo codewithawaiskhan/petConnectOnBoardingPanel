@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
+import '../../../../core/presentation/widgets/status_badge.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shared_operating_schedule_card.dart';
 import '../../../../shared/presentation/widgets/shimmers/profile_detail_shimmer.dart';
@@ -151,25 +152,6 @@ class _LabDetailScreenState extends State<LabDetailScreen> with AppColors {
         ? lab.title.substring(0, 1).toUpperCase()
         : "L";
 
-    Color badgeColor;
-    Color textColor;
-    switch (lab.status.toLowerCase()) {
-      case 'approved':
-        badgeColor = successColor.withValues(alpha: 0.12);
-        textColor = successColor;
-        break;
-      case 'declined':
-      case 'rejected':
-        badgeColor = errorColor.withValues(alpha: 0.12);
-        textColor = errorColor;
-        break;
-      case 'pending':
-      default:
-        badgeColor = yellowColor.withValues(alpha: 0.15);
-        textColor = yellowColor;
-        break;
-    }
-
     return Container(
       padding: EdgeInsets.all(isDesktop ? 24 : 16),
       decoration: BoxDecoration(
@@ -235,21 +217,14 @@ class _LabDetailScreenState extends State<LabDetailScreen> with AppColors {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Container(
+                    StatusBadge(
+                      status: lab.status,
+                      fontSize: 12,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 6,
                       ),
-                      decoration: BoxDecoration(
-                        color: badgeColor,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: AppText(
-                        text: lab.status,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                      ),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                   ],
                 ),

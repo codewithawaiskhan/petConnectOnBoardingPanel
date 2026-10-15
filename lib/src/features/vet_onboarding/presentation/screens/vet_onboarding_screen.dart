@@ -202,42 +202,34 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = context.isDesktop;
+
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1100),
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: context.isDesktop ? 32 : 16,
-                vertical: 24,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 24),
-                  _buildPersonalCredentialsSection(context),
-                  const SizedBox(height: 24),
-                  _buildProfessionalBioSection(context),
-                  const SizedBox(height: 24),
-                  _buildWorkingHoursSection(context),
-                  const SizedBox(height: 24),
-                  _buildDegreesSection(context),
-                  const SizedBox(height: 24),
-                  _buildClinicsSection(context),
-                  const SizedBox(height: 24),
-                  _buildLicensesSection(context),
-                  const SizedBox(height: 24),
-                  _buildWorkExperiencesSection(context),
-                  const SizedBox(height: 32),
-                  _buildSubmitSection(context),
-                  const SizedBox(height: 48),
-                ],
-              ),
-            ),
-          ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(isDesktop ? 24.0 : 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(),
+            const SizedBox(height: 24),
+            _buildPersonalCredentialsSection(context),
+            const SizedBox(height: 24),
+            _buildProfessionalBioSection(context),
+            const SizedBox(height: 24),
+            _buildWorkingHoursSection(context),
+            const SizedBox(height: 24),
+            _buildDegreesSection(context),
+            const SizedBox(height: 24),
+            _buildClinicsSection(context),
+            const SizedBox(height: 24),
+            _buildLicensesSection(context),
+            const SizedBox(height: 24),
+            _buildWorkExperiencesSection(context),
+            const SizedBox(height: 32),
+            _buildSubmitSection(context),
+            const SizedBox(height: 48),
+          ],
         ),
       ),
     );

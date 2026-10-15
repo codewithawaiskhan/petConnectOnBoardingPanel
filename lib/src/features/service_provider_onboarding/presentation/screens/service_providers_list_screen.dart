@@ -7,6 +7,7 @@ import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shimmers/data_table_shimmer.dart';
+import '../../../../core/presentation/widgets/status_badge.dart';
 import '../../domain/entities/service_provider_list_entity.dart';
 import '../providers/service_providers_list_provider.dart';
 
@@ -407,43 +408,12 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
   }
 
   Widget _buildStatusCell(String status) {
-    Color bg;
-    Color fg;
-
-    switch (status.toLowerCase()) {
-      case 'approved':
-        bg = lightGreenColor;
-        fg = successColor;
-        break;
-      case 'pending':
-        bg = lightYellowColor;
-        fg = yellowColor;
-        break;
-      case 'declined':
-        bg = peachColor;
-        fg = errorColor;
-        break;
-      default:
-        bg = borderColor;
-        fg = textSecondaryColor;
-    }
-
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: AppText(
-            text: status,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: fg,
-          ),
+        child: StatusBadge(
+          status: status,
         ),
       ),
     );
@@ -531,7 +501,8 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
                         ],
                       ),
                     ),
-                    _buildStatusCell(sp.status),
+                    const SizedBox(width: 8),
+                    StatusBadge(status: sp.status),
                     const SizedBox(width: 4),
                     Icon(
                       Icons.chevron_right_rounded,

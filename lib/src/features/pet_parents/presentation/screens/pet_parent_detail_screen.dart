@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
+import '../../../../core/presentation/widgets/status_badge.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shimmers/profile_detail_shimmer.dart';
 import '../../domain/entities/pet_parent_entity.dart';
@@ -224,35 +225,16 @@ class _PetParentDetailScreenState extends State<PetParentDetailScreen>
                         ],
                       ),
                     ),
-                    Container(
+                    StatusBadge(
+                      status: status,
+                      isDeleted: parent.isDeleted,
+                      fontSize: 12,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 4,
                       ),
-                      decoration: BoxDecoration(
-                        color: successColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: successColor,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          AppText(
-                            text: status,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: successColor,
-                          ),
-                        ],
-                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      showDot: true,
                     ),
                   ],
                 ),

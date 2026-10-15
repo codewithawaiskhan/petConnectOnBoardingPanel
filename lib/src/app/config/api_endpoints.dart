@@ -1,7 +1,7 @@
 mixin ApiEndpoints {
-  static String webUrl = "https://petconnect.example.com";
+  // static String webUrl = "https://petconnect.example.com";
   static String baseUrl = "https://server.petaccessapp.com";
-  static String storageBaseUrl = "https://api.petconnect.example.com";
+  static String storageBaseUrl = baseUrl;
 
   static String apiUrl = "$baseUrl/api";
 

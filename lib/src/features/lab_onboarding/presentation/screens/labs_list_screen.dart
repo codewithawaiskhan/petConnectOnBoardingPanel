@@ -7,6 +7,7 @@ import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shimmers/data_table_shimmer.dart';
+import '../../../../core/presentation/widgets/status_badge.dart';
 import '../../domain/entities/lab_entity.dart';
 import '../providers/labs_list_provider.dart';
 
@@ -62,11 +63,11 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
                     DataTableShimmer(
                       isDesktop: isDesktop,
                       columnWidths: const {
-                        0: FlexColumnWidth(2.2),
-                        1: FlexColumnWidth(2.0),
-                        2: FlexColumnWidth(1.6),
-                        3: FlexColumnWidth(1.8),
-                        4: FlexColumnWidth(1.0),
+                        0: FlexColumnWidth(2.0),
+                        1: FlexColumnWidth(1.8),
+                        2: FlexColumnWidth(1.5),
+                        3: FlexColumnWidth(1.5),
+                        4: FlexColumnWidth(1.4),
                         5: FlexColumnWidth(0.8),
                       },
                       headers: const [
@@ -230,11 +231,11 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
         borderRadius: BorderRadius.circular(12),
         child: Table(
           columnWidths: const {
-            0: FlexColumnWidth(2.2),
-            1: FlexColumnWidth(2.0),
-            2: FlexColumnWidth(1.6),
-            3: FlexColumnWidth(1.8),
-            4: FlexColumnWidth(1.0),
+            0: FlexColumnWidth(2.0),
+            1: FlexColumnWidth(1.8),
+            2: FlexColumnWidth(1.5),
+            3: FlexColumnWidth(1.5),
+            4: FlexColumnWidth(1.4),
             5: FlexColumnWidth(0.8),
           },
           children: [
@@ -441,42 +442,12 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
   }
 
   Widget _buildStatusCell(String status) {
-    Color badgeColor;
-    Color textColor;
-
-    switch (status.toLowerCase()) {
-      case 'approved':
-        badgeColor = successColor.withValues(alpha: 0.12);
-        textColor = successColor;
-        break;
-      case 'declined':
-      case 'rejected':
-        badgeColor = errorColor.withValues(alpha: 0.12);
-        textColor = errorColor;
-        break;
-      case 'pending':
-      default:
-        badgeColor = yellowColor.withValues(alpha: 0.15);
-        textColor = yellowColor;
-        break;
-    }
-
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: badgeColor,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: AppText(
-            text: status,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: textColor,
-          ),
+        child: StatusBadge(
+          status: status,
         ),
       ),
     );
@@ -555,7 +526,8 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
                         ],
                       ),
                     ),
-                    _buildStatusCell(lab.status),
+                    const SizedBox(width: 8),
+                    StatusBadge(status: lab.status),
                   ],
                 ),
                 const Divider(height: 20),

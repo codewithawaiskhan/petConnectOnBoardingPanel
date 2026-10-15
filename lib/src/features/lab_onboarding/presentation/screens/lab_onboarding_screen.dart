@@ -1150,17 +1150,12 @@ class _LabOnboardingScreenState extends State<LabOnboardingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = context.isDesktop;
+
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1100),
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: context.isDesktop ? 32 : 16,
-                vertical: 24,
-              ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(isDesktop ? 24.0 : 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1253,9 +1248,6 @@ class _LabOnboardingScreenState extends State<LabOnboardingScreen>
                 ],
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }
