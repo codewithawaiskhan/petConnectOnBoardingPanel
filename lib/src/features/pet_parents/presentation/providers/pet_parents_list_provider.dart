@@ -36,8 +36,16 @@ class PetParentsListProvider extends ChangeNotifier {
   int _totalDocs = 0;
   int get totalDocs => _totalDocs;
 
-  final int _pageSize = 10;
-  int get pageSize => _pageSize;
+  int _limit = 10;
+  int get limit => _limit;
+  int get pageSize => _limit;
+
+  void setLimit(int newLimit) {
+    if (_limit == newLimit) return;
+    _limit = newLimit;
+    _currentPage = 1;
+    fetchPetParents(isRefresh: true);
+  }
 
   String _searchKeyword = '';
   String get searchKeyword => _searchKeyword;
@@ -58,7 +66,7 @@ class PetParentsListProvider extends ChangeNotifier {
     try {
       final response = await useCases.getPetParents(
         page: targetPage,
-        pageSize: _pageSize,
+        pageSize: _limit,
         keyword: _searchKeyword.trim().isEmpty ? null : _searchKeyword.trim(),
       );
 

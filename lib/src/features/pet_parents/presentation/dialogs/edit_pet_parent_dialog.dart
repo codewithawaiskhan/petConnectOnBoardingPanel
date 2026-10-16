@@ -6,6 +6,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
+import '../../../../core/presentation/widgets/status_badge.dart';
 import '../../../../core/utils/mini_functions.dart';
 import '../../../../core/utils/show_toast.dart';
 import '../../../../shared/presentation/widgets/custom_date_picker_field.dart';
@@ -54,6 +55,7 @@ class _EditPetParentDialogState extends State<EditPetParentDialog>
     super.initState();
     final p = widget.parent;
     _fullNameController = TextEditingController(text: p.fullName ?? '');
+    _fullNameController.addListener(_onFieldChanged);
     _phoneController = TextEditingController(text: p.phone ?? '');
     _dobController = TextEditingController(
       text: MiniFunctions().formatDateToYMD(p.dateOfBirth),
@@ -69,8 +71,13 @@ class _EditPetParentDialogState extends State<EditPetParentDialog>
     );
   }
 
+  void _onFieldChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    _fullNameController.removeListener(_onFieldChanged);
     _fullNameController.dispose();
     _phoneController.dispose();
     _dobController.dispose();
@@ -112,108 +119,310 @@ class _EditPetParentDialogState extends State<EditPetParentDialog>
     }
   }
 
-  Widget _buildAvatar() {
-    Widget avatarWidget;
+  Widget _buildProfileCard(bool isNarrow) {
+    final parent = widget.parent;
+    final currentName = _fullNameController.text.trim();
+    final displayName = currentName.isNotEmpty
+        ? currentName
+        : (parent.fullName?.trim().isNotEmpty == true
+            ? parent.fullName!.trim()
+            : "Pet Parent");
+    final initial = displayName.isNotEmpty
+        ? displayName.substring(0, 1).toUpperCase()
+        : "P";
+    final displayId = parent.longAutoIncrementId ??
+        (parent.autoIncrementId != null ? "#${parent.autoIncrementId}" : "N/A");
+    final displayEmail = parent.email?.trim().isNotEmpty == true
+        ? parent.email!.trim()
+        : "No email provided";
+
+    final avatarStack = Stack(
+      children: [
+        InkWell(
+          onTap: _isPickingImage ? null : _pickImage,
+          borderRadius: BorderRadius.circular(42),
+          child: Container(
+            width: 76,
+            height: 76,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: primaryColor.withValues(alpha: 0.25),
+                width: 2.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: primaryColor.withValues(alpha: 0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: ClipOval(child: _buildAvatarContent(initial)),
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          right: 0,
+          child: InkWell(
+            onTap: _isPickingImage ? null : _pickImage,
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: primaryColor,
+                shape: BoxShape.circle,
+                border: Border.all(color: whiteColor, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              child: _isPickingImage
+                  ? SizedBox(
+                      width: 13,
+                      height: 13,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: whiteColor,
+                      ),
+                    )
+                  : Icon(
+                      Icons.camera_alt_rounded,
+                      color: whiteColor,
+                      size: 13,
+                    ),
+            ),
+          ),
+        ),
+      ],
+    );
+
+    final infoColumn = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AppText(
+          text: displayName,
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+          color: textPrimaryColor,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+        const SizedBox(height: 6),
+        Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+              decoration: BoxDecoration(
+                color: primaryColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: AppText(
+                text: displayId,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: primaryColor,
+              ),
+            ),
+            StatusBadge(
+              status: parent.user?.status ?? "Active",
+              isDeleted: parent.isDeleted,
+              fontSize: 10,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Icon(
+              Icons.mail_outline_rounded,
+              size: 14,
+              color: textSecondaryColor,
+            ),
+            const SizedBox(width: 5),
+            Expanded(
+              child: AppText(
+                text: displayEmail,
+                fontSize: 12,
+                color: textSecondaryColor,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+
+    final actionsRow = Wrap(
+      spacing: 10,
+      runSpacing: 6,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        InkWell(
+          onTap: _isPickingImage ? null : _pickImage,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: whiteColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: primaryColor.withValues(alpha: 0.35),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_isPickingImage) ...[
+                  SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: primaryColor,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                ] else ...[
+                  Icon(
+                    Icons.upload_file_rounded,
+                    size: 14,
+                    color: primaryColor,
+                  ),
+                  const SizedBox(width: 5),
+                ],
+                AppText(
+                  text: _selectedImageDataURI != null
+                      ? "Change Photo"
+                      : "Upload Photo",
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: primaryColor,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_selectedImageDataURI != null)
+          InkWell(
+            onTap: () => setState(() => _selectedImageDataURI = null),
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: whiteColor,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: errorColor.withValues(alpha: 0.35),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.close_rounded, size: 14, color: errorColor),
+                  const SizedBox(width: 4),
+                  AppText(
+                    text: "Remove",
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: errorColor,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        AppText(
+          text: "JPG, PNG or WEBP (Max 5MB)",
+          fontSize: 11,
+          color: textSecondaryColor,
+        ),
+      ],
+    );
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: primaryColor.withValues(alpha: 0.035),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: primaryColor.withValues(alpha: 0.12),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              avatarStack,
+              const SizedBox(width: 16),
+              Expanded(child: infoColumn),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Divider(
+            height: 1,
+            color: primaryColor.withValues(alpha: 0.1),
+          ),
+          const SizedBox(height: 12),
+          actionsRow,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvatarContent(String initial) {
     if (_selectedImageDataURI != null) {
       try {
         final cleanBase64 = _selectedImageDataURI!.contains(',')
             ? _selectedImageDataURI!.split(',').last
             : _selectedImageDataURI!;
-        avatarWidget = ClipOval(
-          child: Image.memory(
-            base64Decode(cleanBase64),
-            width: 76,
-            height: 76,
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Icon(
-              Icons.person_rounded,
-              color: textSecondaryColor,
-              size: 40,
-            ),
-          ),
+        return Image.memory(
+          base64Decode(cleanBase64),
+          width: 76,
+          height: 76,
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => _buildInitialsAvatar(initial),
         );
       } catch (_) {
-        avatarWidget = Icon(
-          Icons.person_rounded,
-          color: textSecondaryColor,
-          size: 40,
-        );
+        return _buildInitialsAvatar(initial);
       }
     } else if (widget.parent.user?.image != null &&
         widget.parent.user!.image!.trim().isNotEmpty) {
       final imageUrl = MiniFunctions.getImageUrl(widget.parent.user!.image!);
-      avatarWidget = ClipOval(
-        child: Image.network(
-          imageUrl,
-          width: 76,
-          height: 76,
-          fit: BoxFit.cover,
-          errorBuilder: (_, _, _) => Icon(
-            Icons.person_rounded,
-            color: textSecondaryColor,
-            size: 40,
-          ),
-        ),
+      return Image.network(
+        imageUrl,
+        width: 76,
+        height: 76,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => _buildInitialsAvatar(initial),
       );
     } else {
-      final initial = widget.parent.fullName?.isNotEmpty == true
-          ? widget.parent.fullName!.substring(0, 1).toUpperCase()
-          : "P";
-      avatarWidget = CircleAvatar(
-        radius: 38,
-        backgroundColor: primaryColor.withValues(alpha: 0.1),
-        child: AppText(
-          text: initial,
-          fontSize: 26,
-          fontWeight: FontWeight.w700,
-          color: primaryColor,
-        ),
-      );
+      return _buildInitialsAvatar(initial);
     }
+  }
 
-    return Center(
-      child: Stack(
-        children: [
-          Container(
-            width: 82,
-            height: 82,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: primaryColor.withValues(alpha: 0.2), width: 2),
-            ),
-            child: Center(child: avatarWidget),
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: InkWell(
-              onTap: _isPickingImage ? null : _pickImage,
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: primaryColor,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: whiteColor, width: 2),
-                ),
-                child: _isPickingImage
-                    ? SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: whiteColor,
-                        ),
-                      )
-                    : Icon(
-                        Icons.camera_alt_rounded,
-                        color: whiteColor,
-                        size: 14,
-                      ),
-              ),
-            ),
-          ),
-        ],
+  Widget _buildInitialsAvatar(String initial) {
+    return Container(
+      width: 76,
+      height: 76,
+      color: primaryColor.withValues(alpha: 0.1),
+      alignment: Alignment.center,
+      child: AppText(
+        text: initial,
+        fontSize: 26,
+        fontWeight: FontWeight.w700,
+        color: primaryColor,
       ),
     );
   }
@@ -321,7 +530,7 @@ class _EditPetParentDialogState extends State<EditPetParentDialog>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildAvatar(),
+                        _buildProfileCard(isNarrow),
                         const SizedBox(height: 20),
                         if (isNarrow) ...[
                           CustomTextField(

@@ -38,8 +38,16 @@ class LabsListProvider extends ChangeNotifier {
   int _totalDocs = 0;
   int get totalDocs => _totalDocs;
 
-  final int _pageSize = 10;
-  int get pageSize => _pageSize;
+  int _limit = 10;
+  int get limit => _limit;
+  int get pageSize => _limit;
+
+  void setLimit(int newLimit) {
+    if (_limit == newLimit) return;
+    _limit = newLimit;
+    _currentPage = 1;
+    fetchLabs(isRefresh: true);
+  }
 
   String _selectedStatus = 'All';
   String get selectedStatus => _selectedStatus;
@@ -65,7 +73,7 @@ class LabsListProvider extends ChangeNotifier {
     try {
       final response = await useCases.getLabs(
         page: targetPage,
-        pageSize: _pageSize,
+        pageSize: _limit,
         status: _selectedStatus == 'All' ? null : _selectedStatus,
         keyword: _searchKeyword.trim().isEmpty ? null : _searchKeyword.trim(),
       );

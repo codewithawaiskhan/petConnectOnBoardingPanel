@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
+import '../../../../core/presentation/widgets/bootstrap_pagination.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
 import '../../../../core/utils/dialog_utils.dart';
@@ -732,56 +734,57 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: borderColor),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          AppText(
-            text:
-                "Page ${provider.currentPage} of ${provider.totalPages > 0 ? provider.totalPages : 1}",
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: textSecondaryColor,
-          ),
-          Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 640;
+
+          final infoAndDropdown = Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
             children: [
-              IconButton(
-                icon: const Icon(Icons.chevron_left_rounded),
-                onPressed:
-                    provider.currentPage > 1 && !provider.isPaginationLoading
-                        ? provider.previousPage
-                        : null,
-                tooltip: "Previous Page",
+              AppText(
+                text:
+                    "Showing page ${provider.currentPage} of ${provider.totalPages > 0 ? provider.totalPages : 1} (${provider.totalDocs} laboratories)",
+                fontFamily: fontPoppins,
+                fontSize: 12,
+                color: textSecondaryColor,
               ),
-              const SizedBox(width: 8),
-              if (provider.isPaginationLoading)
-                SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation(primaryColor),
-                  ),
-                )
-              else
-                AppText(
-                  text: "${provider.currentPage}",
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: primaryColor,
-                ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: const Icon(Icons.chevron_right_rounded),
-                onPressed:
-                    provider.currentPage < provider.totalPages &&
-                            !provider.isPaginationLoading
-                        ? provider.nextPage
-                        : null,
-                tooltip: "Next Page",
+              ItemsPerPageDropdown(
+                currentLimit: provider.limit,
+                isEnabled: !provider.isPaginationLoading && !provider.isLoading,
+                onLimitChanged: (newLimit) => provider.setLimit(newLimit),
               ),
             ],
-          ),
-        ],
+          );
+
+          final pagination = BootstrapPagination(
+            currentPage: provider.currentPage,
+            totalPages: provider.totalPages,
+            isEnabled: !provider.isPaginationLoading && !provider.isLoading,
+            onPageChanged: (page) => provider.goToPage(page),
+          );
+
+          if (isNarrow) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                infoAndDropdown,
+                const SizedBox(height: 12),
+                pagination,
+              ],
+            );
+          }
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              infoAndDropdown,
+              pagination,
+            ],
+          );
+        },
       ),
     );
   }

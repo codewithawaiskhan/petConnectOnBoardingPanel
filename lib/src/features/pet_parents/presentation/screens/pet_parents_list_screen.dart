@@ -10,6 +10,8 @@ import '../../../../shared/presentation/widgets/shimmers/data_table_shimmer.dart
 import '../../../../core/presentation/widgets/status_badge.dart';
 import '../../../../core/utils/dialog_utils.dart';
 import '../../domain/entities/pet_parent_entity.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../../core/presentation/widgets/bootstrap_pagination.dart';
 import '../dialogs/edit_pet_parent_dialog.dart';
 import '../providers/pet_parents_list_provider.dart';
 
@@ -846,167 +848,52 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final isNarrow = constraints.maxWidth < 460;
+          final isNarrow = constraints.maxWidth < 640;
+
+          final infoAndDropdown = Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
+            children: [
+              AppText(
+                text:
+                    "Showing page ${provider.currentPage} of ${provider.totalPages > 0 ? provider.totalPages : 1} (${provider.totalDocs} pet parents)",
+                fontFamily: fontPoppins,
+                fontSize: 12,
+                color: textSecondaryColor,
+              ),
+              ItemsPerPageDropdown(
+                currentLimit: provider.limit,
+                isEnabled: !provider.isPaginationLoading && !provider.isLoading,
+                onLimitChanged: (newLimit) => provider.setLimit(newLimit),
+              ),
+            ],
+          );
+
+          final pagination = BootstrapPagination(
+            currentPage: provider.currentPage,
+            totalPages: provider.totalPages,
+            isEnabled: !provider.isPaginationLoading && !provider.isLoading,
+            onPageChanged: (page) => provider.goToPage(page),
+          );
 
           if (isNarrow) {
             return Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                AppText(
-                  text:
-                      "Page ${provider.currentPage} of ${provider.totalPages} (${provider.totalDocs} pet parents)",
-                  fontSize: 12,
-                  color: textSecondaryColor,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.chevron_left_rounded, size: 18),
-                      label: const SizedBox.shrink(),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: textPrimaryColor,
-                        side: BorderSide(color: borderColor),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      onPressed: provider.currentPage > 1 &&
-                              !provider.isPaginationLoading
-                          ? () => provider.previousPage()
-                          : null,
-                    ),
-                    const SizedBox(width: 8),
-                    if (provider.isPaginationLoading)
-                      Container(
-                        width: 32,
-                        height: 32,
-                        padding: const EdgeInsets.all(7),
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.2,
-                          valueColor: AlwaysStoppedAnimation(primaryColor),
-                        ),
-                      )
-                    else
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: primaryColor.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: AppText(
-                          text: "${provider.currentPage}",
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: primaryColor,
-                        ),
-                      ),
-                    const SizedBox(width: 8),
-                    OutlinedButton.icon(
-                      label: const SizedBox.shrink(),
-                      icon: const Icon(Icons.chevron_right_rounded, size: 18),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: textPrimaryColor,
-                        side: BorderSide(color: borderColor),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      onPressed: provider.currentPage < provider.totalPages &&
-                              !provider.isPaginationLoading
-                          ? () => provider.nextPage()
-                          : null,
-                    ),
-                  ],
-                ),
+                infoAndDropdown,
+                const SizedBox(height: 12),
+                pagination,
               ],
             );
           }
 
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Expanded(
-                child: AppText(
-                  text:
-                      "Showing page ${provider.currentPage} of ${provider.totalPages} (${provider.totalDocs} pet parents)",
-                  fontSize: 13,
-                  color: textSecondaryColor,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Row(
-                children: [
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.chevron_left_rounded, size: 18),
-                    label: isDesktop
-                        ? AppText(text: "Previous", fontSize: 13)
-                        : const SizedBox.shrink(),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: textPrimaryColor,
-                      side: BorderSide(color: borderColor),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: provider.currentPage > 1 &&
-                            !provider.isPaginationLoading
-                        ? () => provider.previousPage()
-                        : null,
-                  ),
-                  const SizedBox(width: 8),
-                  if (provider.isPaginationLoading)
-                    Container(
-                      width: 32,
-                      height: 32,
-                      padding: const EdgeInsets.all(7),
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.2,
-                        valueColor: AlwaysStoppedAnimation(primaryColor),
-                      ),
-                    )
-                  else
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: primaryColor.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: AppText(
-                        text: "${provider.currentPage}",
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: primaryColor,
-                      ),
-                    ),
-                  const SizedBox(width: 8),
-                  OutlinedButton.icon(
-                    label: isDesktop
-                        ? AppText(text: "Next", fontSize: 13)
-                        : const SizedBox.shrink(),
-                    icon: const Icon(Icons.chevron_right_rounded, size: 18),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: textPrimaryColor,
-                      side: BorderSide(color: borderColor),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: provider.currentPage < provider.totalPages &&
-                            !provider.isPaginationLoading
-                        ? () => provider.nextPage()
-                        : null,
-                  ),
-                ],
-              ),
+              infoAndDropdown,
+              pagination,
             ],
           );
         },
