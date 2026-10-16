@@ -8,4 +8,16 @@ abstract class PetParentsRepository {
   });
 
   Future<PetParentDetailResponseEntity> getPetParentDetail(String id);
+
+  Future<PetParentDetailResponseEntity> updatePetParent(
+    String id,
+    UpdatePetParentEntity entity,
+  );
+
+  Future<PetParentActionResponseEntity> updatePetParentPassword(
+    String id,
+    UpdatePetParentPasswordEntity entity,
+  );
+
+  Future<PetParentActionResponseEntity> deletePetParent(String id);
 }

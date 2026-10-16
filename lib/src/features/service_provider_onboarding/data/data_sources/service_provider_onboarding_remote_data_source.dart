@@ -2,6 +2,7 @@ import '../../../../app/config/api_endpoints.dart';
 import '../../../../core/network/api_services.dart';
 import '../../../../core/network/models/response/response.dart';
 import '../models/service_provider_onboarding_model.dart';
+import '../models/update_service_provider_model.dart';
 
 abstract class ServiceProviderOnboardingRemoteDataSource {
   Future<Response> submitServiceProviderDataEntry(
@@ -14,6 +15,11 @@ abstract class ServiceProviderOnboardingRemoteDataSource {
     String? keyword,
   });
   Future<Response> getServiceProviderDetail(String id);
+  Future<Response> updateServiceProvider(
+    String id,
+    UpdateServiceProviderModel model,
+  );
+  Future<Response> deleteServiceProvider(String id);
 }
 
 class ServiceProviderOnboardingRemoteDataSourceImpl
@@ -61,5 +67,21 @@ class ServiceProviderOnboardingRemoteDataSourceImpl
   @override
   Future<Response> getServiceProviderDetail(String id) async {
     return await apiServices.getData(ApiEndpoints.serviceProviderDetail(id));
+  }
+
+  @override
+  Future<Response> updateServiceProvider(
+    String id,
+    UpdateServiceProviderModel model,
+  ) async {
+    return await apiServices.patchData(
+      ApiEndpoints.updateServiceProvider(id),
+      model.toJson(),
+    );
+  }
+
+  @override
+  Future<Response> deleteServiceProvider(String id) async {
+    return await apiServices.deleteData(ApiEndpoints.deleteServiceProvider(id));
   }
 }

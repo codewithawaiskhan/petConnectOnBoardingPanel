@@ -93,3 +93,47 @@ class PetParentDetailResponseEntity {
     this.petParent,
   });
 }
+
+class UpdatePetParentEntity {
+  final String? imageDataURI;
+  final String? fullName;
+  final String? phone;
+  final String? dateOfBirth;
+  final String? address;
+  final String? city;
+  final String? province;
+  final String? countryCode;
+  final String? countryName;
+
+  const UpdatePetParentEntity({
+    this.imageDataURI,
+    this.fullName,
+    this.phone,
+    this.dateOfBirth,
+    this.address,
+    this.city,
+    this.province,
+    this.countryCode,
+    this.countryName,
+  });
+}
+
+class UpdatePetParentPasswordEntity {
+  final String password;
+  final String confirmPassword;
+
+  const UpdatePetParentPasswordEntity({
+    required this.password,
+    required this.confirmPassword,
+  });
+}
+
+class PetParentActionResponseEntity {
+  final bool success;
+  final String message;
+
+  const PetParentActionResponseEntity({
+    required this.success,
+    required this.message,
+  });
+}

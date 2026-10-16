@@ -1,5 +1,6 @@
 import '../entities/service_provider_list_entity.dart';
 import '../entities/service_provider_onboarding_entity.dart';
+import '../entities/update_service_provider_entity.dart';
 import '../repositories/service_provider_onboarding_repository.dart';
 
 class ServiceProviderOnboardingUseCases {
@@ -31,5 +32,18 @@ class ServiceProviderOnboardingUseCases {
     String id,
   ) async {
     return await repository.getServiceProviderDetail(id);
+  }
+
+  Future<ServiceProviderActionResponseEntity> updateServiceProvider(
+    String id,
+    UpdateServiceProviderEntity entity,
+  ) async {
+    return await repository.updateServiceProvider(id, entity);
+  }
+
+  Future<ServiceProviderActionResponseEntity> deleteServiceProvider(
+    String id,
+  ) async {
+    return await repository.deleteServiceProvider(id);
   }
 }

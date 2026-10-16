@@ -182,21 +182,45 @@ class PetParentsListResponseModel extends PetParentsListResponseEntity {
       }
     }
 
+    final dynamic rawDocsCount = data['totalDocs'] ??
+        data['docsCount'] ??
+        data['total'] ??
+        data['count'] ??
+        json['totalDocs'] ??
+        json['docsCount'] ??
+        json['total'];
+
+    final dynamic rawPages = data['totalPages'] ??
+        data['pages'] ??
+        json['totalPages'] ??
+        json['pages'];
+
+    final dynamic rawPage = data['page'] ??
+        data['currentPage'] ??
+        json['page'] ??
+        json['currentPage'];
+
+    final parsedDocsCount = rawDocsCount is int
+        ? rawDocsCount
+        : int.tryParse(rawDocsCount?.toString() ?? '') ?? parsedDocs.length;
+
+    final parsedPages = rawPages is int
+        ? rawPages
+        : int.tryParse(rawPages?.toString() ?? '') ??
+            (parsedDocsCount > 0 ? (parsedDocsCount / 10).ceil() : 1);
+
+    final parsedPage = rawPage is int
+        ? rawPage
+        : int.tryParse(rawPage?.toString() ?? '') ?? 1;
+
     return PetParentsListResponseModel(
       success: json['success'] == true || json['status'] == 'success',
       message:
           data['message']?.toString() ?? json['message']?.toString() ?? '',
       docs: parsedDocs,
-      docsCount: data['docsCount'] is int
-          ? data['docsCount'] as int
-          : int.tryParse(data['docsCount']?.toString() ?? '0') ??
-              parsedDocs.length,
-      pages: data['pages'] is int
-          ? data['pages'] as int
-          : int.tryParse(data['pages']?.toString() ?? '1') ?? 1,
-      page: data['page'] is int
-          ? data['page'] as int
-          : int.tryParse(data['page']?.toString() ?? '1') ?? 1,
+      docsCount: parsedDocsCount,
+      pages: parsedPages > 0 ? parsedPages : 1,
+      page: parsedPage > 0 ? parsedPage : 1,
     );
   }
 }
@@ -239,4 +263,113 @@ class PetParentDetailResponseModel extends PetParentDetailResponseEntity {
       petParent: docMap != null ? PetParentItemModel.fromJson(docMap) : null,
     );
   }
+}
+
+class UpdatePetParentModel extends UpdatePetParentEntity {
+  const UpdatePetParentModel({
+    super.imageDataURI,
+    super.fullName,
+    super.phone,
+    super.dateOfBirth,
+    super.address,
+    super.city,
+    super.province,
+    super.countryCode,
+    super.countryName,
+  });
+
+  factory UpdatePetParentModel.fromEntity(UpdatePetParentEntity entity) {
+    return UpdatePetParentModel(
+      imageDataURI: entity.imageDataURI,
+      fullName: entity.fullName,
+      phone: entity.phone,
+      dateOfBirth: entity.dateOfBirth,
+      address: entity.address,
+      city: entity.city,
+      province: entity.province,
+      countryCode: entity.countryCode,
+      countryName: entity.countryName,
+    );
+  }
+
+  factory UpdatePetParentModel.fromJson(Map<String, dynamic> json) {
+    return UpdatePetParentModel(
+      imageDataURI: json['imageDataURI']?.toString(),
+      fullName: json['fullName']?.toString(),
+      phone: json['phone']?.toString(),
+      dateOfBirth: json['dateOfBirth']?.toString(),
+      address: json['address']?.toString(),
+      city: json['city']?.toString(),
+      province: json['province']?.toString(),
+      countryCode: json['countryCode']?.toString(),
+      countryName: json['countryName']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    if (imageDataURI != null && imageDataURI!.isNotEmpty)
+      'imageDataURI': imageDataURI,
+    if (fullName != null) 'fullName': fullName,
+    if (phone != null) 'phone': phone,
+    if (dateOfBirth != null) 'dateOfBirth': dateOfBirth,
+    if (address != null) 'address': address,
+    if (city != null) 'city': city,
+    if (province != null) 'province': province,
+    if (countryCode != null) 'countryCode': countryCode,
+    if (countryName != null) 'countryName': countryName,
+  };
+}
+
+class UpdatePetParentPasswordModel extends UpdatePetParentPasswordEntity {
+  const UpdatePetParentPasswordModel({
+    required super.password,
+    required super.confirmPassword,
+  });
+
+  factory UpdatePetParentPasswordModel.fromEntity(
+    UpdatePetParentPasswordEntity entity,
+  ) {
+    return UpdatePetParentPasswordModel(
+      password: entity.password,
+      confirmPassword: entity.confirmPassword,
+    );
+  }
+
+  factory UpdatePetParentPasswordModel.fromJson(Map<String, dynamic> json) {
+    return UpdatePetParentPasswordModel(
+      password: json['password']?.toString() ?? '',
+      confirmPassword: json['confirmPassword']?.toString() ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'password': password,
+    'confirmPassword': confirmPassword,
+  };
+}
+
+class PetParentActionResponseModel extends PetParentActionResponseEntity {
+  const PetParentActionResponseModel({
+    required super.success,
+    required super.message,
+  });
+
+  factory PetParentActionResponseModel.fromJson(Map<String, dynamic> json) {
+    String msg = json['message']?.toString() ?? '';
+    if (json['data'] is Map<String, dynamic>) {
+      final data = json['data'] as Map<String, dynamic>;
+      if (data['message'] != null) {
+        msg = data['message'].toString();
+      }
+    }
+    return PetParentActionResponseModel(
+      success: json['success'] == true || json['status'] == 'success',
+      message: msg,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'success': success,
+    'message': message,
+  };
 }

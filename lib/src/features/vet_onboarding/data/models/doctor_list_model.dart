@@ -310,7 +310,7 @@ class DoctorItemModel extends DoctorItemEntity {
           (json['petCategories'] as List<dynamic>?)
               ?.map(
                 (e) => e is Map<String, dynamic>
-                    ? (e['title']?.toString() ?? e['_id']?.toString() ?? '')
+                    ? (e['_id']?.toString() ?? e['id']?.toString() ?? e['title']?.toString() ?? '')
                     : e.toString(),
               )
               .toList() ??
@@ -377,20 +377,45 @@ class DoctorListResponseModel extends DoctorListResponseEntity {
         .map<DoctorItemEntity>((e) => DoctorItemModel.fromJson(e))
         .toList();
 
+    final dynamic rawDocsCount = data['docsCount'] ??
+        data['totalDocs'] ??
+        data['total'] ??
+        data['count'] ??
+        json['docsCount'] ??
+        json['totalDocs'] ??
+        json['total'] ??
+        json['count'];
+
+    final dynamic rawPages = data['totalPages'] ??
+        data['pages'] ??
+        json['totalPages'] ??
+        json['pages'];
+
+    final dynamic rawPage = data['page'] ??
+        data['currentPage'] ??
+        json['page'] ??
+        json['currentPage'];
+
+    final parsedDocsCount = rawDocsCount is int
+        ? rawDocsCount
+        : int.tryParse(rawDocsCount?.toString() ?? '') ?? parsedDocs.length;
+
+    final parsedPages = rawPages is int
+        ? rawPages
+        : int.tryParse(rawPages?.toString() ?? '') ??
+            (parsedDocsCount > 0 ? (parsedDocsCount / 10).ceil() : 1);
+
+    final parsedPage = rawPage is int
+        ? rawPage
+        : int.tryParse(rawPage?.toString() ?? '') ?? 1;
+
     return DoctorListResponseModel(
       success: json['success'] == true || json['status'] == 'success',
       message: data['message']?.toString() ?? json['message']?.toString() ?? '',
       docs: parsedDocs,
-      docsCount: data['docsCount'] is int
-          ? data['docsCount'] as int
-          : int.tryParse(data['docsCount']?.toString() ?? '0') ??
-                parsedDocs.length,
-      pages: data['pages'] is int
-          ? data['pages'] as int
-          : int.tryParse(data['pages']?.toString() ?? '1') ?? 1,
-      page: data['page'] is int
-          ? data['page'] as int
-          : int.tryParse(data['page']?.toString() ?? '1') ?? 1,
+      docsCount: parsedDocsCount,
+      pages: parsedPages > 0 ? parsedPages : 1,
+      page: parsedPage > 0 ? parsedPage : 1,
     );
   }
 }
@@ -428,6 +453,45 @@ class DoctorDetailResponseModel extends DoctorDetailResponseEntity {
       success: json['success'] == true || json['status'] == 'success',
       message: msg,
       doctor: docMap != null ? DoctorItemModel.fromJson(docMap) : null,
+    );
+  }
+}
+
+class DoctorActionResponseModel extends DoctorActionResponseEntity {
+  const DoctorActionResponseModel({
+    required super.success,
+    required super.message,
+    super.doctor,
+  });
+
+  factory DoctorActionResponseModel.fromJson(Map<String, dynamic> json) {
+    DoctorItemEntity? parsedDoctor;
+    String msg = '';
+
+    if (json['data'] is Map<String, dynamic>) {
+      final data = json['data'] as Map<String, dynamic>;
+      msg = data['message']?.toString() ?? '';
+      if (data['doc'] is Map<String, dynamic>) {
+        parsedDoctor = DoctorItemModel.fromJson(data['doc'] as Map<String, dynamic>);
+      } else if (data['doctor'] is Map<String, dynamic>) {
+        parsedDoctor = DoctorItemModel.fromJson(data['doctor'] as Map<String, dynamic>);
+      } else if (data['_id'] != null || data['fullName'] != null) {
+        parsedDoctor = DoctorItemModel.fromJson(data);
+      }
+    } else if (json['doc'] is Map<String, dynamic>) {
+      parsedDoctor = DoctorItemModel.fromJson(json['doc'] as Map<String, dynamic>);
+    } else if (json['doctor'] is Map<String, dynamic>) {
+      parsedDoctor = DoctorItemModel.fromJson(json['doctor'] as Map<String, dynamic>);
+    }
+
+    if (msg.isEmpty) {
+      msg = json['message']?.toString() ?? '';
+    }
+
+    return DoctorActionResponseModel(
+      success: json['success'] == true || json['status'] == 'success',
+      message: msg,
+      doctor: parsedDoctor,
     );
   }
 }

@@ -77,29 +77,33 @@ class CustomButton extends StatelessWidget with AppColors, Constants {
         ? (buttonBorder ?? Border.all(color: primaryColor, width: 1.5))
         : buttonBorder;
 
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(effectiveRadius),
-      child: InkWell(
+    return SizedBox(
+      height: height,
+      width: width == 0 ? null : width,
+      child: Material(
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(effectiveRadius),
-        onTap: isClickable ? onTap : null,
-        child: Ink(
-          decoration: BoxDecoration(
-            color: effectiveBgColor,
-            borderRadius: BorderRadius.circular(effectiveRadius),
-            border: effectiveBorder,
-            gradient: (isOutlined || isFill) ? null : gradient,
-          ),
-          child: Container(
+        child: InkWell(
+          borderRadius: BorderRadius.circular(effectiveRadius),
+          onTap: isClickable ? onTap : null,
+          child: Ink(
             height: height,
             width: width == 0 ? null : width,
-            padding:
-                padding ??
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            alignment: Alignment.center,
-            child: isLoading
-                ? SpinKitThreeBounce(color: effectiveTextColor, size: 24.0)
-                : _buildContent(),
+            decoration: BoxDecoration(
+              color: effectiveBgColor,
+              borderRadius: BorderRadius.circular(effectiveRadius),
+              border: effectiveBorder,
+              gradient: (isOutlined || isFill) ? null : gradient,
+            ),
+            child: Container(
+              padding:
+                  padding ??
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              alignment: Alignment.center,
+              child: isLoading
+                  ? SpinKitThreeBounce(color: effectiveTextColor, size: 24.0)
+                  : _buildContent(),
+            ),
           ),
         ),
       ),

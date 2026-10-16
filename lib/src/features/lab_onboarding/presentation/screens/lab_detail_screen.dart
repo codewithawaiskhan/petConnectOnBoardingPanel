@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/status_badge.dart';
+import '../../../../core/utils/dialog_utils.dart';
+import '../../../../core/utils/mini_functions.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shared_operating_schedule_card.dart';
 import '../../../../shared/presentation/widgets/shimmers/profile_detail_shimmer.dart';
 import '../../domain/entities/lab_entity.dart';
+import '../dialogs/edit_lab_dialog.dart';
 import '../providers/lab_detail_provider.dart';
+import '../providers/labs_list_provider.dart';
 
 class LabDetailScreen extends StatefulWidget {
   final String id;
@@ -27,6 +32,38 @@ class _LabDetailScreenState extends State<LabDetailScreen> with AppColors {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<LabDetailProvider>().fetchLabDetail(widget.id);
     });
+  }
+
+  Future<void> _handleEdit(LabItemEntity lab) async {
+    final updated = await EditLabDialog.show(context, lab: lab);
+    if (updated == true && mounted) {
+      context.read<LabDetailProvider>().fetchLabDetail(
+        widget.id,
+        forceRefresh: true,
+      );
+    }
+  }
+
+  void _showDeleteConfirmationDialog(LabItemEntity lab) {
+    DialogUtils.showDynamicConfirmationDialog(
+      context: context,
+      title: "Delete Lab",
+      message:
+          "Are you sure you want to delete ${lab.title.isNotEmpty ? lab.title : 'this diagnostic lab'}?",
+      confirmText: "Delete",
+      onConfirm: () async {
+        if (!mounted) return;
+        final provider = context.read<LabsListProvider>();
+        final success = await provider.deleteLab(context: context, id: lab.id);
+        if (success && mounted) {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/labs');
+          }
+        }
+      },
+    );
   }
 
   @override
@@ -159,143 +196,192 @@ class _LabDetailScreenState extends State<LabDetailScreen> with AppColors {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: borderColor),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            radius: isDesktop ? 36 : 28,
-            backgroundColor: tertiaryColor.withValues(alpha: 0.14),
-            child: AppText(
-              text: initial,
-              fontSize: isDesktop ? 26 : 20,
-              fontWeight: FontWeight.w700,
-              color: tertiaryColor,
-            ),
-          ),
-          SizedBox(width: isDesktop ? 20 : 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: isDesktop ? 36 : 28,
+                backgroundColor: tertiaryColor.withValues(alpha: 0.14),
+                child: AppText(
+                  text: initial,
+                  fontSize: isDesktop ? 26 : 20,
+                  fontWeight: FontWeight.w700,
+                  color: tertiaryColor,
+                ),
+              ),
+              SizedBox(width: isDesktop ? 20 : 14),
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppText(
-                            text: lab.title,
-                            fontSize: isDesktop ? 22 : 18,
-                            fontWeight: FontWeight.w700,
-                            color: textPrimaryColor,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          AppText(
-                            text: lab.labType ?? "Diagnostic Laboratory",
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: primaryColor,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (lab.designation != null &&
-                              lab.designation!.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: AppText(
-                                text: "Designation: ${lab.designation}",
-                                fontSize: 12,
-                                color: textSecondaryColor,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                        ],
-                      ),
+                    AppText(
+                      text: lab.title,
+                      fontSize: isDesktop ? 22 : 18,
+                      fontWeight: FontWeight.w700,
+                      color: textPrimaryColor,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(width: 12),
-                    StatusBadge(
-                      status: lab.status,
-                      fontSize: 12,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
+                    const SizedBox(height: 4),
+                    AppText(
+                      text: lab.labType ?? "Diagnostic Laboratory",
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: primaryColor,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (lab.designation != null &&
+                        lab.designation!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: AppText(
+                          text: "Designation: ${lab.designation}",
+                          fontSize: 12,
+                          color: textSecondaryColor,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      borderRadius: BorderRadius.circular(20),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              StatusBadge(
+                status: lab.status,
+                fontSize: 12,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 16,
+            runSpacing: 8,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.mail_outline_rounded,
+                    size: 15,
+                    color: textSecondaryColor,
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: AppText(
+                      text: lab.email,
+                      fontSize: 12,
+                      color: textSecondaryColor,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              if (lab.phone != null && lab.phone!.isNotEmpty)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.phone_outlined,
+                      size: 15,
+                      color: textSecondaryColor,
+                    ),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: AppText(
+                        text: lab.phone!,
+                        fontSize: 12,
+                        color: textSecondaryColor,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 8,
+              if (lab.city != null && lab.city!.isNotEmpty)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.mail_outline_rounded,
-                          size: 15,
-                          color: textSecondaryColor,
-                        ),
-                        const SizedBox(width: 6),
-                        Flexible(
-                          child: AppText(
-                            text: lab.email,
-                            fontSize: 12,
-                            color: textSecondaryColor,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 15,
+                      color: textSecondaryColor,
                     ),
-                    if (lab.phone != null && lab.phone!.isNotEmpty)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.phone_outlined,
-                            size: 15,
-                            color: textSecondaryColor,
-                          ),
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: AppText(
-                              text: lab.phone!,
-                              fontSize: 12,
-                              color: textSecondaryColor,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: AppText(
+                        text: lab.city!,
+                        fontSize: 12,
+                        color: textSecondaryColor,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    if (lab.city != null && lab.city!.isNotEmpty)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: 15,
-                            color: textSecondaryColor,
-                          ),
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: AppText(
-                              text: lab.city!,
-                              fontSize: 12,
-                              color: textSecondaryColor,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
+                    ),
                   ],
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Divider(height: 1, thickness: 1, color: borderColor),
+          const SizedBox(height: 14),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 8,
+              alignment: WrapAlignment.end,
+              children: [
+                CustomButton(
+                  text: "Edit Details",
+                  isIcon: true,
+                  icon: Icon(
+                    Icons.edit_outlined,
+                    size: 14,
+                    color: primaryColor,
+                  ),
+                  height: 36,
+                  width: 122,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  radius: 8,
+                  fillColor: primaryColor.withValues(alpha: 0.08),
+                  textColor: primaryColor,
+                  buttonBorder: Border.all(
+                    color: primaryColor.withValues(alpha: 0.25),
+                    width: 1,
+                  ),
+                  onTap: () => _handleEdit(lab),
+                ),
+                CustomButton(
+                  text: "Delete",
+                  isIcon: true,
+                  icon: Icon(
+                    Icons.delete_outline_rounded,
+                    size: 15,
+                    color: errorColor,
+                  ),
+                  height: 36,
+                  width: 96,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  radius: 8,
+                  fillColor: errorColor.withValues(alpha: 0.08),
+                  textColor: errorColor,
+                  buttonBorder: Border.all(
+                    color: errorColor.withValues(alpha: 0.25),
+                    width: 1,
+                  ),
+                  onTap: () =>
+                      _showDeleteConfirmationDialog(lab),
                 ),
               ],
             ),
@@ -410,6 +496,14 @@ class _LabDetailScreenState extends State<LabDetailScreen> with AppColors {
                 icon: Icons.my_location_rounded,
               ),
             ],
+          ],
+          if (lab.createdAt != null) ...[
+            const Divider(height: 20),
+            _buildInfoRow(
+              label: "Registered On",
+              value: _formatDisplayDateTime(lab.createdAt),
+              icon: Icons.calendar_today_outlined,
+            ),
           ],
         ],
       ),
@@ -624,7 +718,7 @@ class _LabDetailScreenState extends State<LabDetailScreen> with AppColors {
                             border: Border.all(color: borderColor),
                           ),
                           child: AppText(
-                            text: "Expires: ${lic.expiryDate}",
+                            text: "Expires: ${_formatDisplayDate(lic.expiryDate)}",
                             fontSize: 11,
                             color: textSecondaryColor,
                           ),
@@ -729,5 +823,26 @@ class _LabDetailScreenState extends State<LabDetailScreen> with AppColors {
         ),
       ),
     );
+  }
+
+  String _formatDisplayDate(String? rawDate) {
+    if (rawDate == null || rawDate.trim().isEmpty) return "N/A";
+    try {
+      final dt = DateTime.parse(rawDate).toLocal();
+      return DateFormat("MMM dd, yyyy").format(dt);
+    } catch (_) {
+      final ymd = MiniFunctions().formatDateToYMD(rawDate);
+      return ymd.isNotEmpty ? ymd : rawDate;
+    }
+  }
+
+  String _formatDisplayDateTime(String? rawDate) {
+    if (rawDate == null || rawDate.trim().isEmpty) return "N/A";
+    try {
+      final dt = DateTime.parse(rawDate).toLocal();
+      return DateFormat("MMM dd, yyyy, hh:mm a").format(dt);
+    } catch (_) {
+      return rawDate;
+    }
   }
 }

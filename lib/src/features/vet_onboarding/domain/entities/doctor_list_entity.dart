@@ -204,3 +204,15 @@ class DoctorDetailResponseEntity {
     this.doctor,
   });
 }
+
+class DoctorActionResponseEntity {
+  final bool success;
+  final String message;
+  final DoctorItemEntity? doctor;
+
+  const DoctorActionResponseEntity({
+    required this.success,
+    required this.message,
+    this.doctor,
+  });
+}

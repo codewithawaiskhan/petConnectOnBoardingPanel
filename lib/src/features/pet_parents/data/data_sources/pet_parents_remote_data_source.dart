@@ -10,6 +10,12 @@ abstract class PetParentsRemoteDataSource {
   });
 
   Future<Response> getPetParentDetail(String id);
+
+  Future<Response> updatePetParent(String id, Map<String, dynamic> body);
+
+  Future<Response> updatePetParentPassword(String id, Map<String, dynamic> body);
+
+  Future<Response> deletePetParent(String id);
 }
 
 class PetParentsRemoteDataSourceImpl implements PetParentsRemoteDataSource {
@@ -41,5 +47,20 @@ class PetParentsRemoteDataSourceImpl implements PetParentsRemoteDataSource {
   @override
   Future<Response> getPetParentDetail(String id) {
     return apiServices.getData(ApiEndpoints.petParentDetail(id));
+  }
+
+  @override
+  Future<Response> updatePetParent(String id, Map<String, dynamic> body) {
+    return apiServices.patchData(ApiEndpoints.updatePetParent(id), body);
+  }
+
+  @override
+  Future<Response> updatePetParentPassword(String id, Map<String, dynamic> body) {
+    return apiServices.patchData(ApiEndpoints.updatePetParentPassword(id), body);
+  }
+
+  @override
+  Future<Response> deletePetParent(String id) {
+    return apiServices.deleteData(ApiEndpoints.petParentDetail(id));
   }
 }

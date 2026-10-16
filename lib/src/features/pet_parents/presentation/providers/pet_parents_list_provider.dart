@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../../../core/utils/show_toast.dart';
 import '../../domain/entities/pet_parent_entity.dart';
 import '../../domain/usecases/pet_parents_usecases.dart';
 
@@ -12,6 +14,12 @@ class PetParentsListProvider extends ChangeNotifier {
 
   bool _isPaginationLoading = false;
   bool get isPaginationLoading => _isPaginationLoading;
+
+  bool _isUpdating = false;
+  bool get isUpdating => _isUpdating;
+
+  bool _isDeleting = false;
+  bool get isDeleting => _isDeleting;
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -55,9 +63,9 @@ class PetParentsListProvider extends ChangeNotifier {
       );
 
       _petParents = response.docs;
-      _currentPage = response.page;
-      _totalPages = response.pages;
-      _totalDocs = response.docsCount;
+      _currentPage = targetPage;
+      _totalPages = response.pages > 0 ? response.pages : 1;
+      _totalDocs = response.docsCount >= 0 ? response.docsCount : _petParents.length;
       _errorMessage = null;
     } catch (e) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -68,14 +76,33 @@ class PetParentsListProvider extends ChangeNotifier {
     }
   }
 
-  void onSearchChanged(String keyword) {
-    _searchKeyword = keyword;
-    _currentPage = 1;
-    fetchPetParents(isRefresh: true);
+  Timer? _debounceTimer;
+
+  void onSearchChanged(String keyword, {bool immediate = false}) {
+    _debounceTimer?.cancel();
+
+    if (immediate) {
+      _searchKeyword = keyword.trim();
+      _currentPage = 1;
+      fetchPetParents(isRefresh: true);
+      return;
+    }
+
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      _searchKeyword = keyword.trim();
+      _currentPage = 1;
+      fetchPetParents(isRefresh: true);
+    });
   }
 
   void goToPage(int page) {
-    if (page < 1 || page > _totalPages || page == _currentPage) return;
+    if (page < 1 ||
+        page > _totalPages ||
+        page == _currentPage ||
+        _isPaginationLoading ||
+        _isLoading) {
+      return;
+    }
     fetchPetParents(page: page);
   }
 
@@ -89,5 +116,102 @@ class PetParentsListProvider extends ChangeNotifier {
     if (_currentPage > 1) {
       goToPage(_currentPage - 1);
     }
+  }
+
+  Future<bool> updatePetParent({
+    required BuildContext context,
+    required String id,
+    required UpdatePetParentEntity entity,
+  }) async {
+    _isUpdating = true;
+    notifyListeners();
+
+    try {
+      final response = await useCases.updatePetParent(id, entity);
+      if (response.success) {
+        if (response.petParent != null) {
+          final index = _petParents.indexWhere((p) => p.id == id);
+          if (index != -1) {
+            _petParents[index] = response.petParent!;
+          } else {
+            await fetchPetParents(isRefresh: true);
+          }
+        } else {
+          await fetchPetParents(isRefresh: true);
+        }
+        if (context.mounted) {
+          showToast(
+            context,
+            response.message.isNotEmpty
+                ? response.message
+                : 'Pet parent updated successfully',
+          );
+        }
+        return true;
+      } else {
+        if (context.mounted) {
+          showToast(
+            context,
+            response.message.isNotEmpty
+                ? response.message
+                : 'Failed to update pet parent',
+            isError: true,
+          );
+        }
+        return false;
+      }
+    } catch (e) {
+      if (context.mounted) {
+        showToast(
+          context,
+          e.toString().replaceFirst('Exception: ', ''),
+          isError: true,
+        );
+      }
+      return false;
+    } finally {
+      _isUpdating = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> deletePetParent({
+    required BuildContext context,
+    required String id,
+  }) async {
+    _isDeleting = true;
+    notifyListeners();
+
+    try {
+      final response = await useCases.deletePetParent(id);
+      _petParents.removeWhere((p) => p.id == id);
+      if (context.mounted) {
+        showToast(
+          context,
+          response.message.isNotEmpty
+              ? response.message
+              : 'Pet parent deleted successfully',
+        );
+      }
+      return true;
+    } catch (e) {
+      if (context.mounted) {
+        showToast(
+          context,
+          e.toString().replaceFirst('Exception: ', ''),
+          isError: true,
+        );
+      }
+      return false;
+    } finally {
+      _isDeleting = false;
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
   }
 }

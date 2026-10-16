@@ -10,6 +10,7 @@ class DialogUtils {
     required String message,
     String cancelText = "Cancel",
     String confirmText = "Confirm",
+    double maxWidth = 420,
     required VoidCallback onConfirm,
     VoidCallback? onCancel,
   }) {
@@ -28,25 +29,34 @@ class DialogUtils {
               width: AppConstantsHelper().smallBorder,
             ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(height: AppConstantsHelper().largeSpace),
-              AppText(
-                text: title,
-                fontSize: AppConstantsHelper().fontXlText,
-                fontWeight: FontWeight.w700,
-              ),
-              SizedBox(height: AppConstantsHelper().normalSpace),
-              AppText(
-                text: message,
-                color: AppColorsHelper().textSecondaryColor,
-                fontSize: AppConstantsHelper().fontBaseText,
-                fontWeight: FontWeight.w500,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-              ),
-              SizedBox(height: AppConstantsHelper().largeSpace),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: AppConstantsHelper().largeSpace),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: AppText(
+                    text: title,
+                    fontSize: AppConstantsHelper().fontXlText,
+                    fontWeight: FontWeight.w700,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(height: AppConstantsHelper().normalSpace),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: AppText(
+                    text: message,
+                    color: AppColorsHelper().textSecondaryColor,
+                    fontSize: AppConstantsHelper().fontBaseText,
+                    fontWeight: FontWeight.w500,
+                    textAlign: TextAlign.center,
+                    maxLines: 3,
+                  ),
+                ),
+                SizedBox(height: AppConstantsHelper().largeSpace),
               Divider(
                 height: AppConstantsHelper().border,
                 thickness: AppConstantsHelper().border,
@@ -108,7 +118,8 @@ class DialogUtils {
               ),
             ],
           ),
-        );
+        ),
+      );
       },
     );
   }

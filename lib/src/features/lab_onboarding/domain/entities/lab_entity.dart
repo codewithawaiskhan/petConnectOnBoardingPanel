@@ -183,3 +183,15 @@ class LabTestCategoryListResponseEntity {
     required this.docs,
   });
 }
+
+class LabActionResponseEntity {
+  final bool success;
+  final String message;
+  final LabItemEntity? lab;
+
+  const LabActionResponseEntity({
+    required this.success,
+    required this.message,
+    this.lab,
+  });
+}

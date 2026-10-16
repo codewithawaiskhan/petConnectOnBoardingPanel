@@ -2,6 +2,7 @@ import '../../../../app/config/api_endpoints.dart';
 import '../../../../core/network/api_services.dart';
 import '../../../../core/network/models/response/response.dart';
 import '../models/doctor_onboarding_model.dart';
+import '../models/update_doctor_model.dart';
 
 abstract class VetOnboardingRemoteDataSource {
   Future<Response> submitDoctorDataEntry(DoctorOnboardingModel model);
@@ -12,6 +13,8 @@ abstract class VetOnboardingRemoteDataSource {
     String? keyword,
   });
   Future<Response> getDoctorDetail(String id);
+  Future<Response> updateDoctor(String id, UpdateDoctorModel model);
+  Future<Response> deleteDoctor(String id);
 }
 
 class VetOnboardingRemoteDataSourceImpl
@@ -57,5 +60,18 @@ class VetOnboardingRemoteDataSourceImpl
   @override
   Future<Response> getDoctorDetail(String id) async {
     return await apiServices.getData(ApiEndpoints.doctorDetail(id));
+  }
+
+  @override
+  Future<Response> updateDoctor(String id, UpdateDoctorModel model) async {
+    return await apiServices.patchData(
+      ApiEndpoints.updateDoctor(id),
+      model.toJson(),
+    );
+  }
+
+  @override
+  Future<Response> deleteDoctor(String id) async {
+    return await apiServices.deleteData(ApiEndpoints.deleteDoctor(id));
   }
 }

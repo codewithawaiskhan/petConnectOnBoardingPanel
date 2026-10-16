@@ -116,20 +116,25 @@ final GoRouter appRouter = GoRouter(
               path: '/pet-parents-list',
               redirect: (context, state) => '/pet-parents',
             ),
+            GoRoute(
+              path: '/pet-parents-list/:id',
+              redirect: (context, state) =>
+                  '/pet-parents/${state.pathParameters['id']}',
+            ),
           ],
         ),
 
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/vets-list',
-              name: 'vets-list',
+              path: '/vets',
+              name: 'vets',
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: VetsListScreen()),
               routes: [
                 GoRoute(
                   path: ':id',
-                  name: 'vets-list-detail',
+                  name: 'vet-detail',
                   pageBuilder: (context, state) {
                     final id = state.pathParameters['id'] ?? '';
                     return NoTransitionPage(child: VetDetailScreen(id: id));
@@ -138,12 +143,13 @@ final GoRouter appRouter = GoRouter(
               ],
             ),
             GoRoute(
-              path: '/vets/:id',
-              name: 'vet-detail',
-              pageBuilder: (context, state) {
-                final id = state.pathParameters['id'] ?? '';
-                return NoTransitionPage(child: VetDetailScreen(id: id));
-              },
+              path: '/vets-list',
+              redirect: (context, state) => '/vets',
+            ),
+            GoRoute(
+              path: '/vets-list/:id',
+              redirect: (context, state) =>
+                  '/vets/${state.pathParameters['id']}',
             ),
           ],
         ),
@@ -162,14 +168,14 @@ final GoRouter appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/service-providers-list',
-              name: 'service-providers-list',
+              path: '/providers',
+              name: 'providers',
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: ServiceProvidersListScreen()),
               routes: [
                 GoRoute(
                   path: ':id',
-                  name: 'service-providers-list-detail',
+                  name: 'provider-detail',
                   pageBuilder: (context, state) {
                     final id = state.pathParameters['id'] ?? '';
                     return NoTransitionPage(
@@ -180,14 +186,18 @@ final GoRouter appRouter = GoRouter(
               ],
             ),
             GoRoute(
+              path: '/service-providers-list',
+              redirect: (context, state) => '/providers',
+            ),
+            GoRoute(
+              path: '/service-providers-list/:id',
+              redirect: (context, state) =>
+                  '/providers/${state.pathParameters['id']}',
+            ),
+            GoRoute(
               path: '/service-providers/:id',
-              name: 'service-provider-detail',
-              pageBuilder: (context, state) {
-                final id = state.pathParameters['id'] ?? '';
-                return NoTransitionPage(
-                  child: ServiceProviderDetailScreen(id: id),
-                );
-              },
+              redirect: (context, state) =>
+                  '/providers/${state.pathParameters['id']}',
             ),
           ],
         ),
@@ -225,6 +235,11 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: '/labs-list',
               redirect: (context, state) => '/labs',
+            ),
+            GoRoute(
+              path: '/labs-list/:id',
+              redirect: (context, state) =>
+                  '/labs/${state.pathParameters['id']}',
             ),
           ],
         ),

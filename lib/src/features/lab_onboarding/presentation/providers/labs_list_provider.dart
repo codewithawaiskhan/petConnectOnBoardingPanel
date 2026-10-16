@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../../../core/utils/show_toast.dart';
 import '../../domain/entities/lab_entity.dart';
+import '../../domain/entities/update_lab_entity.dart';
 import '../../domain/usecases/lab_onboarding_usecases.dart';
 
 class LabsListProvider extends ChangeNotifier {
   final LabOnboardingUseCases useCases;
+  Timer? _debounceTimer;
 
   LabsListProvider({required this.useCases});
 
@@ -12,6 +16,12 @@ class LabsListProvider extends ChangeNotifier {
 
   bool _isPaginationLoading = false;
   bool get isPaginationLoading => _isPaginationLoading;
+
+  bool _isUpdating = false;
+  bool get isUpdating => _isUpdating;
+
+  bool _isDeleting = false;
+  bool get isDeleting => _isDeleting;
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -61,8 +71,8 @@ class LabsListProvider extends ChangeNotifier {
       );
 
       _labs = response.docs;
-      _currentPage = response.page;
-      _totalPages = response.pages;
+      _currentPage = response.page > 0 ? response.page : targetPage;
+      _totalPages = response.pages > 0 ? response.pages : 1;
       _totalDocs = response.docsCount;
       _errorMessage = null;
     } catch (e) {
@@ -81,14 +91,29 @@ class LabsListProvider extends ChangeNotifier {
     fetchLabs(isRefresh: true);
   }
 
-  void onSearchChanged(String keyword) {
-    _searchKeyword = keyword;
-    _currentPage = 1;
-    fetchLabs(isRefresh: true);
+  void onSearchChanged(String keyword, {bool immediate = false}) {
+    _debounceTimer?.cancel();
+    if (immediate) {
+      _searchKeyword = keyword.trim();
+      _currentPage = 1;
+      fetchLabs(isRefresh: true);
+      return;
+    }
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      _searchKeyword = keyword.trim();
+      _currentPage = 1;
+      fetchLabs(isRefresh: true);
+    });
   }
 
   void goToPage(int page) {
-    if (page < 1 || page > _totalPages || page == _currentPage) return;
+    if (page < 1 ||
+        page > _totalPages ||
+        page == _currentPage ||
+        _isPaginationLoading ||
+        _isLoading) {
+      return;
+    }
     fetchLabs(page: page);
   }
 
@@ -102,5 +127,103 @@ class LabsListProvider extends ChangeNotifier {
     if (_currentPage > 1) {
       goToPage(_currentPage - 1);
     }
+  }
+
+  Future<bool> updateLab({
+    required BuildContext context,
+    required String id,
+    required UpdateLabEntity entity,
+  }) async {
+    _isUpdating = true;
+    notifyListeners();
+
+    try {
+      final response = await useCases.updateLab(id, entity);
+      if (response.success) {
+        if (response.lab != null) {
+          final index = _labs.indexWhere((l) => l.id == id);
+          if (index != -1) {
+            _labs[index] = response.lab!;
+          } else {
+            await fetchLabs(isRefresh: true);
+          }
+        } else {
+          await fetchLabs(isRefresh: true);
+        }
+        if (context.mounted) {
+          showToast(
+            context,
+            response.message.isNotEmpty
+                ? response.message
+                : 'Diagnostic Lab updated successfully',
+          );
+        }
+        return true;
+      } else {
+        if (context.mounted) {
+          showToast(
+            context,
+            response.message.isNotEmpty
+                ? response.message
+                : 'Failed to update lab',
+            isError: true,
+          );
+        }
+        return false;
+      }
+    } catch (e) {
+      if (context.mounted) {
+        showToast(
+          context,
+          e.toString().replaceFirst('Exception: ', ''),
+          isError: true,
+        );
+      }
+      return false;
+    } finally {
+      _isUpdating = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> deleteLab({
+    required BuildContext context,
+    required String id,
+  }) async {
+    _isDeleting = true;
+    notifyListeners();
+
+    try {
+      final response = await useCases.deleteLab(id);
+      _labs.removeWhere((l) => l.id == id);
+      if (_totalDocs > 0) _totalDocs--;
+      if (context.mounted) {
+        showToast(
+          context,
+          response.message.isNotEmpty
+              ? response.message
+              : 'Diagnostic Lab deleted successfully',
+        );
+      }
+      return true;
+    } catch (e) {
+      if (context.mounted) {
+        showToast(
+          context,
+          e.toString().replaceFirst('Exception: ', ''),
+          isError: true,
+        );
+      }
+      return false;
+    } finally {
+      _isDeleting = false;
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
   }
 }

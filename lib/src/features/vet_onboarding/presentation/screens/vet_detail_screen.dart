@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/status_badge.dart';
+import '../../../../core/utils/dialog_utils.dart';
+import '../../../../core/utils/mini_functions.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shared_operating_schedule_card.dart';
 import '../../../../shared/presentation/widgets/shimmers/profile_detail_shimmer.dart';
 import '../../domain/entities/doctor_list_entity.dart';
+import '../dialogs/edit_vet_dialog.dart';
 import '../providers/vet_detail_provider.dart';
+import '../providers/vets_list_provider.dart';
 
 class VetDetailScreen extends StatefulWidget {
   final String id;
@@ -29,6 +34,39 @@ class _VetDetailScreenState extends State<VetDetailScreen> with AppColors {
     });
   }
 
+  Future<void> _handleEdit(DoctorItemEntity doctor) async {
+    final updated = await EditVetDialog.show(context, doctor: doctor);
+    if (updated == true && mounted) {
+      context.read<VetDetailProvider>().fetchDoctorDetail(
+        widget.id,
+        forceRefresh: true,
+      );
+    }
+  }
+
+  void _showDeleteConfirmationDialog(DoctorItemEntity doctor) {
+    DialogUtils.showDynamicConfirmationDialog(
+      context: context,
+      title: "Delete Doctor",
+      message:
+          "Are you sure you want to delete ${doctor.fullName.isNotEmpty ? doctor.fullName : 'this veterinarian'}?",
+      confirmText: "Delete",
+      onConfirm: () async {
+        if (!mounted) return;
+        final provider = context.read<VetsListProvider>();
+        final success =
+            await provider.deleteDoctor(context: context, id: doctor.id);
+        if (success && mounted) {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/vets');
+          }
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDesktop = context.isDesktop;
@@ -44,7 +82,7 @@ class _VetDetailScreenState extends State<VetDetailScreen> with AppColors {
             if (context.canPop()) {
               context.pop();
             } else {
-              context.go('/vets-list');
+              context.go('/vets');
             }
           },
           tooltip: "Back to list",
@@ -168,72 +206,122 @@ class _VetDetailScreenState extends State<VetDetailScreen> with AppColors {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: borderColor),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            radius: isDesktop ? 36 : 28,
-            backgroundColor: primaryColor.withValues(alpha: 0.12),
-            child: AppText(
-              text: initial,
-              fontSize: isDesktop ? 28 : 22,
-              fontWeight: FontWeight.w700,
-              color: primaryColor,
-            ),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: isDesktop ? 36 : 28,
+                backgroundColor: primaryColor.withValues(alpha: 0.12),
+                child: AppText(
+                  text: initial,
+                  fontSize: isDesktop ? 28 : 22,
+                  fontWeight: FontWeight.w700,
+                  color: primaryColor,
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppText(
-                            text: doctor.fullName,
-                            fontSize: isDesktop ? 20 : 16,
-                            fontWeight: FontWeight.w700,
-                            color: textPrimaryColor,
-                          ),
-                          const SizedBox(height: 2),
-                          AppText(
-                            text: doctor.designation ?? "Veterinary Doctor",
-                            fontSize: 13,
-                            color: textSecondaryColor,
-                          ),
-                        ],
-                      ),
+                    AppText(
+                      text: doctor.fullName,
+                      fontSize: isDesktop ? 20 : 16,
+                      fontWeight: FontWeight.w700,
+                      color: textPrimaryColor,
                     ),
-                    _buildStatusBadge(doctor.status),
+                    const SizedBox(height: 2),
+                    AppText(
+                      text: doctor.designation ?? "Veterinary Doctor",
+                      fontSize: 13,
+                      color: textSecondaryColor,
+                    ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 8,
-                  children: [
-                    if (doctor.longAutoIncrementId != null)
-                      _buildMetaChip(
-                        Icons.badge_outlined,
-                        "ID: ${doctor.longAutoIncrementId}",
-                      ),
-                    if (doctor.yearsOfWorkExperience != null)
-                      _buildMetaChip(
-                        Icons.work_history_outlined,
-                        "${doctor.yearsOfWorkExperience} Years Exp",
-                      ),
-                    if (doctor.gender != null)
-                      _buildMetaChip(
-                        Icons.person_outline_rounded,
-                        doctor.gender!,
-                      ),
-                    if (doctor.timeZone != null)
-                      _buildMetaChip(Icons.schedule_rounded, doctor.timeZone!),
-                  ],
+              ),
+              const SizedBox(width: 12),
+              _buildStatusBadge(doctor.status),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 16,
+            runSpacing: 8,
+            children: [
+              if (doctor.longAutoIncrementId != null)
+                _buildMetaChip(
+                  Icons.badge_outlined,
+                  "ID: ${doctor.longAutoIncrementId}",
+                ),
+              if (doctor.yearsOfWorkExperience != null)
+                _buildMetaChip(
+                  Icons.work_history_outlined,
+                  "${doctor.yearsOfWorkExperience} Years Exp",
+                ),
+              if (doctor.gender != null)
+                _buildMetaChip(
+                  Icons.person_outline_rounded,
+                  doctor.gender!,
+                ),
+              if (doctor.timeZone != null)
+                _buildMetaChip(Icons.schedule_rounded, doctor.timeZone!),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Divider(height: 1, thickness: 1, color: borderColor),
+          const SizedBox(height: 14),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 8,
+              alignment: WrapAlignment.end,
+              children: [
+                CustomButton(
+                  text: "Edit Details",
+                  isIcon: true,
+                  icon: Icon(
+                    Icons.edit_outlined,
+                    size: 14,
+                    color: primaryColor,
+                  ),
+                  height: 36,
+                  width: 122,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  radius: 8,
+                  fillColor: primaryColor.withValues(alpha: 0.08),
+                  textColor: primaryColor,
+                  buttonBorder: Border.all(
+                    color: primaryColor.withValues(alpha: 0.25),
+                    width: 1,
+                  ),
+                  onTap: () => _handleEdit(doctor),
+                ),
+                CustomButton(
+                  text: "Delete",
+                  isIcon: true,
+                  icon: Icon(
+                    Icons.delete_outline_rounded,
+                    size: 15,
+                    color: errorColor,
+                  ),
+                  height: 36,
+                  width: 96,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  radius: 8,
+                  fillColor: errorColor.withValues(alpha: 0.08),
+                  textColor: errorColor,
+                  buttonBorder: Border.all(
+                    color: errorColor.withValues(alpha: 0.25),
+                    width: 1,
+                  ),
+                  onTap: () =>
+                      _showDeleteConfirmationDialog(doctor),
                 ),
               ],
             ),
@@ -305,6 +393,14 @@ class _VetDetailScreenState extends State<VetDetailScreen> with AppColors {
                 .trim(),
             icon: Icons.location_on_outlined,
           ),
+          if (doctor.createdAt != null) ...[
+            const Divider(height: 16),
+            _buildInfoRow(
+              "Registered On",
+              _formatDisplayDateTime(doctor.createdAt),
+              icon: Icons.calendar_today_outlined,
+            ),
+          ],
         ],
       ),
     );
@@ -466,7 +562,8 @@ class _VetDetailScreenState extends State<VetDetailScreen> with AppColors {
                       ),
                       if (lic.expiryDate != null)
                         AppText(
-                          text: "Expires: ${lic.expiryDate!.substring(0, 10)}",
+                          text:
+                              "Expires: ${_formatDisplayDate(lic.expiryDate)}",
                           fontSize: 11,
                           color: textSecondaryColor,
                         ),
@@ -697,5 +794,26 @@ class _VetDetailScreenState extends State<VetDetailScreen> with AppColors {
         ),
       ),
     );
+  }
+
+  String _formatDisplayDate(String? rawDate) {
+    if (rawDate == null || rawDate.trim().isEmpty) return "N/A";
+    try {
+      final dt = DateTime.parse(rawDate).toLocal();
+      return DateFormat("MMM dd, yyyy").format(dt);
+    } catch (_) {
+      final ymd = MiniFunctions().formatDateToYMD(rawDate);
+      return ymd.isNotEmpty ? ymd : rawDate;
+    }
+  }
+
+  String _formatDisplayDateTime(String? rawDate) {
+    if (rawDate == null || rawDate.trim().isEmpty) return "N/A";
+    try {
+      final dt = DateTime.parse(rawDate).toLocal();
+      return DateFormat("MMM dd, yyyy, hh:mm a").format(dt);
+    } catch (_) {
+      return rawDate;
+    }
   }
 }

@@ -315,20 +315,45 @@ class ServiceProviderListResponseModel
         )
         .toList();
 
+    final dynamic rawDocsCount = data['docsCount'] ??
+        data['totalDocs'] ??
+        data['total'] ??
+        data['count'] ??
+        json['docsCount'] ??
+        json['totalDocs'] ??
+        json['total'] ??
+        json['count'];
+
+    final dynamic rawPages = data['totalPages'] ??
+        data['pages'] ??
+        json['totalPages'] ??
+        json['pages'];
+
+    final dynamic rawPage = data['page'] ??
+        data['currentPage'] ??
+        json['page'] ??
+        json['currentPage'];
+
+    final parsedDocsCount = rawDocsCount is int
+        ? rawDocsCount
+        : int.tryParse(rawDocsCount?.toString() ?? '') ?? parsedDocs.length;
+
+    final parsedPages = rawPages is int
+        ? rawPages
+        : int.tryParse(rawPages?.toString() ?? '') ??
+            (parsedDocsCount > 0 ? (parsedDocsCount / 10).ceil() : 1);
+
+    final parsedPage = rawPage is int
+        ? rawPage
+        : int.tryParse(rawPage?.toString() ?? '') ?? 1;
+
     return ServiceProviderListResponseModel(
       success: json['success'] == true || json['status'] == 'success',
       message: data['message']?.toString() ?? json['message']?.toString() ?? '',
       docs: parsedDocs,
-      docsCount: data['docsCount'] is int
-          ? data['docsCount'] as int
-          : int.tryParse(data['docsCount']?.toString() ?? '0') ??
-                parsedDocs.length,
-      pages: data['pages'] is int
-          ? data['pages'] as int
-          : int.tryParse(data['pages']?.toString() ?? '1') ?? 1,
-      page: data['page'] is int
-          ? data['page'] as int
-          : int.tryParse(data['page']?.toString() ?? '1') ?? 1,
+      docsCount: parsedDocsCount,
+      pages: parsedPages > 0 ? parsedPages : 1,
+      page: parsedPage > 0 ? parsedPage : 1,
     );
   }
 }
@@ -366,6 +391,55 @@ class ServiceProviderDetailResponseModel
     }
 
     return ServiceProviderDetailResponseModel(
+      success: json['success'] == true || json['status'] == 'success',
+      message: msg,
+      serviceProvider: docMap != null
+          ? ServiceProviderItemModel.fromJson(docMap)
+          : null,
+    );
+  }
+}
+
+class ServiceProviderActionResponseModel
+    extends ServiceProviderActionResponseEntity {
+  const ServiceProviderActionResponseModel({
+    required super.success,
+    required super.message,
+    super.serviceProvider,
+  });
+
+  factory ServiceProviderActionResponseModel.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    Map<String, dynamic>? docMap;
+    String msg = '';
+
+    if (json['data'] is Map<String, dynamic>) {
+      final data = json['data'] as Map<String, dynamic>;
+      msg = data['message']?.toString() ?? '';
+      if (data['doc'] is Map<String, dynamic>) {
+        docMap = data['doc'] as Map<String, dynamic>;
+      } else if (data['docs'] is List && (data['docs'] as List).isNotEmpty) {
+        final first = (data['docs'] as List).first;
+        if (first is Map<String, dynamic>) {
+          docMap = first;
+        }
+      } else if (data['_id'] != null || data['fullName'] != null) {
+        docMap = data;
+      }
+    } else if (json['doc'] is Map<String, dynamic>) {
+      docMap = json['doc'] as Map<String, dynamic>;
+    } else if (json['data'] != null && json['data'] is! Map) {
+      msg = json['data'].toString();
+    } else if (json['_id'] != null || json['fullName'] != null) {
+      docMap = json;
+    }
+
+    if (msg.isEmpty) {
+      msg = json['message']?.toString() ?? '';
+    }
+
+    return ServiceProviderActionResponseModel(
       success: json['success'] == true || json['status'] == 'success',
       message: msg,
       serviceProvider: docMap != null

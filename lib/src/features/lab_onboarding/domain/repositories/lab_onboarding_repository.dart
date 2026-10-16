@@ -1,5 +1,6 @@
 import '../entities/lab_entity.dart';
 import '../entities/lab_onboarding_entity.dart';
+import '../entities/update_lab_entity.dart';
 
 abstract class LabOnboardingRepository {
   Future<LabDataEntryResponseEntity> submitLabDataEntry(
@@ -18,4 +19,11 @@ abstract class LabOnboardingRepository {
   Future<LabTestCategoryListResponseEntity> getLabTestCategories({
     int pageSize = 100,
   });
+
+  Future<LabActionResponseEntity> updateLab(
+    String id,
+    UpdateLabEntity entity,
+  );
+
+  Future<LabActionResponseEntity> deleteLab(String id);
 }

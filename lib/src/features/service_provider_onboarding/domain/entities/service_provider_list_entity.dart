@@ -188,3 +188,15 @@ class ServiceProviderDetailResponseEntity {
     this.serviceProvider,
   });
 }
+
+class ServiceProviderActionResponseEntity {
+  final bool success;
+  final String message;
+  final ServiceProviderItemEntity? serviceProvider;
+
+  const ServiceProviderActionResponseEntity({
+    required this.success,
+    required this.message,
+    this.serviceProvider,
+  });
+}

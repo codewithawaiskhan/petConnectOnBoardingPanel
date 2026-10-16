@@ -8,7 +8,9 @@ import '../../../../core/presentation/widgets/custom_text_field.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shimmers/data_table_shimmer.dart';
 import '../../../../core/presentation/widgets/status_badge.dart';
+import '../../../../core/utils/dialog_utils.dart';
 import '../../domain/entities/pet_parent_entity.dart';
+import '../dialogs/edit_pet_parent_dialog.dart';
 import '../providers/pet_parents_list_provider.dart';
 
 class PetParentsListScreen extends StatefulWidget {
@@ -25,6 +27,7 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
   @override
   void initState() {
     super.initState();
+    _searchController.addListener(_onSearchInputChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<PetParentsListProvider>();
       if (provider.petParents.isEmpty) {
@@ -33,8 +36,13 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
     });
   }
 
+  void _onSearchInputChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchInputChanged);
     _searchController.dispose();
     super.dispose();
   }
@@ -54,31 +62,44 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
               physics: const AlwaysScrollableScrollPhysics(),
               padding: EdgeInsets.all(isDesktop ? 24.0 : 16.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildHeader(provider, isDesktop),
                   const SizedBox(height: 20),
                   _buildSearchBar(provider, isDesktop),
                   const SizedBox(height: 20),
                   if (provider.isLoading)
-                    DataTableShimmer(
-                      isDesktop: isDesktop,
-                      columnWidths: const {
-                        0: FlexColumnWidth(2.5),
-                        1: FlexColumnWidth(2.5),
-                        2: FlexColumnWidth(1.8),
-                        3: FlexColumnWidth(1.0),
-                        4: FlexColumnWidth(1.0),
-                        5: FlexColumnWidth(0.8),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final tableW = constraints.maxWidth > 850
+                            ? constraints.maxWidth
+                            : 850.0;
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: SizedBox(
+                            width: tableW,
+                            child: DataTableShimmer(
+                              isDesktop: isDesktop,
+                              columnWidths: const {
+                                0: FlexColumnWidth(1.2),
+                                1: FlexColumnWidth(2.5),
+                                2: FlexColumnWidth(2.5),
+                                3: FlexColumnWidth(1.8),
+                                4: FlexColumnWidth(1.0),
+                                5: FlexColumnWidth(1.2),
+                              },
+                              headers: const [
+                                "ID",
+                                "PET PARENT",
+                                "CONTACT & EMAIL",
+                                "LOCATION",
+                                "STATUS",
+                                "ACTIONS",
+                              ],
+                            ),
+                          ),
+                        );
                       },
-                      headers: const [
-                        "PET PARENT",
-                        "CONTACT & EMAIL",
-                        "LOCATION",
-                        "BOOKINGS",
-                        "STATUS",
-                        "ACTION",
-                      ],
                     )
                   else if (provider.errorMessage != null &&
                       provider.petParents.isEmpty)
@@ -86,7 +107,40 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
                   else if (provider.petParents.isEmpty)
                     _buildEmptyState()
                   else ...[
-                    if (isDesktop)
+                    if (provider.isPaginationLoading)
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final tableW = constraints.maxWidth > 850
+                              ? constraints.maxWidth
+                              : 850.0;
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: SizedBox(
+                              width: tableW,
+                              child: DataTableShimmer(
+                                isDesktop: isDesktop,
+                                columnWidths: const {
+                                  0: FlexColumnWidth(1.2),
+                                  1: FlexColumnWidth(2.5),
+                                  2: FlexColumnWidth(2.5),
+                                  3: FlexColumnWidth(1.8),
+                                  4: FlexColumnWidth(1.0),
+                                  5: FlexColumnWidth(1.2),
+                                },
+                                headers: const [
+                                  "ID",
+                                  "PET PARENT",
+                                  "CONTACT & EMAIL",
+                                  "LOCATION",
+                                  "STATUS",
+                                  "ACTIONS",
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    else if (isDesktop)
                       _buildDesktopDataTable(provider)
                     else
                       _buildMobileList(provider),
@@ -103,41 +157,85 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
   }
 
   Widget _buildHeader(PetParentsListProvider provider, bool isDesktop) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Column(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 480;
+
+        if (isNarrow) {
+          return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AppText(
                 text: "Pet Parents Directory",
-                fontSize: isDesktop ? 22 : 18,
+                fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: textPrimaryColor,
               ),
               const SizedBox(height: 4),
-              AppText(
-                text: "Total Registered Pet Parents: ${provider.totalDocs}",
-                fontSize: 13,
-                color: textSecondaryColor,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: AppText(
+                      text: "Total Registered: ${provider.totalDocs}",
+                      fontSize: 13,
+                      color: textSecondaryColor,
+                    ),
+                  ),
+                  CustomButton(
+                    text: "Refresh",
+                    isIcon: true,
+                    icon: Icon(Icons.refresh_rounded, size: 16, color: whiteColor),
+                    height: 34,
+                    fontSize: 12,
+                    radius: 8,
+                    onTap: () => provider.fetchPetParents(isRefresh: true),
+                  ),
+                ],
               ),
             ],
-          ),
-        ),
-        CustomButton(
-          text: "Refresh",
-          isIcon: true,
-          icon: Icon(Icons.refresh_rounded, size: 16, color: whiteColor),
-          height: 38,
-          radius: 8,
-          onTap: () => provider.fetchPetParents(isRefresh: true),
-        ),
-      ],
+          );
+        }
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppText(
+                    text: "Pet Parents Directory",
+                    fontSize: isDesktop ? 22 : 18,
+                    fontWeight: FontWeight.w700,
+                    color: textPrimaryColor,
+                  ),
+                  const SizedBox(height: 4),
+                  AppText(
+                    text: "Total Registered Pet Parents: ${provider.totalDocs}",
+                    fontSize: 13,
+                    color: textSecondaryColor,
+                  ),
+                ],
+              ),
+            ),
+            CustomButton(
+              text: "Refresh",
+              isIcon: true,
+              icon: Icon(Icons.refresh_rounded, size: 16, color: whiteColor),
+              height: 38,
+              radius: 8,
+              onTap: () => provider.fetchPetParents(isRefresh: true),
+            ),
+          ],
+        );
+      },
     );
   }
 
   Widget _buildSearchBar(PetParentsListProvider provider, bool isDesktop) {
+    final hasSearchText = _searchController.text.trim().isNotEmpty;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -156,7 +254,7 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
                 color: textSecondaryColor,
                 size: 20,
               ),
-              suffixIcon: _searchController.text.isNotEmpty
+              suffixIcon: hasSearchText
                   ? IconButton(
                       icon: Icon(
                         Icons.clear_rounded,
@@ -165,7 +263,7 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
                       ),
                       onPressed: () {
                         _searchController.clear();
-                        provider.onSearchChanged('');
+                        provider.onSearchChanged('', immediate: true);
                       },
                     )
                   : null,
@@ -176,9 +274,16 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
           CustomButton(
             text: "Search",
             height: 44,
-            width: 100,
+            width: isDesktop ? 100 : 85,
             radius: 8,
-            onTap: () => provider.onSearchChanged(_searchController.text),
+            fillColor: hasSearchText ? primaryColor : borderColor,
+            textColor: hasSearchText ? whiteColor : textSecondaryColor,
+            onTap: hasSearchText
+                ? () => provider.onSearchChanged(
+                      _searchController.text,
+                      immediate: true,
+                    )
+                : null,
           ),
         ],
       ),
@@ -186,123 +291,127 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
   }
 
   Widget _buildDesktopDataTable(PetParentsListProvider provider) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: whiteColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: backgroundColor,
-              child: Row(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final tableWidth =
+            constraints.maxWidth > 900 ? constraints.maxWidth : 900.0;
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Container(
+            width: tableWidth,
+            decoration: BoxDecoration(
+              color: whiteColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: borderColor),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Column(
                 children: [
-                  SizedBox(
-                    width: 110,
-                    child: AppText(
-                      text: "ID",
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: textSecondaryColor,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
+                    color: backgroundColor,
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 110,
+                          child: AppText(
+                            text: "ID",
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: textSecondaryColor,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: AppText(
+                            text: "PET PARENT",
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: textSecondaryColor,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: AppText(
+                            text: "CONTACT & EMAIL",
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: textSecondaryColor,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: AppText(
+                            text: "LOCATION",
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: textSecondaryColor,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 100,
+                          child: AppText(
+                            text: "STATUS",
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: textSecondaryColor,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 130,
+                          child: AppText(
+                            text: "ACTIONS",
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: textSecondaryColor,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Expanded(
-                    flex: 3,
-                    child: AppText(
-                      text: "PET PARENT",
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: textSecondaryColor,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: AppText(
-                      text: "CONTACT & EMAIL",
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: textSecondaryColor,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: AppText(
-                      text: "LOCATION",
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: textSecondaryColor,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 100,
-                    child: AppText(
-                      text: "BOOKINGS",
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: textSecondaryColor,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 100,
-                    child: AppText(
-                      text: "STATUS",
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: textSecondaryColor,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 60,
-                    child: Center(
-                      child: Icon(Icons.more_horiz_rounded, size: 18),
-                    ),
+                  const Divider(height: 1, thickness: 1),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: provider.petParents.length,
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 1, thickness: 1),
+                    itemBuilder: (context, index) {
+                      final parent = provider.petParents[index];
+                      return _buildTableRow(context, parent);
+                    },
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, thickness: 1),
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: provider.petParents.length,
-              separatorBuilder: (context, index) =>
-                  const Divider(height: 1, thickness: 1),
-              itemBuilder: (context, index) {
-                final parent = provider.petParents[index];
-                return _buildTableRow(context, parent);
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildTableRow(BuildContext context, PetParentItemEntity parent) {
-    final displayName =
-        parent.fullName?.trim().isNotEmpty == true
-            ? parent.fullName!.trim()
-            : "Not Provided";
-    final initial =
-        displayName.isNotEmpty ? displayName.substring(0, 1).toUpperCase() : "P";
+    final displayName = parent.fullName?.trim().isNotEmpty == true
+        ? parent.fullName!.trim()
+        : "Not Provided";
+    final initial = displayName.isNotEmpty
+        ? displayName.substring(0, 1).toUpperCase()
+        : "P";
     final displayId =
         parent.longAutoIncrementId ??
         (parent.autoIncrementId != null ? "#${parent.autoIncrementId}" : "N/A");
-    final displayEmail =
-        parent.email?.trim().isNotEmpty == true
-            ? parent.email!.trim()
-            : "Not Provided";
-    final displayPhone =
-        parent.phone?.trim().isNotEmpty == true
-            ? parent.phone!.trim()
-            : "Not Provided";
+    final displayEmail = parent.email?.trim().isNotEmpty == true
+        ? parent.email!.trim()
+        : "Not Provided";
+    final displayPhone = parent.phone?.trim().isNotEmpty == true
+        ? parent.phone!.trim()
+        : "Not Provided";
     final locationParts = [
       if (parent.city?.trim().isNotEmpty == true) parent.city!.trim(),
       if (parent.countryName?.trim().isNotEmpty == true)
@@ -310,12 +419,13 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
       else if (parent.countryCode?.trim().isNotEmpty == true)
         parent.countryCode!.trim(),
     ];
-    final displayLocation =
-        locationParts.isNotEmpty ? locationParts.join(', ') : "Not Provided";
+    final displayLocation = locationParts.isNotEmpty
+        ? locationParts.join(', ')
+        : "Not Provided";
     final status = parent.user?.status ?? "Active";
 
     return InkWell(
-      onTap: () => context.push('/pet-parents/${parent.id}'),
+      onTap: () => context.go('/pet-parents/${parent.id}'),
       hoverColor: primaryColor.withValues(alpha: 0.03),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -371,11 +481,10 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
-                        if (parent.wallet != null &&
-                            parent.wallet!.isNotEmpty) ...[
+                        if (parent.id.isNotEmpty) ...[
                           const SizedBox(height: 2),
                           AppText(
-                            text: "Wallet: ${parent.wallet}",
+                            text: "id: ${parent.id}",
                             fontSize: 11,
                             color: textSecondaryColor,
                             overflow: TextOverflow.ellipsis,
@@ -459,55 +568,6 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
             ),
             SizedBox(
               width: 100,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: backgroundColor,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: borderColor),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.calendar_today_outlined,
-                          size: 11,
-                          color: textSecondaryColor,
-                        ),
-                        const SizedBox(width: 4),
-                        AppText(
-                          text: "${parent.appointmentsBookedCount}",
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: textPrimaryColor,
-                        ),
-                        const SizedBox(width: 6),
-                        Icon(
-                          Icons.biotech_outlined,
-                          size: 12,
-                          color: tertiaryColor,
-                        ),
-                        const SizedBox(width: 2),
-                        AppText(
-                          text: "${parent.labTestsBookedCount}",
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: tertiaryColor,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              width: 100,
               child: Center(
                 child: StatusBadge(
                   status: status,
@@ -517,15 +577,41 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
               ),
             ),
             SizedBox(
-              width: 60,
-              child: IconButton(
-                icon: Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 14,
-                  color: textSecondaryColor,
-                ),
-                tooltip: "View Details",
-                onPressed: () => context.push('/pet-parents/${parent.id}'),
+              width: 130,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.visibility_outlined,
+                      size: 18,
+                      color: primaryColor,
+                    ),
+                    tooltip: "View Details",
+                    splashRadius: 18,
+                    onPressed: () => context.go('/pet-parents/${parent.id}'),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: textSecondaryColor,
+                    ),
+                    tooltip: "Edit Pet Parent",
+                    splashRadius: 18,
+                    onPressed: () => _showEditPetParentDialog(parent),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete_outline_rounded,
+                      size: 18,
+                      color: errorColor,
+                    ),
+                    tooltip: "Delete Pet Parent",
+                    splashRadius: 18,
+                    onPressed: () => _showDeleteConfirmationDialog(parent),
+                  ),
+                ],
               ),
             ),
           ],
@@ -542,30 +628,26 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final parent = provider.petParents[index];
-        final displayName =
-            parent.fullName?.trim().isNotEmpty == true
-                ? parent.fullName!.trim()
-                : "Not Provided";
-        final initial =
-            displayName.isNotEmpty
-                ? displayName.substring(0, 1).toUpperCase()
-                : "P";
+        final displayName = parent.fullName?.trim().isNotEmpty == true
+            ? parent.fullName!.trim()
+            : "Not Provided";
+        final initial = displayName.isNotEmpty
+            ? displayName.substring(0, 1).toUpperCase()
+            : "P";
         final displayId =
             parent.longAutoIncrementId ??
             (parent.autoIncrementId != null
                 ? "#${parent.autoIncrementId}"
                 : "N/A");
-        final displayEmail =
-            parent.email?.trim().isNotEmpty == true
-                ? parent.email!.trim()
-                : "Not Provided";
-        final displayPhone =
-            parent.phone?.trim().isNotEmpty == true
-                ? parent.phone!.trim()
-                : "Not Provided";
+        final displayEmail = parent.email?.trim().isNotEmpty == true
+            ? parent.email!.trim()
+            : "Not Provided";
+        final displayPhone = parent.phone?.trim().isNotEmpty == true
+            ? parent.phone!.trim()
+            : "Not Provided";
 
         return InkWell(
-          onTap: () => context.push('/pet-parents/${parent.id}'),
+          onTap: () => context.go('/pet-parents/${parent.id}'),
           borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -595,21 +677,24 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 8,
+                            runSpacing: 4,
                             children: [
-                              Expanded(
-                                child: AppText(
-                                  text: displayName,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: textPrimaryColor,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
+                              AppText(
+                                text: displayName,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: textPrimaryColor,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 4,
+                                crossAxisAlignment: WrapCrossAlignment.center,
                                 children: [
                                   StatusBadge(
                                     status: parent.user?.status ?? "Active",
@@ -620,14 +705,15 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
                                       vertical: 2,
                                     ),
                                   ),
-                                  const SizedBox(width: 6),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 8,
                                       vertical: 3,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: primaryColor.withValues(alpha: 0.08),
+                                      color: primaryColor.withValues(
+                                        alpha: 0.08,
+                                      ),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: AppText(
@@ -655,58 +741,85 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
                   ],
                 ),
                 const SizedBox(height: 12),
-                const Divider(height: 1),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.phone_outlined,
+                      size: 14,
+                      color: textSecondaryColor,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: AppText(
+                        text: displayPhone,
+                        fontSize: 12,
+                        color: textSecondaryColor,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Divider(height: 1, thickness: 1),
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.phone_outlined,
-                            size: 14,
-                            color: textSecondaryColor,
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: AppText(
-                              text: displayPhone,
-                              fontSize: 12,
-                              color: textSecondaryColor,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
-                        ],
-                      ),
+                    CustomButton(
+                      text: "View Profile",
+                      isOutlined: true,
+                      height: 32,
+                      fontSize: 12,
+                      radius: 6,
+                      onTap: () => context.go('/pet-parents/${parent.id}'),
                     ),
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.calendar_today_outlined,
-                          size: 12,
-                          color: textSecondaryColor,
+                        IconButton(
+                          icon: Icon(
+                            Icons.visibility_outlined,
+                            size: 18,
+                            color: primaryColor,
+                          ),
+                          tooltip: "View Details",
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          onPressed: () =>
+                              context.go('/pet-parents/${parent.id}'),
                         ),
-                        const SizedBox(width: 4),
-                        AppText(
-                          text: "${parent.appointmentsBookedCount}",
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: textPrimaryColor,
+                        IconButton(
+                          icon: Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: textSecondaryColor,
+                          ),
+                          tooltip: "Edit Pet Parent",
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          onPressed: () => _showEditPetParentDialog(parent),
                         ),
-                        const SizedBox(width: 8),
-                        Icon(
-                          Icons.biotech_outlined,
-                          size: 13,
-                          color: tertiaryColor,
-                        ),
-                        const SizedBox(width: 2),
-                        AppText(
-                          text: "${parent.labTestsBookedCount}",
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: tertiaryColor,
+                        IconButton(
+                          icon: Icon(
+                            Icons.delete_outline_rounded,
+                            size: 18,
+                            color: errorColor,
+                          ),
+                          tooltip: "Delete Pet Parent",
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          onPressed: () =>
+                              _showDeleteConfirmationDialog(parent),
                         ),
                       ],
                     ),
@@ -731,56 +844,172 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: borderColor),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: AppText(
-              text:
-                  "Showing page ${provider.currentPage} of ${provider.totalPages} (${provider.totalDocs} pet parents)",
-              fontSize: 13,
-              color: textSecondaryColor,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 460;
+
+          if (isNarrow) {
+            return Column(
+              children: [
+                AppText(
+                  text:
+                      "Page ${provider.currentPage} of ${provider.totalPages} (${provider.totalDocs} pet parents)",
+                  fontSize: 12,
+                  color: textSecondaryColor,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.chevron_left_rounded, size: 18),
+                      label: const SizedBox.shrink(),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: textPrimaryColor,
+                        side: BorderSide(color: borderColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: provider.currentPage > 1 &&
+                              !provider.isPaginationLoading
+                          ? () => provider.previousPage()
+                          : null,
+                    ),
+                    const SizedBox(width: 8),
+                    if (provider.isPaginationLoading)
+                      Container(
+                        width: 32,
+                        height: 32,
+                        padding: const EdgeInsets.all(7),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.2,
+                          valueColor: AlwaysStoppedAnimation(primaryColor),
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: primaryColor.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: AppText(
+                          text: "${provider.currentPage}",
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: primaryColor,
+                        ),
+                      ),
+                    const SizedBox(width: 8),
+                    OutlinedButton.icon(
+                      label: const SizedBox.shrink(),
+                      icon: const Icon(Icons.chevron_right_rounded, size: 18),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: textPrimaryColor,
+                        side: BorderSide(color: borderColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: provider.currentPage < provider.totalPages &&
+                              !provider.isPaginationLoading
+                          ? () => provider.nextPage()
+                          : null,
+                    ),
+                  ],
+                ),
+              ],
+            );
+          }
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              OutlinedButton.icon(
-                icon: const Icon(Icons.chevron_left_rounded, size: 18),
-                label: isDesktop
-                    ? AppText(text: "Previous", fontSize: 13)
-                    : const SizedBox.shrink(),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: textPrimaryColor,
-                  side: BorderSide(color: borderColor),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+              Expanded(
+                child: AppText(
+                  text:
+                      "Showing page ${provider.currentPage} of ${provider.totalPages} (${provider.totalDocs} pet parents)",
+                  fontSize: 13,
+                  color: textSecondaryColor,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                onPressed: provider.currentPage > 1
-                    ? () => provider.previousPage()
-                    : null,
               ),
-              const SizedBox(width: 8),
-              OutlinedButton.icon(
-                label: isDesktop
-                    ? AppText(text: "Next", fontSize: 13)
-                    : const SizedBox.shrink(),
-                icon: const Icon(Icons.chevron_right_rounded, size: 18),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: textPrimaryColor,
-                  side: BorderSide(color: borderColor),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+              Row(
+                children: [
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.chevron_left_rounded, size: 18),
+                    label: isDesktop
+                        ? AppText(text: "Previous", fontSize: 13)
+                        : const SizedBox.shrink(),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: textPrimaryColor,
+                      side: BorderSide(color: borderColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: provider.currentPage > 1 &&
+                            !provider.isPaginationLoading
+                        ? () => provider.previousPage()
+                        : null,
                   ),
-                ),
-                onPressed: provider.currentPage < provider.totalPages
-                    ? () => provider.nextPage()
-                    : null,
+                  const SizedBox(width: 8),
+                  if (provider.isPaginationLoading)
+                    Container(
+                      width: 32,
+                      height: 32,
+                      padding: const EdgeInsets.all(7),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.2,
+                        valueColor: AlwaysStoppedAnimation(primaryColor),
+                      ),
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: primaryColor.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: AppText(
+                        text: "${provider.currentPage}",
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: primaryColor,
+                      ),
+                    ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    label: isDesktop
+                        ? AppText(text: "Next", fontSize: 13)
+                        : const SizedBox.shrink(),
+                    icon: const Icon(Icons.chevron_right_rounded, size: 18),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: textPrimaryColor,
+                      side: BorderSide(color: borderColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: provider.currentPage < provider.totalPages &&
+                            !provider.isPaginationLoading
+                        ? () => provider.nextPage()
+                        : null,
+                  ),
+                ],
               ),
             ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -796,7 +1025,11 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
       ),
       child: Column(
         children: [
-          Icon(Icons.error_outline_rounded, size: 48, color: Colors.red.shade400),
+          Icon(
+            Icons.error_outline_rounded,
+            size: 48,
+            color: Colors.red.shade400,
+          ),
           const SizedBox(height: 14),
           AppText(
             text: "Failed to Load Pet Parents",
@@ -856,6 +1089,29 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _showEditPetParentDialog(PetParentItemEntity parent) async {
+    final updated = await EditPetParentDialog.show(context, parent: parent);
+    if (!mounted) return;
+    if (updated == true) {
+      context.read<PetParentsListProvider>().fetchPetParents(isRefresh: true);
+    }
+  }
+
+  void _showDeleteConfirmationDialog(PetParentItemEntity parent) {
+    DialogUtils.showDynamicConfirmationDialog(
+      context: context,
+      title: "Delete Pet Parent",
+      message:
+          "Are you sure you want to delete ${parent.fullName?.trim().isNotEmpty == true ? parent.fullName : 'this pet parent'}?",
+      confirmText: "Delete",
+      onConfirm: () async {
+        if (!mounted) return;
+        final provider = context.read<PetParentsListProvider>();
+        await provider.deletePetParent(context: context, id: parent.id);
+      },
     );
   }
 }

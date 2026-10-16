@@ -1,5 +1,6 @@
 import '../entities/doctor_list_entity.dart';
 import '../entities/doctor_onboarding_entity.dart';
+import '../entities/update_doctor_entity.dart';
 import '../repositories/vet_onboarding_repository.dart';
 
 class VetOnboardingUseCases {
@@ -29,5 +30,16 @@ class VetOnboardingUseCases {
 
   Future<DoctorDetailResponseEntity> getDoctorDetail(String id) async {
     return await repository.getDoctorDetail(id);
+  }
+
+  Future<DoctorActionResponseEntity> updateDoctor(
+    String id,
+    UpdateDoctorEntity entity,
+  ) async {
+    return await repository.updateDoctor(id, entity);
+  }
+
+  Future<DoctorActionResponseEntity> deleteDoctor(String id) async {
+    return await repository.deleteDoctor(id);
   }
 }

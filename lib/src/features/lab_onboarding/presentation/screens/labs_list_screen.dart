@@ -5,10 +5,12 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
+import '../../../../core/utils/dialog_utils.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shimmers/data_table_shimmer.dart';
 import '../../../../core/presentation/widgets/status_badge.dart';
 import '../../domain/entities/lab_entity.dart';
+import '../dialogs/edit_lab_dialog.dart';
 import '../providers/labs_list_provider.dart';
 
 class LabsListScreen extends StatefulWidget {
@@ -24,6 +26,7 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
   @override
   void initState() {
     super.initState();
+    _searchController.addListener(_onSearchInputChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<LabsListProvider>();
       if (provider.labs.isEmpty) {
@@ -32,8 +35,13 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
     });
   }
 
+  void _onSearchInputChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchInputChanged);
     _searchController.dispose();
     super.dispose();
   }
@@ -68,7 +76,7 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
                         2: FlexColumnWidth(1.5),
                         3: FlexColumnWidth(1.5),
                         4: FlexColumnWidth(1.4),
-                        5: FlexColumnWidth(0.8),
+                        5: FlexColumnWidth(1.2),
                       },
                       headers: const [
                         "Lab Name",
@@ -85,7 +93,27 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
                   else if (provider.labs.isEmpty)
                     _buildEmptyState()
                   else ...[
-                    if (isDesktop)
+                    if (provider.isPaginationLoading)
+                      DataTableShimmer(
+                        isDesktop: isDesktop,
+                        columnWidths: const {
+                          0: FlexColumnWidth(2.0),
+                          1: FlexColumnWidth(1.8),
+                          2: FlexColumnWidth(1.5),
+                          3: FlexColumnWidth(1.5),
+                          4: FlexColumnWidth(1.4),
+                          5: FlexColumnWidth(1.2),
+                        },
+                        headers: const [
+                          "Lab Name",
+                          "Contact Info",
+                          "Type / Designation",
+                          "Location",
+                          "Status",
+                          "Action",
+                        ],
+                      )
+                    else if (isDesktop)
                       _buildDesktopDataTable(provider)
                     else
                       _buildMobileList(provider),
@@ -137,6 +165,8 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
   }
 
   Widget _buildFilterBar(LabsListProvider provider, bool isDesktop) {
+    final hasSearchText = _searchController.text.trim().isNotEmpty;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -158,7 +188,7 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
                     color: textSecondaryColor,
                     size: 20,
                   ),
-                  suffixIcon: _searchController.text.isNotEmpty
+                  suffixIcon: hasSearchText
                       ? IconButton(
                           icon: Icon(
                             Icons.clear_rounded,
@@ -167,12 +197,27 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
                           ),
                           onPressed: () {
                             _searchController.clear();
-                            provider.onSearchChanged('');
+                            provider.onSearchChanged('', immediate: true);
                           },
                         )
                       : null,
                   onChanged: (val) => provider.onSearchChanged(val),
                 ),
+              ),
+              const SizedBox(width: 12),
+              CustomButton(
+                text: "Search",
+                height: 44,
+                width: 100,
+                radius: 8,
+                fillColor: hasSearchText ? primaryColor : borderColor,
+                textColor: hasSearchText ? whiteColor : textSecondaryColor,
+                onTap: hasSearchText
+                    ? () => provider.onSearchChanged(
+                          _searchController.text,
+                          immediate: true,
+                        )
+                    : null,
               ),
             ],
           ),
@@ -230,13 +275,14 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Table(
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           columnWidths: const {
             0: FlexColumnWidth(2.0),
             1: FlexColumnWidth(1.8),
             2: FlexColumnWidth(1.5),
             3: FlexColumnWidth(1.5),
-            4: FlexColumnWidth(1.4),
-            5: FlexColumnWidth(0.8),
+            4: FlexColumnWidth(1.1),
+            5: FlexColumnWidth(1.4),
           },
           children: [
             TableRow(
@@ -247,7 +293,7 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
                 _buildHeaderCell("Type / Designation"),
                 _buildHeaderCell("Location"),
                 _buildHeaderCell("Status"),
-                _buildHeaderCell("Action"),
+                _buildHeaderCell("Action", isCenter: true),
               ],
             ),
             ...provider.labs.map((lab) {
@@ -271,14 +317,17 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
     );
   }
 
-  Widget _buildHeaderCell(String text) {
+  Widget _buildHeaderCell(String text, {bool isCenter = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: AppText(
-        text: text,
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-        color: textSecondaryColor,
+      child: Align(
+        alignment: isCenter ? Alignment.center : Alignment.centerLeft,
+        child: AppText(
+          text: text,
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: textSecondaryColor,
+        ),
       ),
     );
   }
@@ -289,7 +338,7 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
         : "L";
 
     return InkWell(
-      onTap: () => context.push('/labs/${lab.id}'),
+      onTap: () => context.go('/labs/${lab.id}'),
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -455,11 +504,53 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
 
   Widget _buildActionCell(LabItemEntity lab) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: IconButton(
-        icon: Icon(Icons.arrow_forward_ios_rounded, size: 14, color: primaryColor),
-        tooltip: "View Details",
-        onPressed: () => context.push('/labs/${lab.id}'),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              icon: Icon(
+                Icons.visibility_outlined,
+                size: 18,
+                color: primaryColor,
+              ),
+              tooltip: "View Details",
+              splashRadius: 18,
+              onPressed: () => context.go('/labs/${lab.id}'),
+            ),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              icon: Icon(
+                Icons.edit_outlined,
+                size: 18,
+                color: textSecondaryColor,
+              ),
+              tooltip: "Edit Lab",
+              splashRadius: 18,
+              onPressed: () => _showEditLabDialog(lab),
+            ),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              icon: Icon(
+                Icons.delete_outline_rounded,
+                size: 18,
+                color: errorColor,
+              ),
+              tooltip: "Delete Lab",
+              splashRadius: 18,
+              onPressed: () => _showDeleteConfirmationDialog(lab),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -477,7 +568,7 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
             : "L";
 
         return InkWell(
-          onTap: () => context.push('/labs/${lab.id}'),
+          onTap: () => context.go('/labs/${lab.id}'),
           borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -564,6 +655,67 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
                     ],
                   ),
                 ],
+                const Divider(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomButton(
+                      text: "View Details",
+                      isOutlined: true,
+                      height: 32,
+                      fontSize: 12,
+                      radius: 6,
+                      onTap: () => context.go('/labs/${lab.id}'),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.visibility_outlined,
+                            size: 18,
+                            color: primaryColor,
+                          ),
+                          tooltip: "View Details",
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          onPressed: () => context.go('/labs/${lab.id}'),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: textSecondaryColor,
+                          ),
+                          tooltip: "Edit Lab",
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          onPressed: () => _showEditLabDialog(lab),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.delete_outline_rounded,
+                            size: 18,
+                            color: errorColor,
+                          ),
+                          tooltip: "Delete Lab",
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          onPressed: () => _showDeleteConfirmationDialog(lab),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -703,6 +855,29 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _showEditLabDialog(LabItemEntity lab) async {
+    final updated = await EditLabDialog.show(context, lab: lab);
+    if (!mounted) return;
+    if (updated == true) {
+      context.read<LabsListProvider>().fetchLabs(isRefresh: true);
+    }
+  }
+
+  void _showDeleteConfirmationDialog(LabItemEntity lab) {
+    DialogUtils.showDynamicConfirmationDialog(
+      context: context,
+      title: "Delete Lab",
+      message:
+          "Are you sure you want to delete ${lab.title.isNotEmpty ? lab.title : 'this diagnostic lab'}?",
+      confirmText: "Delete",
+      onConfirm: () async {
+        if (!mounted) return;
+        final provider = context.read<LabsListProvider>();
+        await provider.deleteLab(context: context, id: lab.id);
+      },
     );
   }
 }

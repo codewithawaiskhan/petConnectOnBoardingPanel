@@ -1,5 +1,6 @@
 import '../entities/lab_entity.dart';
 import '../entities/lab_onboarding_entity.dart';
+import '../entities/update_lab_entity.dart';
 import '../repositories/lab_onboarding_repository.dart';
 
 class LabOnboardingUseCases {
@@ -35,5 +36,16 @@ class LabOnboardingUseCases {
     int pageSize = 100,
   }) async {
     return await repository.getLabTestCategories(pageSize: pageSize);
+  }
+
+  Future<LabActionResponseEntity> updateLab(
+    String id,
+    UpdateLabEntity entity,
+  ) async {
+    return await repository.updateLab(id, entity);
+  }
+
+  Future<LabActionResponseEntity> deleteLab(String id) async {
+    return await repository.deleteLab(id);
   }
 }

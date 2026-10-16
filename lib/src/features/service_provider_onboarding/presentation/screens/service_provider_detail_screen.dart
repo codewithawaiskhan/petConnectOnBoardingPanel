@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/status_badge.dart';
+import '../../../../core/utils/dialog_utils.dart';
+import '../../../../core/utils/mini_functions.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shared_operating_schedule_card.dart';
 import '../../../../shared/presentation/widgets/shimmers/profile_detail_shimmer.dart';
 import '../../domain/entities/service_provider_list_entity.dart';
+import '../dialogs/edit_service_provider_dialog.dart';
 import '../providers/service_provider_detail_provider.dart';
+import '../providers/service_providers_list_provider.dart';
 
 class ServiceProviderDetailScreen extends StatefulWidget {
   final String id;
@@ -34,6 +39,44 @@ class _ServiceProviderDetailScreenState
     });
   }
 
+  Future<void> _handleEdit(ServiceProviderItemEntity sp) async {
+    final updated = await EditServiceProviderDialog.show(
+      context,
+      serviceProvider: sp,
+    );
+    if (updated == true && mounted) {
+      context.read<ServiceProviderDetailProvider>().fetchServiceProviderDetail(
+        widget.id,
+        forceRefresh: true,
+      );
+    }
+  }
+
+  void _showDeleteConfirmationDialog(ServiceProviderItemEntity sp) {
+    DialogUtils.showDynamicConfirmationDialog(
+      context: context,
+      title: "Delete Service Provider",
+      message:
+          "Are you sure you want to delete ${sp.fullName.isNotEmpty ? sp.fullName : 'this service provider'}?",
+      confirmText: "Delete",
+      onConfirm: () async {
+        if (!mounted) return;
+        final provider = context.read<ServiceProvidersListProvider>();
+        final success = await provider.deleteServiceProvider(
+          context: context,
+          id: sp.id,
+        );
+        if (success && mounted) {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/providers');
+          }
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDesktop = context.isDesktop;
@@ -49,7 +92,7 @@ class _ServiceProviderDetailScreenState
             if (context.canPop()) {
               context.pop();
             } else {
-              context.go('/service-providers-list');
+              context.go('/providers');
             }
           },
           tooltip: "Back to list",
@@ -174,73 +217,117 @@ class _ServiceProviderDetailScreenState
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: borderColor),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            radius: isDesktop ? 36 : 28,
-            backgroundColor: secondaryColor.withValues(alpha: 0.12),
-            child: AppText(
-              text: initial,
-              fontSize: isDesktop ? 28 : 22,
-              fontWeight: FontWeight.w700,
-              color: secondaryColor,
-            ),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: isDesktop ? 36 : 28,
+                backgroundColor: secondaryColor.withValues(alpha: 0.12),
+                child: AppText(
+                  text: initial,
+                  fontSize: isDesktop ? 28 : 22,
+                  fontWeight: FontWeight.w700,
+                  color: secondaryColor,
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppText(
-                            text: sp.fullName,
-                            fontSize: isDesktop ? 20 : 16,
-                            fontWeight: FontWeight.w700,
-                            color: textPrimaryColor,
-                          ),
-                          const SizedBox(height: 2),
-                          AppText(
-                            text:
-                                sp.businessName ?? "Independent Care Provider",
-                            fontSize: 13,
-                            color: textSecondaryColor,
-                          ),
-                        ],
-                      ),
+                    AppText(
+                      text: sp.fullName,
+                      fontSize: isDesktop ? 20 : 16,
+                      fontWeight: FontWeight.w700,
+                      color: textPrimaryColor,
                     ),
-                    _buildStatusBadge(sp.status),
+                    const SizedBox(height: 2),
+                    AppText(
+                      text:
+                          sp.businessName ?? "Independent Care Provider",
+                      fontSize: 13,
+                      color: textSecondaryColor,
+                    ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 8,
-                  children: [
-                    if (sp.longAutoIncrementId != null)
-                      _buildMetaChip(
-                        Icons.badge_outlined,
-                        "ID: ${sp.longAutoIncrementId}",
-                      ),
-                    if (sp.designation != null)
-                      _buildMetaChip(
-                        Icons.business_center_outlined,
-                        sp.designation!,
-                      ),
-                    if (sp.yearsOfWorkExperience != null)
-                      _buildMetaChip(
-                        Icons.work_history_outlined,
-                        "${sp.yearsOfWorkExperience} Years Exp",
-                      ),
-                    if (sp.gender != null)
-                      _buildMetaChip(Icons.person_outline_rounded, sp.gender!),
-                  ],
+              ),
+              const SizedBox(width: 12),
+              _buildStatusBadge(sp.status),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 16,
+            runSpacing: 8,
+            children: [
+              if (sp.longAutoIncrementId != null)
+                _buildMetaChip(
+                  Icons.badge_outlined,
+                  "ID: ${sp.longAutoIncrementId}",
+                ),
+              if (sp.designation != null)
+                _buildMetaChip(
+                  Icons.business_center_outlined,
+                  sp.designation!,
+                ),
+              if (sp.gender != null)
+                _buildMetaChip(Icons.person_outline_rounded, sp.gender!),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Divider(height: 1, thickness: 1, color: borderColor),
+          const SizedBox(height: 14),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 8,
+              alignment: WrapAlignment.end,
+              children: [
+                CustomButton(
+                  text: "Edit Details",
+                  isIcon: true,
+                  icon: Icon(
+                    Icons.edit_outlined,
+                    size: 14,
+                    color: primaryColor,
+                  ),
+                  height: 36,
+                  width: 122,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  radius: 8,
+                  fillColor: primaryColor.withValues(alpha: 0.08),
+                  textColor: primaryColor,
+                  buttonBorder: Border.all(
+                    color: primaryColor.withValues(alpha: 0.25),
+                    width: 1,
+                  ),
+                  onTap: () => _handleEdit(sp),
+                ),
+                CustomButton(
+                  text: "Delete",
+                  isIcon: true,
+                  icon: Icon(
+                    Icons.delete_outline_rounded,
+                    size: 15,
+                    color: errorColor,
+                  ),
+                  height: 36,
+                  width: 96,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  radius: 8,
+                  fillColor: errorColor.withValues(alpha: 0.08),
+                  textColor: errorColor,
+                  buttonBorder: Border.all(
+                    color: errorColor.withValues(alpha: 0.25),
+                    width: 1,
+                  ),
+                  onTap: () => _showDeleteConfirmationDialog(sp),
                 ),
               ],
             ),
@@ -328,6 +415,14 @@ class _ServiceProviderDetailScreenState
               "ZIP Code",
               sp.businessZIPCode.toString(),
               icon: Icons.markunread_mailbox_outlined,
+            ),
+          ],
+          if (sp.createdAt != null) ...[
+            const Divider(height: 16),
+            _buildInfoRow(
+              "Registered On",
+              _formatDisplayDateTime(sp.createdAt),
+              icon: Icons.calendar_today_outlined,
             ),
           ],
         ],
@@ -513,7 +608,7 @@ class _ServiceProviderDetailScreenState
                       ),
                       if (lic.expiryDate != null)
                         AppText(
-                          text: "Expires: ${lic.expiryDate!.substring(0, 10)}",
+                          text: "Expires: ${_formatDisplayDate(lic.expiryDate)}",
                           fontSize: 11,
                           color: textSecondaryColor,
                         ),
@@ -651,5 +746,26 @@ class _ServiceProviderDetailScreenState
         ),
       ),
     );
+  }
+
+  String _formatDisplayDate(String? rawDate) {
+    if (rawDate == null || rawDate.trim().isEmpty) return "N/A";
+    try {
+      final dt = DateTime.parse(rawDate).toLocal();
+      return DateFormat("MMM dd, yyyy").format(dt);
+    } catch (_) {
+      final ymd = MiniFunctions().formatDateToYMD(rawDate);
+      return ymd.isNotEmpty ? ymd : rawDate;
+    }
+  }
+
+  String _formatDisplayDateTime(String? rawDate) {
+    if (rawDate == null || rawDate.trim().isEmpty) return "N/A";
+    try {
+      final dt = DateTime.parse(rawDate).toLocal();
+      return DateFormat("MMM dd, yyyy, hh:mm a").format(dt);
+    } catch (_) {
+      return rawDate;
+    }
   }
 }

@@ -5,10 +5,12 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
+import '../../../../core/utils/dialog_utils.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shimmers/data_table_shimmer.dart';
 import '../../../../core/presentation/widgets/status_badge.dart';
 import '../../domain/entities/service_provider_list_entity.dart';
+import '../dialogs/edit_service_provider_dialog.dart';
 import '../providers/service_providers_list_provider.dart';
 
 class ServiceProvidersListScreen extends StatefulWidget {
@@ -26,6 +28,7 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
   @override
   void initState() {
     super.initState();
+    _searchController.addListener(_onSearchInputChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ServiceProvidersListProvider>();
       if (provider.serviceProviders.isEmpty) {
@@ -34,8 +37,13 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
     });
   }
 
+  void _onSearchInputChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchInputChanged);
     _searchController.dispose();
     super.dispose();
   }
@@ -69,17 +77,13 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
                         1: FlexColumnWidth(2.0),
                         2: FlexColumnWidth(1.8),
                         3: FlexColumnWidth(1.1),
-                        4: FlexColumnWidth(1.1),
-                        5: FlexColumnWidth(0.9),
-                        6: FlexColumnWidth(0.8),
+                        4: FlexColumnWidth(1.4),
                       },
                       headers: const [
                         "Provider",
                         "Business Name",
                         "Contact Info",
-                        "Starting Fee",
                         "Status",
-                        "Experience",
                         "Action",
                       ],
                     )
@@ -89,7 +93,25 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
                   else if (provider.serviceProviders.isEmpty)
                     _buildEmptyState()
                   else ...[
-                    if (isDesktop)
+                    if (provider.isPaginationLoading)
+                      DataTableShimmer(
+                        isDesktop: isDesktop,
+                        columnWidths: const {
+                          0: FlexColumnWidth(2.2),
+                          1: FlexColumnWidth(2.0),
+                          2: FlexColumnWidth(1.8),
+                          3: FlexColumnWidth(1.1),
+                          4: FlexColumnWidth(1.4),
+                        },
+                        headers: const [
+                          "Provider",
+                          "Business Name",
+                          "Contact Info",
+                          "Status",
+                          "Action",
+                        ],
+                      )
+                    else if (isDesktop)
                       _buildDesktopDataTable(provider)
                     else
                       _buildMobileList(provider),
@@ -142,6 +164,8 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
     ServiceProvidersListProvider provider,
     bool isDesktop,
   ) {
+    final hasSearchText = _searchController.text.trim().isNotEmpty;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -163,7 +187,7 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
                     color: textSecondaryColor,
                     size: 20,
                   ),
-                  suffixIcon: _searchController.text.isNotEmpty
+                  suffixIcon: hasSearchText
                       ? IconButton(
                           icon: Icon(
                             Icons.clear_rounded,
@@ -172,12 +196,27 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
                           ),
                           onPressed: () {
                             _searchController.clear();
-                            provider.onSearchChanged('');
+                            provider.onSearchChanged('', immediate: true);
                           },
                         )
                       : null,
                   onChanged: (val) => provider.onSearchChanged(val),
                 ),
+              ),
+              const SizedBox(width: 12),
+              CustomButton(
+                text: "Search",
+                height: 44,
+                width: 100,
+                radius: 8,
+                fillColor: hasSearchText ? primaryColor : borderColor,
+                textColor: hasSearchText ? whiteColor : textSecondaryColor,
+                onTap: hasSearchText
+                    ? () => provider.onSearchChanged(
+                          _searchController.text,
+                          immediate: true,
+                        )
+                    : null,
               ),
             ],
           ),
@@ -235,14 +274,13 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Table(
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           columnWidths: const {
             0: FlexColumnWidth(2.2),
             1: FlexColumnWidth(2.0),
             2: FlexColumnWidth(1.8),
             3: FlexColumnWidth(1.1),
-            4: FlexColumnWidth(1.1),
-            5: FlexColumnWidth(0.9),
-            6: FlexColumnWidth(0.8),
+            4: FlexColumnWidth(1.4),
           },
           children: [
             TableRow(
@@ -251,10 +289,8 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
                 _buildHeaderCell("Provider"),
                 _buildHeaderCell("Business Name"),
                 _buildHeaderCell("Contact Info"),
-                _buildHeaderCell("Starting Fee"),
                 _buildHeaderCell("Status"),
-                _buildHeaderCell("Experience"),
-                _buildHeaderCell("Action"),
+                _buildHeaderCell("Action", isCenter: true),
               ],
             ),
             ...provider.serviceProviders.map((sp) {
@@ -266,9 +302,7 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
                   _buildProviderCell(sp),
                   _buildBusinessCell(sp),
                   _buildContactCell(sp),
-                  _buildFeeCell(sp),
                   _buildStatusCell(sp.status),
-                  _buildExperienceCell(sp),
                   _buildActionCell(sp),
                 ],
               );
@@ -279,14 +313,17 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
     );
   }
 
-  Widget _buildHeaderCell(String text) {
+  Widget _buildHeaderCell(String text, {bool isCenter = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: AppText(
-        text: text,
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-        color: textSecondaryColor,
+      child: Align(
+        alignment: isCenter ? Alignment.center : Alignment.centerLeft,
+        child: AppText(
+          text: text,
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: textSecondaryColor,
+        ),
       ),
     );
   }
@@ -297,7 +334,7 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
         : "S";
 
     return InkWell(
-      onTap: () => context.push('/service-providers/${sp.id}'),
+      onTap: () => context.go('/providers/${sp.id}'),
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -388,25 +425,6 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
     );
   }
 
-  Widget _buildFeeCell(ServiceProviderItemEntity sp) {
-    final fee =
-        sp.startingPricePerAppointment?.price ?? sp.pricePerAppointment?.price;
-    final currency =
-        sp.startingPricePerAppointment?.currencyCode ??
-        sp.pricePerAppointment?.currencyCode ??
-        "USD";
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: AppText(
-        text: fee != null ? "$currency $fee" : "N/A",
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: textPrimaryColor,
-      ),
-    );
-  }
-
   Widget _buildStatusCell(String status) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
@@ -419,29 +437,55 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
     );
   }
 
-  Widget _buildExperienceCell(ServiceProviderItemEntity sp) {
-    final exp = sp.yearsOfWorkExperience;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: AppText(
-        text: exp != null ? "$exp yrs" : "N/A",
-        fontSize: 12,
-        color: textPrimaryColor,
-      ),
-    );
-  }
-
   Widget _buildActionCell(ServiceProviderItemEntity sp) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: IconButton(
-        icon: Icon(
-          Icons.arrow_forward_ios_rounded,
-          size: 14,
-          color: primaryColor,
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              icon: Icon(
+                Icons.visibility_outlined,
+                size: 18,
+                color: primaryColor,
+              ),
+              tooltip: "View Details",
+              splashRadius: 18,
+              onPressed: () => context.go('/providers/${sp.id}'),
+            ),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              icon: Icon(
+                Icons.edit_outlined,
+                size: 18,
+                color: textSecondaryColor,
+              ),
+              tooltip: "Edit Provider",
+              splashRadius: 18,
+              onPressed: () => _showEditServiceProviderDialog(sp),
+            ),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              icon: Icon(
+                Icons.delete_outline_rounded,
+                size: 18,
+                color: errorColor,
+              ),
+              tooltip: "Delete Provider",
+              splashRadius: 18,
+              onPressed: () => _showDeleteConfirmationDialog(sp),
+            ),
+          ],
         ),
-        tooltip: "View Provider Details",
-        onPressed: () => context.push('/service-providers/${sp.id}'),
       ),
     );
   }
@@ -455,7 +499,7 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
       itemBuilder: (context, index) {
         final sp = provider.serviceProviders[index];
         return InkWell(
-          onTap: () => context.push('/service-providers/${sp.id}'),
+          onTap: () => context.go('/providers/${sp.id}'),
           borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -530,25 +574,69 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
                         ),
                       ],
                     ),
-                    if (sp.startingPricePerAppointment?.price != null ||
-                        sp.pricePerAppointment?.price != null)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          AppText(
-                            text: "Starting Fee",
-                            fontSize: 11,
-                            color: textSecondaryColor,
-                          ),
-                          AppText(
-                            text:
-                                "USD ${sp.startingPricePerAppointment?.price ?? sp.pricePerAppointment?.price}",
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                  ],
+                ),
+                const Divider(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomButton(
+                      text: "View Details",
+                      isOutlined: true,
+                      height: 32,
+                      fontSize: 12,
+                      radius: 6,
+                      onTap: () => context.go('/providers/${sp.id}'),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.visibility_outlined,
+                            size: 18,
                             color: primaryColor,
                           ),
-                        ],
-                      ),
+                          tooltip: "View Details",
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          onPressed: () =>
+                              context.go('/providers/${sp.id}'),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: textSecondaryColor,
+                          ),
+                          tooltip: "Edit Provider",
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          onPressed: () => _showEditServiceProviderDialog(sp),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.delete_outline_rounded,
+                            size: 18,
+                            color: errorColor,
+                          ),
+                          tooltip: "Delete Provider",
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          onPressed: () =>
+                              _showDeleteConfirmationDialog(sp),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ],
@@ -682,6 +770,41 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _showEditServiceProviderDialog(
+    ServiceProviderItemEntity serviceProvider,
+  ) async {
+    final updated = await EditServiceProviderDialog.show(
+      context,
+      serviceProvider: serviceProvider,
+    );
+    if (!mounted) return;
+    if (updated == true) {
+      context
+          .read<ServiceProvidersListProvider>()
+          .fetchServiceProviders(isRefresh: true);
+    }
+  }
+
+  void _showDeleteConfirmationDialog(
+    ServiceProviderItemEntity serviceProvider,
+  ) {
+    DialogUtils.showDynamicConfirmationDialog(
+      context: context,
+      title: "Delete Service Provider",
+      message:
+          "Are you sure you want to delete ${serviceProvider.fullName.isNotEmpty ? serviceProvider.fullName : 'this service provider'}?",
+      confirmText: "Delete",
+      onConfirm: () async {
+        if (!mounted) return;
+        final provider = context.read<ServiceProvidersListProvider>();
+        await provider.deleteServiceProvider(
+          context: context,
+          id: serviceProvider.id,
+        );
+      },
     );
   }
 }

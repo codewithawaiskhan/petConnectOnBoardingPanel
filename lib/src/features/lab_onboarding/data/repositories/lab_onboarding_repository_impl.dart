@@ -1,10 +1,12 @@
 import '../../../../core/network/models/response/response.dart';
 import '../../domain/entities/lab_entity.dart';
 import '../../domain/entities/lab_onboarding_entity.dart';
+import '../../domain/entities/update_lab_entity.dart';
 import '../../domain/repositories/lab_onboarding_repository.dart';
 import '../data_sources/lab_onboarding_remote_data_source.dart';
 import '../models/lab_model.dart';
 import '../models/lab_onboarding_model.dart';
+import '../models/update_lab_model.dart';
 
 class LabOnboardingRepositoryImpl implements LabOnboardingRepository {
   final LabOnboardingRemoteDataSource remoteDataSource;
@@ -74,5 +76,33 @@ class LabOnboardingRepositoryImpl implements LabOnboardingRepository {
             : <String, dynamic>{};
 
     return LabTestCategoryListResponseModel.fromJson(rawResponse);
+  }
+
+  @override
+  Future<LabActionResponseEntity> updateLab(
+    String id,
+    UpdateLabEntity entity,
+  ) async {
+    final model = UpdateLabModel.fromEntity(entity);
+    final Response response = await remoteDataSource.updateLab(id, model);
+
+    final Map<String, dynamic> rawResponse =
+        response.body is Map<String, dynamic>
+            ? response.body as Map<String, dynamic>
+            : <String, dynamic>{};
+
+    return LabActionResponseModel.fromJson(rawResponse);
+  }
+
+  @override
+  Future<LabActionResponseEntity> deleteLab(String id) async {
+    final Response response = await remoteDataSource.deleteLab(id);
+
+    final Map<String, dynamic> rawResponse =
+        response.body is Map<String, dynamic>
+            ? response.body as Map<String, dynamic>
+            : <String, dynamic>{};
+
+    return LabActionResponseModel.fromJson(rawResponse);
   }
 }

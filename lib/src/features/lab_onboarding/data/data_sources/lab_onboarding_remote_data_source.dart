@@ -2,6 +2,7 @@ import '../../../../app/config/api_endpoints.dart';
 import '../../../../core/network/api_services.dart';
 import '../../../../core/network/models/response/response.dart';
 import '../models/lab_onboarding_model.dart';
+import '../models/update_lab_model.dart';
 
 abstract class LabOnboardingRemoteDataSource {
   Future<Response> submitLabDataEntry(LabOnboardingModel model);
@@ -16,6 +17,10 @@ abstract class LabOnboardingRemoteDataSource {
   Future<Response> getLabDetail(String id);
 
   Future<Response> getLabTestCategories({int pageSize = 100});
+
+  Future<Response> updateLab(String id, UpdateLabModel model);
+
+  Future<Response> deleteLab(String id);
 }
 
 class LabOnboardingRemoteDataSourceImpl
@@ -72,5 +77,18 @@ class LabOnboardingRemoteDataSourceImpl
     ).replace(queryParameters: queryParams).toString();
 
     return await apiServices.getData(uri);
+  }
+
+  @override
+  Future<Response> updateLab(String id, UpdateLabModel model) async {
+    return await apiServices.patchData(
+      ApiEndpoints.updateLab(id),
+      model.toJson(),
+    );
+  }
+
+  @override
+  Future<Response> deleteLab(String id) async {
+    return await apiServices.deleteData(ApiEndpoints.deleteLab(id));
   }
 }
