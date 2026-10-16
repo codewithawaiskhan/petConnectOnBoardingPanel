@@ -142,10 +142,7 @@ final GoRouter appRouter = GoRouter(
                 ),
               ],
             ),
-            GoRoute(
-              path: '/vets-list',
-              redirect: (context, state) => '/vets',
-            ),
+            GoRoute(path: '/vets-list', redirect: (context, state) => '/vets'),
             GoRoute(
               path: '/vets-list/:id',
               redirect: (context, state) =>
@@ -232,10 +229,7 @@ final GoRouter appRouter = GoRouter(
                 ),
               ],
             ),
-            GoRoute(
-              path: '/labs-list',
-              redirect: (context, state) => '/labs',
-            ),
+            GoRoute(path: '/labs-list', redirect: (context, state) => '/labs'),
             GoRoute(
               path: '/labs-list/:id',
               redirect: (context, state) =>
