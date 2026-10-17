@@ -5,6 +5,9 @@ abstract class PetParentsRepository {
     int page = 1,
     int pageSize = 10,
     String? keyword,
+    String? from,
+    String? to,
+    String? countryCode,
   });
 
   Future<PetParentDetailResponseEntity> getPetParentDetail(String id);

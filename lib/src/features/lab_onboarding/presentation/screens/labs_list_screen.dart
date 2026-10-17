@@ -12,6 +12,7 @@ import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shimmers/data_table_shimmer.dart';
 import '../../../../core/presentation/widgets/status_badge.dart';
 import '../../domain/entities/lab_entity.dart';
+import '../../../../shared/presentation/widgets/directory_filter_bar.dart';
 import '../dialogs/edit_lab_dialog.dart';
 import '../providers/labs_list_provider.dart';
 
@@ -68,6 +69,23 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
                   _buildHeader(provider, isDesktop),
                   const SizedBox(height: 20),
                   _buildFilterBar(provider, isDesktop),
+                  const SizedBox(height: 16),
+                  DirectoryFilterBar(
+                    fromDate: provider.fromDate,
+                    toDate: provider.toDate,
+                    countryCode: provider.countryCode,
+                    isLoading: provider.isLoading,
+                    onApply: ({countryCode, fromDate, toDate}) {
+                      provider.applyFilters(
+                        from: fromDate,
+                        to: toDate,
+                        countryCode: countryCode,
+                      );
+                    },
+                    onClear: () {
+                      provider.clearFilters();
+                    },
+                  ),
                   const SizedBox(height: 20),
                   if (provider.isLoading)
                     DataTableShimmer(

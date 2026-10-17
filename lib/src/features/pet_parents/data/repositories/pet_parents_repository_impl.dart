@@ -14,11 +14,17 @@ class PetParentsRepositoryImpl implements PetParentsRepository {
     int page = 1,
     int pageSize = 10,
     String? keyword,
+    String? from,
+    String? to,
+    String? countryCode,
   }) async {
     final Response response = await remoteDataSource.getPetParents(
       page: page,
       pageSize: pageSize,
       keyword: keyword,
+      from: from,
+      to: to,
+      countryCode: countryCode,
     );
 
     final Map<String, dynamic> rawResponse =

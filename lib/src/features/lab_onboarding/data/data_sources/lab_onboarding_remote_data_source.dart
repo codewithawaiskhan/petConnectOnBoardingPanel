@@ -12,6 +12,9 @@ abstract class LabOnboardingRemoteDataSource {
     int pageSize = 10,
     String? status,
     String? keyword,
+    String? from,
+    String? to,
+    String? countryCode,
   });
 
   Future<Response> getLabDetail(String id);
@@ -43,6 +46,9 @@ class LabOnboardingRemoteDataSourceImpl
     int pageSize = 10,
     String? status,
     String? keyword,
+    String? from,
+    String? to,
+    String? countryCode,
   }) async {
     final queryParams = <String, String>{
       'page': page.toString(),
@@ -54,6 +60,18 @@ class LabOnboardingRemoteDataSourceImpl
     }
     if (keyword != null && keyword.trim().isNotEmpty) {
       queryParams['keyword'] = keyword.trim();
+    }
+    if (from != null && from.trim().isNotEmpty) {
+      queryParams['from'] = from.trim();
+    }
+    if (to != null && to.trim().isNotEmpty) {
+      queryParams['to'] = to.trim();
+    }
+    if (countryCode != null && countryCode.trim().isNotEmpty) {
+      final countryVal = countryCode.trim();
+      queryParams['countryCode'] = countryVal;
+      queryParams['countryName'] = countryVal;
+      queryParams['country'] = countryVal;
     }
 
     final uri = Uri.parse(

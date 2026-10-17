@@ -11,6 +11,9 @@ abstract class VetOnboardingRepository {
     int pageSize = 10,
     String? status,
     String? keyword,
+    String? from,
+    String? to,
+    String? countryCode,
   });
   Future<DoctorDetailResponseEntity> getDoctorDetail(String id);
   Future<DoctorActionResponseEntity> updateDoctor(

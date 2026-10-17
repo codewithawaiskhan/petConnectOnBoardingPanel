@@ -19,12 +19,18 @@ class LabOnboardingUseCases {
     int pageSize = 10,
     String? status,
     String? keyword,
+    String? from,
+    String? to,
+    String? countryCode,
   }) async {
     return await repository.getLabs(
       page: page,
       pageSize: pageSize,
       status: status,
       keyword: keyword,
+      from: from,
+      to: to,
+      countryCode: countryCode,
     );
   }
 

@@ -38,12 +38,18 @@ class ServiceProviderOnboardingRepositoryImpl
     int pageSize = 10,
     String? status,
     String? keyword,
+    String? from,
+    String? to,
+    String? countryCode,
   }) async {
     final Response response = await remoteDataSource.getServiceProviders(
       page: page,
       pageSize: pageSize,
       status: status,
       keyword: keyword,
+      from: from,
+      to: to,
+      countryCode: countryCode,
     );
 
     final Map<String, dynamic> rawResponse =

@@ -10,11 +10,17 @@ class PetParentsUseCases {
     int page = 1,
     int pageSize = 10,
     String? keyword,
+    String? from,
+    String? to,
+    String? countryCode,
   }) {
     return repository.getPetParents(
       page: page,
       pageSize: pageSize,
       keyword: keyword,
+      from: from,
+      to: to,
+      countryCode: countryCode,
     );
   }
 

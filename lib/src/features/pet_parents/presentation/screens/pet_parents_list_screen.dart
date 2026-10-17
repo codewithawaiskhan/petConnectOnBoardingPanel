@@ -12,6 +12,7 @@ import '../../../../core/utils/dialog_utils.dart';
 import '../../domain/entities/pet_parent_entity.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/presentation/widgets/bootstrap_pagination.dart';
+import '../../../../shared/presentation/widgets/directory_filter_bar.dart';
 import '../dialogs/edit_pet_parent_dialog.dart';
 import '../providers/pet_parents_list_provider.dart';
 
@@ -69,6 +70,23 @@ class _PetParentsListScreenState extends State<PetParentsListScreen>
                   _buildHeader(provider, isDesktop),
                   const SizedBox(height: 20),
                   _buildSearchBar(provider, isDesktop),
+                  const SizedBox(height: 16),
+                  DirectoryFilterBar(
+                    fromDate: provider.fromDate,
+                    toDate: provider.toDate,
+                    countryCode: provider.countryCode,
+                    isLoading: provider.isLoading,
+                    onApply: ({countryCode, fromDate, toDate}) {
+                      provider.applyFilters(
+                        from: fromDate,
+                        to: toDate,
+                        countryCode: countryCode,
+                      );
+                    },
+                    onClear: () {
+                      provider.clearFilters();
+                    },
+                  ),
                   const SizedBox(height: 20),
                   if (provider.isLoading)
                     LayoutBuilder(

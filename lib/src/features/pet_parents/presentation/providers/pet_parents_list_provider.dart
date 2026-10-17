@@ -47,6 +47,20 @@ class PetParentsListProvider extends ChangeNotifier {
     fetchPetParents(isRefresh: true);
   }
 
+  String? _fromDate;
+  String? get fromDate => _fromDate;
+
+  String? _toDate;
+  String? get toDate => _toDate;
+
+  String? _countryCode;
+  String? get countryCode => _countryCode;
+
+  bool get hasActiveFilters =>
+      (_fromDate != null && _fromDate!.isNotEmpty) ||
+      (_toDate != null && _toDate!.isNotEmpty) ||
+      (_countryCode != null && _countryCode!.isNotEmpty);
+
   String _searchKeyword = '';
   String get searchKeyword => _searchKeyword;
 
@@ -68,6 +82,9 @@ class PetParentsListProvider extends ChangeNotifier {
         page: targetPage,
         pageSize: _limit,
         keyword: _searchKeyword.trim().isEmpty ? null : _searchKeyword.trim(),
+        from: _fromDate,
+        to: _toDate,
+        countryCode: _countryCode,
       );
 
       _petParents = response.docs;
@@ -82,6 +99,24 @@ class PetParentsListProvider extends ChangeNotifier {
       _isPaginationLoading = false;
       notifyListeners();
     }
+  }
+
+  void applyFilters({String? from, String? to, String? countryCode}) {
+    _fromDate = (from != null && from.trim().isNotEmpty) ? from.trim() : null;
+    _toDate = (to != null && to.trim().isNotEmpty) ? to.trim() : null;
+    _countryCode = (countryCode != null && countryCode.trim().isNotEmpty)
+        ? countryCode.trim()
+        : null;
+    _currentPage = 1;
+    fetchPetParents(isRefresh: true);
+  }
+
+  void clearFilters() {
+    _fromDate = null;
+    _toDate = null;
+    _countryCode = null;
+    _currentPage = 1;
+    fetchPetParents(isRefresh: true);
   }
 
   Timer? _debounceTimer;

@@ -7,6 +7,9 @@ abstract class PetParentsRemoteDataSource {
     int page = 1,
     int pageSize = 10,
     String? keyword,
+    String? from,
+    String? to,
+    String? countryCode,
   });
 
   Future<Response> getPetParentDetail(String id);
@@ -28,6 +31,9 @@ class PetParentsRemoteDataSourceImpl implements PetParentsRemoteDataSource {
     int page = 1,
     int pageSize = 10,
     String? keyword,
+    String? from,
+    String? to,
+    String? countryCode,
   }) {
     final queryParams = <String, String>{
       'page': page.toString(),
@@ -35,6 +41,18 @@ class PetParentsRemoteDataSourceImpl implements PetParentsRemoteDataSource {
     };
     if (keyword != null && keyword.trim().isNotEmpty) {
       queryParams['keyword'] = keyword.trim();
+    }
+    if (from != null && from.trim().isNotEmpty) {
+      queryParams['from'] = from.trim();
+    }
+    if (to != null && to.trim().isNotEmpty) {
+      queryParams['to'] = to.trim();
+    }
+    if (countryCode != null && countryCode.trim().isNotEmpty) {
+      final countryVal = countryCode.trim();
+      queryParams['countryCode'] = countryVal;
+      queryParams['countryName'] = countryVal;
+      queryParams['country'] = countryVal;
     }
 
     final uri = Uri.parse(

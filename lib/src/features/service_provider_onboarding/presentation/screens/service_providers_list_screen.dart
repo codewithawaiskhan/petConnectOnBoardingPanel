@@ -12,6 +12,7 @@ import '../../../../core/presentation/widgets/status_badge.dart';
 import '../../domain/entities/service_provider_list_entity.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/presentation/widgets/bootstrap_pagination.dart';
+import '../../../../shared/presentation/widgets/directory_filter_bar.dart';
 import '../dialogs/edit_service_provider_dialog.dart';
 import '../providers/service_providers_list_provider.dart';
 
@@ -70,6 +71,23 @@ class _ServiceProvidersListScreenState extends State<ServiceProvidersListScreen>
                   _buildHeader(provider, isDesktop),
                   const SizedBox(height: 20),
                   _buildFilterBar(provider, isDesktop),
+                  const SizedBox(height: 16),
+                  DirectoryFilterBar(
+                    fromDate: provider.fromDate,
+                    toDate: provider.toDate,
+                    countryCode: provider.countryCode,
+                    isLoading: provider.isLoading,
+                    onApply: ({countryCode, fromDate, toDate}) {
+                      provider.applyFilters(
+                        from: fromDate,
+                        to: toDate,
+                        countryCode: countryCode,
+                      );
+                    },
+                    onClear: () {
+                      provider.clearFilters();
+                    },
+                  ),
                   const SizedBox(height: 20),
                   if (provider.isLoading)
                     DataTableShimmer(

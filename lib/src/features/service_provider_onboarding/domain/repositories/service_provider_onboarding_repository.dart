@@ -11,6 +11,9 @@ abstract class ServiceProviderOnboardingRepository {
     int pageSize = 10,
     String? status,
     String? keyword,
+    String? from,
+    String? to,
+    String? countryCode,
   });
   Future<ServiceProviderDetailResponseEntity> getServiceProviderDetail(
     String id,

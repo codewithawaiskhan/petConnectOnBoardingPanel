@@ -12,6 +12,9 @@ abstract class LabOnboardingRepository {
     int pageSize = 10,
     String? status,
     String? keyword,
+    String? from,
+    String? to,
+    String? countryCode,
   });
 
   Future<LabDetailResponseEntity> getLabDetail(String id);
