@@ -11,6 +11,9 @@ import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shimmers/dashboard_stats_shimmer.dart';
 import '../../domain/entities/dashboard_stats_entity.dart';
 import '../providers/dashboard_provider.dart';
+import '../widgets/device_platform_stats_card.dart';
+import '../widgets/top_countries_stats_card.dart';
+import '../widgets/top_states_stats_card.dart';
 
 class DashboardHomeScreen extends StatefulWidget {
   const DashboardHomeScreen({super.key});
@@ -25,7 +28,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DashboardProvider>().fetchDashboardStats();
+      context.read<DashboardProvider>().fetchAllDashboardData();
     });
   }
 
@@ -37,7 +40,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
         builder: (context, provider, _) {
           return RefreshIndicator(
             color: primaryColor,
-            onRefresh: () => provider.fetchDashboardStats(isRefresh: true),
+            onRefresh: () => provider.fetchAllDashboardData(isRefresh: true),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: EdgeInsets.all(context.isDesktop ? 24.0 : 16.0),
@@ -46,12 +49,33 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                 children: [
                   _buildWelcomeBanner(context),
                   const SizedBox(height: 24),
-                  if (provider.isLoading)
+                  if (provider.isLoading &&
+                      provider.stats.totalPetParentsCount == 0)
                     const DashboardStatsShimmer()
-                  else
+                  else ...[
                     _buildMetricsGrid(context, provider.stats),
+                    const SizedBox(height: 24),
+                    DevicePlatformStatsCard(
+                      androidCount: provider.stats.totalAndroidUsersCount,
+                      iosCount: provider.stats.totaliOSUsersCount,
+                    ),
+                  ],
                   const SizedBox(height: 28),
                   _buildQuickActionsAndChartSection(context, provider),
+                  const SizedBox(height: 28),
+                  TopCountriesStatsCard(
+                    topCountries: provider.topCountries,
+                    isLoading: provider.isTopCountriesLoading,
+                  ),
+                  const SizedBox(height: 28),
+                  TopStatesStatsCard(
+                    topStates: provider.topStates,
+                    isLoading: provider.isTopStatesLoading,
+                    selectedCountryCode: provider.selectedStateCountryCode,
+                    onCountryChanged: (code) {
+                      provider.fetchTopStates(countryCode: code);
+                    },
+                  ),
                   const SizedBox(height: 40),
                 ],
               ),
@@ -118,7 +142,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
           if (context.isDesktop) ...[
             const SizedBox(width: 24),
             CustomButton(
-              text: "Onboard New Doctor",
+              text: "Onboard New Vet",
               width: 190,
               height: 46,
               fontSize: 14,
@@ -270,7 +294,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
               ),
               const SizedBox(height: 18),
               _buildActionTile(
-                title: "Doctor / Vet Onboarding",
+                title: "Vet Onboarding",
                 desc: "Medical licenses, clinics, degrees & schedule",
                 icon: Icons.medical_services_outlined,
                 onTap: () => context.go('/doctors'),

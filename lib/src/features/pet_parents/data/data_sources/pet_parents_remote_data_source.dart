@@ -49,10 +49,10 @@ class PetParentsRemoteDataSourceImpl implements PetParentsRemoteDataSource {
       queryParams['to'] = to.trim();
     }
     if (countryCode != null && countryCode.trim().isNotEmpty) {
-      final countryVal = countryCode.trim();
-      queryParams['countryCode'] = countryVal;
-      queryParams['countryName'] = countryVal;
-      queryParams['country'] = countryVal;
+      final code = countryCode.trim().toUpperCase();
+      if (code.length == 2) {
+        queryParams['countryCode'] = code;
+      }
     }
 
     final uri = Uri.parse(

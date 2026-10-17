@@ -1,7 +1,9 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_countries.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/presentation/widgets/app_text.dart';
 import '../../../core/presentation/widgets/custom_button.dart';
@@ -72,7 +74,9 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
     with AppColors {
   late final TextEditingController _fromController;
   late final TextEditingController _toController;
-  late final TextEditingController _countryController;
+  late final TextEditingController _countrySearchController;
+
+  String? _selectedCountryCode;
 
   DateTime? _fromDate;
   DateTime? _toDate;
@@ -84,7 +88,11 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
     super.initState();
     _fromController = TextEditingController(text: widget.fromDate ?? '');
     _toController = TextEditingController(text: widget.toDate ?? '');
-    _countryController = TextEditingController(text: widget.countryCode ?? '');
+    _countrySearchController = TextEditingController();
+    _selectedCountryCode =
+        (widget.countryCode != null && widget.countryCode!.trim().isNotEmpty)
+            ? widget.countryCode!.trim().toUpperCase()
+            : null;
     _parseInitialDates();
   }
 
@@ -120,7 +128,10 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
       _toController.text = widget.toDate ?? '';
     }
     if (widget.countryCode != oldWidget.countryCode) {
-      _countryController.text = widget.countryCode ?? '';
+      _selectedCountryCode =
+          (widget.countryCode != null && widget.countryCode!.trim().isNotEmpty)
+              ? widget.countryCode!.trim().toUpperCase()
+              : null;
     }
     _parseInitialDates();
   }
@@ -129,21 +140,23 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
   void dispose() {
     _fromController.dispose();
     _toController.dispose();
-    _countryController.dispose();
+    _countrySearchController.dispose();
     super.dispose();
   }
 
   bool get _hasActiveFilters {
     return _fromController.text.trim().isNotEmpty ||
         _toController.text.trim().isNotEmpty ||
-        _countryController.text.trim().isNotEmpty;
+        (_selectedCountryCode != null && _selectedCountryCode!.isNotEmpty);
   }
 
   int get _activeFiltersCount {
     int count = 0;
     if (_fromController.text.trim().isNotEmpty) count++;
     if (_toController.text.trim().isNotEmpty) count++;
-    if (_countryController.text.trim().isNotEmpty) count++;
+    if (_selectedCountryCode != null && _selectedCountryCode!.isNotEmpty) {
+      count++;
+    }
     return count;
   }
 
@@ -155,7 +168,9 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
 
     final picked = await showDatePicker(
       context: context,
-      initialDate: initial.isAfter(last) ? last : (initial.isBefore(first) ? first : initial),
+      initialDate: initial.isAfter(last)
+          ? last
+          : (initial.isBefore(first) ? first : initial),
       firstDate: first,
       lastDate: last,
       builder: (context, child) {
@@ -186,13 +201,15 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
 
   Future<void> _selectToDate(BuildContext context) async {
     final now = DateTime.now();
-    final first = _fromDate ?? DateTime(2000);
     final initial = _toDate ?? now;
+    final first = _fromDate ?? DateTime(2000);
     final last = DateTime(2100);
 
     final picked = await showDatePicker(
       context: context,
-      initialDate: initial.isBefore(first) ? first : (initial.isAfter(last) ? last : initial),
+      initialDate: initial.isBefore(first)
+          ? first
+          : (initial.isAfter(last) ? last : initial),
       firstDate: first,
       lastDate: last,
       builder: (context, child) {
@@ -224,12 +241,12 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
   void _handleApply() {
     final from = _fromController.text.trim();
     final to = _toController.text.trim();
-    final country = _countryController.text.trim();
+    final country = _selectedCountryCode?.trim().toUpperCase();
 
     widget.onApply(
       fromDate: from.isEmpty ? null : from,
       toDate: to.isEmpty ? null : to,
-      countryCode: country.isEmpty ? null : country,
+      countryCode: (country != null && country.isNotEmpty) ? country : null,
     );
   }
 
@@ -239,7 +256,8 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
       _toDate = null;
       _fromController.clear();
       _toController.clear();
-      _countryController.clear();
+      _selectedCountryCode = null;
+      _countrySearchController.clear();
     });
     widget.onClear();
   }
@@ -283,7 +301,7 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: _buildCountryNameField(),
+                      child: _buildCountryDropdown(),
                     ),
                     const SizedBox(width: 12),
                     _buildApplyButton(),
@@ -309,7 +327,7 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    Expanded(child: _buildCountryNameField()),
+                    Expanded(child: _buildCountryDropdown()),
                     const SizedBox(width: 10),
                     _buildApplyButton(),
                     const SizedBox(width: 8),
@@ -328,7 +346,7 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
                 const SizedBox(height: 10),
                 _buildToDateField(context),
                 const SizedBox(height: 10),
-                _buildCountryNameField(),
+                _buildCountryDropdown(),
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -455,36 +473,199 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
     );
   }
 
-  Widget _buildCountryNameField() {
-    final hasVal = _countryController.text.trim().isNotEmpty;
+  Widget _buildCountryDropdown() {
+    final hasVal =
+        _selectedCountryCode != null && _selectedCountryCode!.isNotEmpty;
+    final countries = List<AppCountry>.from(AppCountries.countries);
+    if (hasVal && !countries.any((c) => c.code == _selectedCountryCode)) {
+      countries.insert(
+        0,
+        AppCountry(
+          code: _selectedCountryCode!,
+          name: _selectedCountryCode!,
+          flag: AppCountries.getFlag(_selectedCountryCode),
+        ),
+      );
+    }
 
-    return CustomTextField(
-      controller: _countryController,
-      hintText: "Country Name (e.g. Pakistan, United States)",
-      isIcon: true,
-      radius: 8,
-      prefixIcon: Icon(
-        Icons.public_rounded,
-        size: 17,
-        color: hasVal ? primaryColor : textSecondaryColor,
+    return Container(
+      height: 44,
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: hasVal ? primaryColor : borderColor,
+        ),
       ),
-      suffixIcon: hasVal
-          ? IconButton(
-              icon: Icon(
-                Icons.close_rounded,
-                size: 16,
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Row(
+            children: [
+              Icon(
+                Icons.public_rounded,
+                size: 17,
                 color: textSecondaryColor,
               ),
-              onPressed: () {
-                setState(() {
-                  _countryController.clear();
-                });
-              },
-            )
-          : null,
-      onChanged: (_) {
-        if (mounted) setState(() {});
-      },
+              const SizedBox(width: 8),
+              Expanded(
+                child: AppText(
+                  text: "Select Country",
+                  fontSize: 13,
+                  color: textSecondaryColor,
+                ),
+              ),
+            ],
+          ),
+          items: countries.map((country) {
+            final isSelected = country.code == _selectedCountryCode;
+            return DropdownMenuItem<String>(
+              value: country.code,
+              child: Row(
+                children: [
+                  AppText(text: country.flag, fontSize: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: AppText(
+                      text: country.name,
+                      fontSize: 13,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w400,
+                      color: isSelected ? primaryColor : textPrimaryColor,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? primaryColor.withValues(alpha: 0.12)
+                          : primaryColor.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: AppText(
+                      text: country.code,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+          value: hasVal ? _selectedCountryCode : null,
+          onChanged: (value) {
+            setState(() {
+              _selectedCountryCode = value;
+            });
+          },
+          buttonStyleData: const ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            height: 44,
+          ),
+          iconStyleData: IconStyleData(
+            icon: hasVal
+                ? IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: Icon(
+                      Icons.close_rounded,
+                      size: 16,
+                      color: textSecondaryColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _selectedCountryCode = null;
+                        _countrySearchController.clear();
+                      });
+                    },
+                  )
+                : Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 20,
+                    color: textSecondaryColor,
+                  ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 320,
+            decoration: BoxDecoration(
+              color: whiteColor,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+          ),
+          menuItemStyleData: const MenuItemStyleData(
+            height: 40,
+            padding: EdgeInsets.symmetric(horizontal: 12),
+          ),
+          dropdownSearchData: DropdownSearchData(
+            searchController: _countrySearchController,
+            searchInnerWidgetHeight: 50,
+            searchInnerWidget: Container(
+              height: 50,
+              padding: const EdgeInsets.all(8),
+              child: TextFormField(
+                expands: true,
+                maxLines: null,
+                controller: _countrySearchController,
+                style: TextStyle(fontSize: 13, color: textPrimaryColor),
+                decoration: InputDecoration(
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
+                  hintText: 'Search country or code (e.g. US, PK)...',
+                  hintStyle: TextStyle(
+                    fontSize: 12,
+                    color: textSecondaryColor,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    size: 16,
+                    color: textSecondaryColor,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6),
+                    borderSide: BorderSide(color: borderColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6),
+                    borderSide: BorderSide(color: borderColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6),
+                    borderSide: BorderSide(color: primaryColor),
+                  ),
+                ),
+              ),
+            ),
+            searchMatchFn: (item, searchValue) {
+              final country = AppCountries.findByCode(item.value);
+              final code = item.value?.toLowerCase() ?? '';
+              final name = country?.name.toLowerCase() ?? '';
+              final q = searchValue.trim().toLowerCase();
+              return name.contains(q) || code.contains(q);
+            },
+          ),
+          onMenuStateChange: (isOpen) {
+            if (!isOpen) {
+              _countrySearchController.clear();
+            }
+          },
+        ),
+      ),
     );
   }
 

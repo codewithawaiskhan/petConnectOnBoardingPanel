@@ -1,14 +1,34 @@
+class RecordedAtRegistrationTimeEntity {
+  final double? latitude;
+  final double? longitude;
+  final String? countryCode;
+  final String? countryName;
+  final String? deviceOS;
+
+  const RecordedAtRegistrationTimeEntity({
+    this.latitude,
+    this.longitude,
+    this.countryCode,
+    this.countryName,
+    this.deviceOS,
+  });
+}
+
 class PetParentUserEntity {
   final String? id;
   final String? image;
   final String? status;
   final List<String> roles;
+  final String? lastLoginAt;
+  final RecordedAtRegistrationTimeEntity? recordedAtRegistrationTime;
 
   const PetParentUserEntity({
     this.id,
     this.image,
     this.status,
     this.roles = const [],
+    this.lastLoginAt,
+    this.recordedAtRegistrationTime,
   });
 }
 

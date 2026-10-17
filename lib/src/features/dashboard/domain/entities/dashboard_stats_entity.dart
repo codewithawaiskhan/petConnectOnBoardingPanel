@@ -8,6 +8,9 @@ class DashboardStatsEntity {
   final int newThisMonthLabsCount;
   final int newThisMonthServiceProvidersCount;
 
+  final int totalAndroidUsersCount;
+  final int totaliOSUsersCount;
+
   const DashboardStatsEntity({
     required this.totalPetParentsCount,
     required this.totalDoctorsCount,
@@ -17,6 +20,8 @@ class DashboardStatsEntity {
     required this.newThisMonthDoctorsCount,
     required this.newThisMonthLabsCount,
     required this.newThisMonthServiceProvidersCount,
+    this.totalAndroidUsersCount = 0,
+    this.totaliOSUsersCount = 0,
   });
 
   const DashboardStatsEntity.empty()
@@ -27,7 +32,9 @@ class DashboardStatsEntity {
       newThisMonthPetParentsCount = 0,
       newThisMonthDoctorsCount = 0,
       newThisMonthLabsCount = 0,
-      newThisMonthServiceProvidersCount = 0;
+      newThisMonthServiceProvidersCount = 0,
+      totalAndroidUsersCount = 0,
+      totaliOSUsersCount = 0;
 }
 
 class DashboardStatsResponseEntity {

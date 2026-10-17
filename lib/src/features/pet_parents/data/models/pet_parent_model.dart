@@ -1,11 +1,47 @@
 import '../../domain/entities/pet_parent_entity.dart';
 
+class RecordedAtRegistrationTimeModel extends RecordedAtRegistrationTimeEntity {
+  const RecordedAtRegistrationTimeModel({
+    super.latitude,
+    super.longitude,
+    super.countryCode,
+    super.countryName,
+    super.deviceOS,
+  });
+
+  factory RecordedAtRegistrationTimeModel.fromJson(Map<String, dynamic> json) {
+    double? parseCoord(dynamic value) {
+      if (value == null) return null;
+      if (value is num) return value.toDouble();
+      return double.tryParse(value.toString());
+    }
+
+    return RecordedAtRegistrationTimeModel(
+      latitude: parseCoord(json['latitude']),
+      longitude: parseCoord(json['longitude']),
+      countryCode: json['countryCode']?.toString(),
+      countryName: json['countryName']?.toString(),
+      deviceOS: json['deviceOS']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    if (latitude != null) 'latitude': latitude,
+    if (longitude != null) 'longitude': longitude,
+    if (countryCode != null) 'countryCode': countryCode,
+    if (countryName != null) 'countryName': countryName,
+    if (deviceOS != null) 'deviceOS': deviceOS,
+  };
+}
+
 class PetParentUserModel extends PetParentUserEntity {
   const PetParentUserModel({
     super.id,
     super.image,
     super.status,
     super.roles = const [],
+    super.lastLoginAt,
+    super.recordedAtRegistrationTime,
   });
 
   factory PetParentUserModel.fromJson(Map<String, dynamic> json) {
@@ -16,11 +52,21 @@ class PetParentUserModel extends PetParentUserEntity {
           .where((e) => e.isNotEmpty)
           .toList();
     }
+
+    RecordedAtRegistrationTimeModel? parsedRegistrationTime;
+    if (json['recordedAtRegistrationTime'] is Map<String, dynamic>) {
+      parsedRegistrationTime = RecordedAtRegistrationTimeModel.fromJson(
+        json['recordedAtRegistrationTime'] as Map<String, dynamic>,
+      );
+    }
+
     return PetParentUserModel(
       id: json['_id']?.toString() ?? json['id']?.toString(),
       image: json['image']?.toString(),
       status: json['status']?.toString(),
       roles: parsedRoles,
+      lastLoginAt: json['lastLoginAt']?.toString(),
+      recordedAtRegistrationTime: parsedRegistrationTime,
     );
   }
 
@@ -29,6 +75,24 @@ class PetParentUserModel extends PetParentUserEntity {
     if (image != null) 'image': image,
     if (status != null) 'status': status,
     'roles': roles,
+    if (lastLoginAt != null) 'lastLoginAt': lastLoginAt,
+    if (recordedAtRegistrationTime != null)
+      'recordedAtRegistrationTime':
+          (recordedAtRegistrationTime is RecordedAtRegistrationTimeModel)
+              ? (recordedAtRegistrationTime as RecordedAtRegistrationTimeModel)
+                  .toJson()
+              : {
+                  if (recordedAtRegistrationTime!.latitude != null)
+                    'latitude': recordedAtRegistrationTime!.latitude,
+                  if (recordedAtRegistrationTime!.longitude != null)
+                    'longitude': recordedAtRegistrationTime!.longitude,
+                  if (recordedAtRegistrationTime!.countryCode != null)
+                    'countryCode': recordedAtRegistrationTime!.countryCode,
+                  if (recordedAtRegistrationTime!.countryName != null)
+                    'countryName': recordedAtRegistrationTime!.countryName,
+                  if (recordedAtRegistrationTime!.deviceOS != null)
+                    'deviceOS': recordedAtRegistrationTime!.deviceOS,
+                },
   };
 }
 

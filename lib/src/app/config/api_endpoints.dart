@@ -8,6 +8,7 @@ mixin ApiEndpoints {
   static String adminLogin = "$apiUrl/admin/login";
 
   static String adminDashboardData = "$apiUrl/dashboard/admin-dashboard-data";
+  static String topCountries = "$apiUrl/dashboard/top-countries";
 
   static String doctorDataEntry = "$apiUrl/doctor/data-entry";
   static String specialities = "$apiUrl/speciality/for-app";

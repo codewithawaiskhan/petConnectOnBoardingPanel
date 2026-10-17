@@ -118,6 +118,8 @@ class _PetParentDetailScreenState extends State<PetParentDetailScreen>
                         flex: 2,
                         child: Column(
                           children: [
+                            _buildRegistrationActivityCard(parent),
+                            const SizedBox(height: 20),
                             _buildLocationCard(parent),
                             const SizedBox(height: 20),
                             _buildActivityCard(parent),
@@ -128,6 +130,8 @@ class _PetParentDetailScreenState extends State<PetParentDetailScreen>
                   )
                 else ...[
                   _buildPersonalInfoCard(parent),
+                  const SizedBox(height: 16),
+                  _buildRegistrationActivityCard(parent),
                   const SizedBox(height: 16),
                   _buildLocationCard(parent),
                   const SizedBox(height: 16),
@@ -635,6 +639,97 @@ class _PetParentDetailScreenState extends State<PetParentDetailScreen>
     );
   }
 
+  Widget _buildRegistrationActivityCard(PetParentItemEntity parent) {
+    final user = parent.user;
+    final registration = user?.recordedAtRegistrationTime;
+    final lat = registration?.latitude;
+    final lng = registration?.longitude;
+    final hasCoordinates = lat != null && lng != null;
+
+    final String lastLoginText =
+        user?.lastLoginAt != null && user!.lastLoginAt!.trim().isNotEmpty
+            ? _formatDisplayDateTime(user.lastLoginAt)
+            : "Never Logged In";
+
+    final countryName = registration?.countryName?.trim();
+    final countryCode = registration?.countryCode?.trim();
+    final String countryText;
+    if (countryName != null &&
+        countryName.isNotEmpty &&
+        countryCode != null &&
+        countryCode.isNotEmpty) {
+      countryText = "$countryName ($countryCode)";
+    } else if (countryName != null && countryName.isNotEmpty) {
+      countryText = countryName;
+    } else if (countryCode != null && countryCode.isNotEmpty) {
+      countryText = countryCode;
+    } else {
+      countryText = "Not Recorded";
+    }
+
+    final String deviceOsText =
+        registration?.deviceOS?.trim().isNotEmpty == true
+            ? registration!.deviceOS!.trim()
+            : "Not Recorded";
+
+    return _buildCardContainer(
+      title: "Registration & Session Activity",
+      icon: Icons.devices_other_rounded,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildInfoRow("Last Login Time", lastLoginText),
+          _buildInfoRow("Registered Device OS", deviceOsText),
+          _buildInfoRow("Registration Country", countryText),
+          if (hasCoordinates)
+            _buildInfoRowWithWidget(
+              "Registration Location",
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 10,
+                runSpacing: 6,
+                children: [
+                  AppText(
+                    text: "$lat, $lng",
+                    fontSize: 13,
+                    color: textPrimaryColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  CustomButton(
+                    text: "Show on Map",
+                    isIcon: true,
+                    icon: Icon(
+                      Icons.map_outlined,
+                      size: 13,
+                      color: primaryColor,
+                    ),
+                    width: 124,
+                    height: 28,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    radius: 6,
+                    fillColor: primaryColor.withValues(alpha: 0.08),
+                    textColor: primaryColor,
+                    buttonBorder: Border.all(
+                      color: primaryColor.withValues(alpha: 0.25),
+                      width: 1,
+                    ),
+                    onTap: () {
+                      final url =
+                          "https://www.google.com/maps/search/?api=1&query=$lat,$lng";
+                      MiniFunctions().launchURL(url);
+                    },
+                  ),
+                ],
+              ),
+            )
+          else
+            _buildInfoRow("Registration Coordinates", "Not Available"),
+        ],
+      ),
+    );
+  }
+
   Widget _buildLocationCard(PetParentItemEntity parent) {
     return _buildCardContainer(
       title: "Residence & Postal Location",
@@ -828,6 +923,53 @@ class _PetParentDetailScreenState extends State<PetParentDetailScreen>
                   maxLines: 3,
                 ),
               ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildInfoRowWithWidget(String label, Widget child) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 360;
+
+          if (isNarrow) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppText(
+                  text: label,
+                  fontSize: 12,
+                  color: textSecondaryColor,
+                  fontWeight: FontWeight.w500,
+                ),
+                const SizedBox(height: 6),
+                child,
+              ],
+            );
+          }
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: 100,
+                  maxWidth: constraints.maxWidth * 0.42,
+                ),
+                child: AppText(
+                  text: label,
+                  fontSize: 13,
+                  color: textSecondaryColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: child),
             ],
           );
         },

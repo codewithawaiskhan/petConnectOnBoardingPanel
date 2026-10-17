@@ -22,6 +22,8 @@ mixin AppColors {
   Color get purpleBlueColor => const Color(0xffC9CAFD);
   Color get softyBlueColor => const Color(0xffAEC8E2);
   Color get softSkyBlue => const Color(0xffAEC8E2);
+  Color get androidGreenColor => const Color(0xff3DDC84);
+  Color get iosDarkColor => const Color(0xff1C1C1E);
   Color get peachColor => const Color(0xffFBCFC3);
   Color get yellowColor => const Color(0xffF0AD34);
   Color get softGoldenColor => const Color(0xffFFDFA4);

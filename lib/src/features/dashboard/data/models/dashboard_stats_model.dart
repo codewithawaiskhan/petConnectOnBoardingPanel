@@ -10,6 +10,8 @@ class DashboardStatsModel extends DashboardStatsEntity {
     required super.newThisMonthDoctorsCount,
     required super.newThisMonthLabsCount,
     required super.newThisMonthServiceProvidersCount,
+    super.totalAndroidUsersCount = 0,
+    super.totaliOSUsersCount = 0,
   });
 
   factory DashboardStatsModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,10 @@ class DashboardStatsModel extends DashboardStatsEntity {
           (json['newThisMonthLabsCount'] as num?)?.toInt() ?? 0,
       newThisMonthServiceProvidersCount:
           (json['newThisMonthServiceProvidersCount'] as num?)?.toInt() ?? 0,
+      totalAndroidUsersCount:
+          (json['totalAndroidUsersCount'] as num?)?.toInt() ?? 0,
+      totaliOSUsersCount:
+          (json['totaliOSUsersCount'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -40,6 +46,8 @@ class DashboardStatsModel extends DashboardStatsEntity {
     'newThisMonthDoctorsCount': newThisMonthDoctorsCount,
     'newThisMonthLabsCount': newThisMonthLabsCount,
     'newThisMonthServiceProvidersCount': newThisMonthServiceProvidersCount,
+    'totalAndroidUsersCount': totalAndroidUsersCount,
+    'totaliOSUsersCount': totaliOSUsersCount,
   };
 }
 
