@@ -18,7 +18,7 @@ class SplashLoadingScreen extends StatelessWidget with AppColors {
             const AppLogo(size: 72),
             const SizedBox(height: 20),
             AppText(
-              text: "PetConnect Portal",
+              text: "PetAccess Portal",
               fontSize: 22,
               fontWeight: FontWeight.w700,
               color: textPrimaryColor,

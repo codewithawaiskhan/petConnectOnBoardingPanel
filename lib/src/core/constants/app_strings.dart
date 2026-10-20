@@ -1,5 +1,5 @@
-const String appName = "PetConnect Portal";
-const String fullAppName = "PetConnect Management Portal";
+const String appName = "PetAccess Portal";
+const String fullAppName = "PetAccess Portal";
 const String fontAeonik = "Aeonik";
 const String fontPoppins = "Poppins";
 const String fontGraphik = "Aeonik";

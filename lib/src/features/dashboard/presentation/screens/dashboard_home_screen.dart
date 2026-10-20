@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
-import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shimmers/dashboard_stats_shimmer.dart';
 import '../../domain/entities/dashboard_stats_entity.dart';
@@ -43,31 +42,32 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
             onRefresh: () => provider.fetchAllDashboardData(isRefresh: true),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.all(context.isDesktop ? 24.0 : 16.0),
+              padding: EdgeInsets.symmetric(
+                horizontal: context.isDesktop ? 24.0 : 16.0,
+                vertical: 14.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildWelcomeBanner(context),
-                  const SizedBox(height: 24),
                   if (provider.isLoading &&
                       provider.stats.totalPetParentsCount == 0)
                     const DashboardStatsShimmer()
                   else ...[
                     _buildMetricsGrid(context, provider.stats),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 14),
                     DevicePlatformStatsCard(
                       androidCount: provider.stats.totalAndroidUsersCount,
                       iosCount: provider.stats.totaliOSUsersCount,
                     ),
                   ],
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 16),
                   _buildQuickActionsAndChartSection(context, provider),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 20),
                   TopCountriesStatsCard(
                     topCountries: provider.topCountries,
                     isLoading: provider.isTopCountriesLoading,
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 20),
                   TopStatesStatsCard(
                     topStates: provider.topStates,
                     isLoading: provider.isTopStatesLoading,
@@ -76,80 +76,12 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                       provider.fetchTopStates(countryCode: code);
                     },
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildWelcomeBanner(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        color: whiteColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
-        gradient: LinearGradient(
-          colors: [primaryColor.withValues(alpha: 0.08), whiteColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: primaryColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: AppText(
-                    text: "PORTAL OVERVIEW",
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: primaryColor,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                AppText(
-                  text: "Welcome to PetConnect Onboarding Portal",
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: textPrimaryColor,
-                ),
-                const SizedBox(height: 6),
-                AppText(
-                  text:
-                      "Manage provider verifications, onboard medical veterinarians, and oversee clinical lab branches.",
-                  fontSize: 14,
-                  color: textSecondaryColor,
-                ),
-              ],
-            ),
-          ),
-          if (context.isDesktop) ...[
-            const SizedBox(width: 24),
-            CustomButton(
-              text: "Onboard New Vet",
-              width: 190,
-              height: 46,
-              fontSize: 14,
-              onTap: () => context.go('/doctors'),
-            ),
-          ],
-        ],
       ),
     );
   }
@@ -199,32 +131,32 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            mainAxisExtent: 130,
+            crossAxisSpacing: 14,
+            mainAxisSpacing: 14,
+            mainAxisExtent: 88,
           ),
           itemCount: metrics.length,
           itemBuilder: (context, index) {
             final m = metrics[index];
             return Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: whiteColor,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: borderColor),
               ),
               child: Row(
                 children: [
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
                       color: m.color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(m.icon, color: m.color, size: 24),
+                    child: Icon(m.icon, color: m.color, size: 20),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,23 +164,27 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                       children: [
                         AppText(
                           text: m.count,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: FontWeight.w700,
                           color: textPrimaryColor,
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 1),
                         AppText(
                           text: m.title,
-                          fontSize: 13,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: textSecondaryColor,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 1),
                         AppText(
                           text: m.subtitle,
                           fontSize: 11,
                           color: m.color,
                           fontWeight: FontWeight.w600,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -271,10 +207,10 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
         final isTwoColumn = constraints.maxWidth > 860;
 
         final quickActions = Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             color: whiteColor,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(color: borderColor),
           ),
           child: Column(
@@ -282,31 +218,31 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
             children: [
               AppText(
                 text: "Quick Onboarding Portals",
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: textPrimaryColor,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 3),
               AppText(
                 text: "Direct links to register each medical role",
-                fontSize: 12,
+                fontSize: 11,
                 color: textSecondaryColor,
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 12),
               _buildActionTile(
                 title: "Vet Onboarding",
                 desc: "Medical licenses, clinics, degrees & schedule",
                 icon: Icons.medical_services_outlined,
                 onTap: () => context.go('/doctors'),
               ),
-              const Divider(height: 20),
+              const Divider(height: 14),
               _buildActionTile(
                 title: "Service Provider Onboarding",
                 desc: "Grooming, training, boarding facilities & services",
                 icon: Icons.pets_outlined,
                 onTap: () => context.go('/service-providers'),
               ),
-              const Divider(height: 20),
+              const Divider(height: 14),
               _buildActionTile(
                 title: "Diagnostic Lab Onboarding",
                 desc: "Clinical tests, sample collection, ISO licenses",
@@ -318,10 +254,10 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
         );
 
         final monthlyChart = Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             color: whiteColor,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(color: borderColor),
           ),
           child: Column(
@@ -335,14 +271,14 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                     children: [
                       AppText(
                         text: "New This Month Overview",
-                        fontSize: 16,
+                        fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: textPrimaryColor,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       AppText(
                         text: "Monthly registrations across all roles",
-                        fontSize: 12,
+                        fontSize: 11,
                         color: textSecondaryColor,
                       ),
                     ],
@@ -365,9 +301,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               SizedBox(
-                height: 200,
+                height: 180,
                 child: provider.isLoading
                     ? Shimmer.fromColors(
                         baseColor: baseShimmerColor,

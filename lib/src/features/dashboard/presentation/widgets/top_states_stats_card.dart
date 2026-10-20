@@ -1,8 +1,7 @@
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_countries.dart';
+import '../../../../core/presentation/widgets/app_country_picker_field.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../domain/entities/top_countries_entity.dart';
 
@@ -24,9 +23,9 @@ class TopStatesStatsCard extends StatefulWidget {
   State<TopStatesStatsCard> createState() => _TopStatesStatsCardState();
 }
 
-class _TopStatesStatsCardState extends State<TopStatesStatsCard> with AppColors {
+class _TopStatesStatsCardState extends State<TopStatesStatsCard>
+    with AppColors {
   int _selectedCategoryIndex = 0;
-  final TextEditingController _countrySearchController = TextEditingController();
 
   final List<String> _categories = [
     "Pet Parents",
@@ -41,12 +40,6 @@ class _TopStatesStatsCardState extends State<TopStatesStatsCard> with AppColors 
     Icons.biotech_rounded,
     Icons.storefront_rounded,
   ];
-
-  @override
-  void dispose() {
-    _countrySearchController.dispose();
-    super.dispose();
-  }
 
   List<CountryStatItemEntity> get _activeList {
     switch (_selectedCategoryIndex) {
@@ -72,10 +65,10 @@ class _TopStatesStatsCardState extends State<TopStatesStatsCard> with AppColors 
     final activeData = _activeList;
     final totalUsers = _activeTotalUsers;
     final int maxCount = activeData.isNotEmpty ? activeData.first.count : 1;
-    final currentCountryName =
-        AppCountries.getCountryName(widget.selectedCountryCode);
-    final currentCountryFlag =
-        AppCountries.getFlag(widget.selectedCountryCode);
+    final currentCountryName = AppCountries.getCountryName(
+      widget.selectedCountryCode,
+    );
+    final currentCountryFlag = AppCountries.getFlag(widget.selectedCountryCode);
 
     return Container(
       width: double.infinity,
@@ -237,9 +230,7 @@ class _TopStatesStatsCardState extends State<TopStatesStatsCard> with AppColors 
                             : primaryColor.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: isSelected
-                              ? primaryColor
-                              : borderColor,
+                          color: isSelected ? primaryColor : borderColor,
                         ),
                       ),
                       child: Row(
@@ -274,9 +265,7 @@ class _TopStatesStatsCardState extends State<TopStatesStatsCard> with AppColors 
           if (widget.isLoading)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 36),
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: Center(child: CircularProgressIndicator()),
             )
           else if (activeData.isEmpty)
             _buildEmptyState(currentCountryName, currentCountryFlag)
@@ -290,8 +279,9 @@ class _TopStatesStatsCardState extends State<TopStatesStatsCard> with AppColors 
                 final item = activeData[index];
                 final stateName = item.displayName;
                 final double ratio = maxCount > 0 ? item.count / maxCount : 0.0;
-                final double totalRatio =
-                    totalUsers > 0 ? (item.count / totalUsers) * 100 : 0.0;
+                final double totalRatio = totalUsers > 0
+                    ? (item.count / totalUsers) * 100
+                    : 0.0;
 
                 return _buildStateItemRow(
                   rank: index + 1,
@@ -309,151 +299,17 @@ class _TopStatesStatsCardState extends State<TopStatesStatsCard> with AppColors 
   }
 
   Widget _buildCountryDropdown() {
-    return Container(
+    return AppCountryPickerField(
+      isFilterMode: true,
+      selectedCountryCode: widget.selectedCountryCode,
       width: 220,
       height: 40,
-      decoration: BoxDecoration(
-        color: whiteColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: borderColor),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton2<String>(
-          isExpanded: true,
-          value: widget.selectedCountryCode.toUpperCase(),
-          items: AppCountries.countries.map((country) {
-            final isSelected = country.code == widget.selectedCountryCode.toUpperCase();
-            return DropdownMenuItem<String>(
-              value: country.code,
-              child: Row(
-                children: [
-                  AppText(text: country.flag, fontSize: 16),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: AppText(
-                      text: country.name,
-                      fontSize: 12,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w400,
-                      color: isSelected ? primaryColor : textPrimaryColor,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 5,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? primaryColor.withValues(alpha: 0.12)
-                          : primaryColor.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: AppText(
-                      text: country.code,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: primaryColor,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-          onChanged: (newCode) {
-            if (newCode != null && newCode != widget.selectedCountryCode) {
-              widget.onCountryChanged(newCode);
-            }
-          },
-          buttonStyleData: const ButtonStyleData(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            height: 40,
-          ),
-          iconStyleData: IconStyleData(
-            icon: Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 20,
-              color: textSecondaryColor,
-            ),
-          ),
-          dropdownStyleData: DropdownStyleData(
-            maxHeight: 320,
-            decoration: BoxDecoration(
-              color: whiteColor,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-          ),
-          menuItemStyleData: const MenuItemStyleData(
-            height: 38,
-            padding: EdgeInsets.symmetric(horizontal: 10),
-          ),
-          dropdownSearchData: DropdownSearchData(
-            searchController: _countrySearchController,
-            searchInnerWidgetHeight: 50,
-            searchInnerWidget: Container(
-              height: 50,
-              padding: const EdgeInsets.all(8),
-              child: TextFormField(
-                expands: true,
-                maxLines: null,
-                controller: _countrySearchController,
-                style: TextStyle(fontSize: 12, color: textPrimaryColor),
-                decoration: InputDecoration(
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 8,
-                  ),
-                  hintText: 'Search country or code...',
-                  hintStyle: TextStyle(
-                    fontSize: 11,
-                    color: textSecondaryColor,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    size: 16,
-                    color: textSecondaryColor,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    borderSide: BorderSide(color: borderColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    borderSide: BorderSide(color: borderColor),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    borderSide: BorderSide(color: primaryColor),
-                  ),
-                ),
-              ),
-            ),
-            searchMatchFn: (item, searchValue) {
-              final code = item.value ?? '';
-              final country = AppCountries.findByCode(code);
-              final query = searchValue.toLowerCase().trim();
-              if (query.isEmpty) return true;
-              return code.toLowerCase().contains(query) ||
-                  (country?.name.toLowerCase().contains(query) ?? false);
-            },
-          ),
-          onMenuStateChange: (isOpen) {
-            if (!isOpen) {
-              _countrySearchController.clear();
-            }
-          },
-        ),
-      ),
+      radius: 8,
+      onCountrySelected: (country) {
+        if (country.code != widget.selectedCountryCode) {
+          widget.onCountryChanged(country.code);
+        }
+      },
     );
   }
 
@@ -463,9 +319,7 @@ class _TopStatesStatsCardState extends State<TopStatesStatsCard> with AppColors 
       decoration: BoxDecoration(
         color: primaryColor.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: primaryColor.withValues(alpha: 0.15),
-        ),
+        border: Border.all(color: primaryColor.withValues(alpha: 0.15)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

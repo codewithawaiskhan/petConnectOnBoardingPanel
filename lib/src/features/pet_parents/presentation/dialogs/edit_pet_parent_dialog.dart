@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/presentation/widgets/app_country_picker_field.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
@@ -622,43 +623,14 @@ class _EditPetParentDialogState extends State<EditPetParentDialog>
                           ),
                         ],
                         const SizedBox(height: 14),
-                        if (isNarrow) ...[
-                          CustomTextField(
-                            controller: _countryCodeController,
-                            title: "Country Code",
-                            hintText: "e.g. PK",
-                            prefixIcon: Icon(Icons.flag_outlined, size: 18, color: textSecondaryColor),
-                          ),
-                          const SizedBox(height: 14),
-                          CustomTextField(
-                            controller: _countryNameController,
-                            title: "Country Name",
-                            hintText: "e.g. Pakistan",
-                            prefixIcon: Icon(Icons.public_outlined, size: 18, color: textSecondaryColor),
-                          ),
-                        ] else ...[
-                          Row(
-                            children: [
-                              Expanded(
-                                child: CustomTextField(
-                                  controller: _countryCodeController,
-                                  title: "Country Code",
-                                  hintText: "e.g. PK",
-                                  prefixIcon: Icon(Icons.flag_outlined, size: 18, color: textSecondaryColor),
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: CustomTextField(
-                                  controller: _countryNameController,
-                                  title: "Country Name",
-                                  hintText: "e.g. Pakistan",
-                                  prefixIcon: Icon(Icons.public_outlined, size: 18, color: textSecondaryColor),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                        AppCountryPickerField(
+                          title: "Country",
+                          countryCodeController: _countryCodeController,
+                          countryNameController: _countryNameController,
+                          onCountryChanged: (name, code) {
+                            setState(() {});
+                          },
+                        ),
                       ],
                     ),
                   ),

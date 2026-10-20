@@ -11,6 +11,6 @@ class AppInitializer with AppColors {
 
     await di.sl<AdminAuthProvider>().checkAuthStatus();
 
-    debugPrint("PetConnect Portal initialized successfully!");
+    debugPrint("PetAccess Portal initialized successfully!");
   }
 }

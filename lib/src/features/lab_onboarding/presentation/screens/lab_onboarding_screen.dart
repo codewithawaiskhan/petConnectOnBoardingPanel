@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/presentation/widgets/app_country_picker_field.dart';
 import '../../../../core/presentation/widgets/app_logo.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
@@ -672,17 +673,14 @@ class _LabOnboardingScreenState extends State<LabOnboardingScreen>
 
           _buildResponsiveRow([
             _buildField(
-              label: "Country Code *",
-              child: CustomTextField(
-                controller: _countryCodeController,
-                hintText: "e.g. US or PK",
-              ),
-            ),
-            _buildField(
-              label: "Country Name *",
-              child: CustomTextField(
-                controller: _countryNameController,
-                hintText: "e.g. United States",
+              label: "Country *",
+              child: AppCountryPickerField(
+                countryCodeController: _countryCodeController,
+                countryNameController: _countryNameController,
+                isRequired: true,
+                onCountryChanged: (name, code) {
+                  setState(() {});
+                },
               ),
             ),
           ]),

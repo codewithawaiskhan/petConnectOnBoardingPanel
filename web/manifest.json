@@ -1,11 +1,11 @@
 {
-    "name": "PetConnect Portal",
-    "short_name": "PetConnect Portal",
+    "name": "PetAccess Portal",
+    "short_name": "PetAccess Portal",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#F4F6F6",
     "theme_color": "#2745B5",
-    "description": "PetConnect Portal is a centralized Flutter Web-based management platform designed to seamlessly onboard, verify, and manage veterinarians, service providers, and diagnostic labs for the PetAccess ecosystem.",
+    "description": "PetAccess Portal is a centralized Flutter Web-based management platform designed to seamlessly onboard, verify, and manage veterinarians, service providers, and diagnostic labs for the PetAccess ecosystem.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

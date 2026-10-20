@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../app/di/injector.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/presentation/widgets/app_country_picker_field.dart';
 import '../../../../core/presentation/widgets/app_logo.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
@@ -1157,17 +1158,13 @@ class _EditLabDialogState extends State<EditLabDialog> with AppColors {
 
           _buildResponsiveRow([
             _buildField(
-              label: "Country Code",
-              child: CustomTextField(
-                controller: _countryCodeController,
-                hintText: "e.g. US or PK",
-              ),
-            ),
-            _buildField(
-              label: "Country Name",
-              child: CustomTextField(
-                controller: _countryNameController,
-                hintText: "e.g. United States",
+              label: "Country",
+              child: AppCountryPickerField(
+                countryCodeController: _countryCodeController,
+                countryNameController: _countryNameController,
+                onCountryChanged: (name, code) {
+                  setState(() {});
+                },
               ),
             ),
           ]),

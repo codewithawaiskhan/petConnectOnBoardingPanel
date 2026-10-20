@@ -1,6 +1,6 @@
-# pet_connect_portal
+# PetAccess Portal
 
-PetConnectPortal is a centralized Flutter Web-based management platform designed to seamlessly onboard, verify, and manage veterinarians, service providers, and diagnostic labs for the PetAccess ecosystem.
+PetAccess Portal is a centralized Flutter Web-based management platform designed to seamlessly onboard, verify, and manage veterinarians, service providers, and diagnostic labs for the PetAccess ecosystem.
 
 ## Getting Started
 

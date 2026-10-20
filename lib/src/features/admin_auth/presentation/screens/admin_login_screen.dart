@@ -74,7 +74,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with AppColors {
                   const SizedBox(height: 20),
                   Center(
                     child: AppText(
-                      text: "PetConnect Onboarding Portal",
+                      text: "PetAccess Portal",
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                       color: textPrimaryColor,
@@ -83,7 +83,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with AppColors {
                   const SizedBox(height: 6),
                   Center(
                     child: AppText(
-                      text: "Sign in to access your Onboarding Portal",
+                      text: "Sign in to access your PetAccess Portal",
                       fontSize: 13,
                       color: textSecondaryColor,
                       textAlign: TextAlign.center,

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/presentation/widgets/app_country_picker_field.dart';
 import '../../../../core/presentation/widgets/app_logo.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
@@ -465,27 +466,18 @@ class _VetOnboardingScreenState extends State<VetOnboardingScreen>
                     ),
                   ],
                   const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomTextField(
-                          controller: _countryNameController,
-                          title: "Country Name *",
-                          hintText: "Enter country name",
-                          onChanged: (val) => provider.countryName = val,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      SizedBox(
-                        width: 150,
-                        child: CustomTextField(
-                          controller: _countryCodeController,
-                          title: "Country Code *",
-                          hintText: "Enter country code",
-                          onChanged: (val) => provider.countryCode = val,
-                        ),
-                      ),
-                    ],
+                  AppCountryPickerField(
+                    title: "Country *",
+                    countryCodeController: _countryCodeController,
+                    countryNameController: _countryNameController,
+                    selectedCountryCode: provider.countryCode,
+                    selectedCountryName: provider.countryName,
+                    isRequired: true,
+                    onCountrySelected: (country) {
+                      provider.countryCode = country.code;
+                      provider.countryName = country.name;
+                      setState(() {});
+                    },
                   ),
                   const SizedBox(height: 14),
                   Row(

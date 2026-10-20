@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../app/di/injector.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/presentation/widgets/app_country_picker_field.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
@@ -903,15 +904,14 @@ class _EditVetDialogState extends State<EditVetDialog> with AppColors {
           ]),
           const SizedBox(height: 14),
           _buildResponsiveRow([
-            CustomTextField(
-              controller: _countryNameController,
-              title: "Country Name *",
-              hintText: "Enter country name",
-            ),
-            CustomTextField(
-              controller: _countryCodeController,
-              title: "Country Code *",
-              hintText: "e.g. US",
+            AppCountryPickerField(
+              countryCodeController: _countryCodeController,
+              countryNameController: _countryNameController,
+              title: "Country *",
+              isRequired: true,
+              onCountryChanged: (name, code) {
+                setState(() {});
+              },
             ),
           ]),
           const SizedBox(height: 14),

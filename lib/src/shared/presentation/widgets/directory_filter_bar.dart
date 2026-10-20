@@ -1,10 +1,9 @@
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_countries.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/presentation/widgets/app_country_picker_field.dart';
 import '../../../core/presentation/widgets/app_text.dart';
 import '../../../core/presentation/widgets/custom_button.dart';
 import '../../../core/presentation/widgets/custom_text_field.dart';
@@ -74,7 +73,6 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
     with AppColors {
   late final TextEditingController _fromController;
   late final TextEditingController _toController;
-  late final TextEditingController _countrySearchController;
 
   String? _selectedCountryCode;
 
@@ -88,7 +86,6 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
     super.initState();
     _fromController = TextEditingController(text: widget.fromDate ?? '');
     _toController = TextEditingController(text: widget.toDate ?? '');
-    _countrySearchController = TextEditingController();
     _selectedCountryCode =
         (widget.countryCode != null && widget.countryCode!.trim().isNotEmpty)
             ? widget.countryCode!.trim().toUpperCase()
@@ -140,7 +137,6 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
   void dispose() {
     _fromController.dispose();
     _toController.dispose();
-    _countrySearchController.dispose();
     super.dispose();
   }
 
@@ -257,7 +253,6 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
       _fromController.clear();
       _toController.clear();
       _selectedCountryCode = null;
-      _countrySearchController.clear();
     });
     widget.onClear();
   }
@@ -474,198 +469,21 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
   }
 
   Widget _buildCountryDropdown() {
-    final hasVal =
-        _selectedCountryCode != null && _selectedCountryCode!.isNotEmpty;
-    final countries = List<AppCountry>.from(AppCountries.countries);
-    if (hasVal && !countries.any((c) => c.code == _selectedCountryCode)) {
-      countries.insert(
-        0,
-        AppCountry(
-          code: _selectedCountryCode!,
-          name: _selectedCountryCode!,
-          flag: AppCountries.getFlag(_selectedCountryCode),
-        ),
-      );
-    }
-
-    return Container(
-      height: 44,
-      decoration: BoxDecoration(
-        color: whiteColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: hasVal ? primaryColor : borderColor,
-        ),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton2<String>(
-          isExpanded: true,
-          hint: Row(
-            children: [
-              Icon(
-                Icons.public_rounded,
-                size: 17,
-                color: textSecondaryColor,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AppText(
-                  text: "Select Country",
-                  fontSize: 13,
-                  color: textSecondaryColor,
-                ),
-              ),
-            ],
-          ),
-          items: countries.map((country) {
-            final isSelected = country.code == _selectedCountryCode;
-            return DropdownMenuItem<String>(
-              value: country.code,
-              child: Row(
-                children: [
-                  AppText(text: country.flag, fontSize: 16),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: AppText(
-                      text: country.name,
-                      fontSize: 13,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w400,
-                      color: isSelected ? primaryColor : textPrimaryColor,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? primaryColor.withValues(alpha: 0.12)
-                          : primaryColor.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: AppText(
-                      text: country.code,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: primaryColor,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-          value: hasVal ? _selectedCountryCode : null,
-          onChanged: (value) {
-            setState(() {
-              _selectedCountryCode = value;
-            });
-          },
-          buttonStyleData: const ButtonStyleData(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            height: 44,
-          ),
-          iconStyleData: IconStyleData(
-            icon: hasVal
-                ? IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    icon: Icon(
-                      Icons.close_rounded,
-                      size: 16,
-                      color: textSecondaryColor,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _selectedCountryCode = null;
-                        _countrySearchController.clear();
-                      });
-                    },
-                  )
-                : Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: 20,
-                    color: textSecondaryColor,
-                  ),
-          ),
-          dropdownStyleData: DropdownStyleData(
-            maxHeight: 320,
-            decoration: BoxDecoration(
-              color: whiteColor,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-          ),
-          menuItemStyleData: const MenuItemStyleData(
-            height: 40,
-            padding: EdgeInsets.symmetric(horizontal: 12),
-          ),
-          dropdownSearchData: DropdownSearchData(
-            searchController: _countrySearchController,
-            searchInnerWidgetHeight: 50,
-            searchInnerWidget: Container(
-              height: 50,
-              padding: const EdgeInsets.all(8),
-              child: TextFormField(
-                expands: true,
-                maxLines: null,
-                controller: _countrySearchController,
-                style: TextStyle(fontSize: 13, color: textPrimaryColor),
-                decoration: InputDecoration(
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 8,
-                  ),
-                  hintText: 'Search country or code (e.g. US, PK)...',
-                  hintStyle: TextStyle(
-                    fontSize: 12,
-                    color: textSecondaryColor,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    size: 16,
-                    color: textSecondaryColor,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    borderSide: BorderSide(color: borderColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    borderSide: BorderSide(color: borderColor),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    borderSide: BorderSide(color: primaryColor),
-                  ),
-                ),
-              ),
-            ),
-            searchMatchFn: (item, searchValue) {
-              final country = AppCountries.findByCode(item.value);
-              final code = item.value?.toLowerCase() ?? '';
-              final name = country?.name.toLowerCase() ?? '';
-              final q = searchValue.trim().toLowerCase();
-              return name.contains(q) || code.contains(q);
-            },
-          ),
-          onMenuStateChange: (isOpen) {
-            if (!isOpen) {
-              _countrySearchController.clear();
-            }
-          },
-        ),
-      ),
+    return AppCountryPickerField(
+      isFilterMode: true,
+      radius: 8,
+      selectedCountryCode: _selectedCountryCode,
+      hintText: "Select Country",
+      onCountrySelected: (country) {
+        setState(() {
+          _selectedCountryCode = country.code;
+        });
+      },
+      onCleared: () {
+        setState(() {
+          _selectedCountryCode = null;
+        });
+      },
     );
   }
 

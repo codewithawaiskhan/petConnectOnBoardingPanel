@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/presentation/widgets/app_country_picker_field.dart';
 import '../../../../core/presentation/widgets/app_logo.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
@@ -507,19 +508,17 @@ class _ServiceProviderOnboardingScreenState
           const SizedBox(height: 16),
           _buildResponsiveRow([
             _buildField(
-              label: "Country Code",
-              child: CustomTextField(
-                controller: _countryCodeController,
-                hintText: "Enter country code",
-                onChanged: (val) => provider.countryCode = val,
-              ),
-            ),
-            _buildField(
-              label: "Country Name",
-              child: CustomTextField(
-                controller: _countryNameController,
-                hintText: "Enter country name",
-                onChanged: (val) => provider.countryName = val,
+              label: "Country",
+              child: AppCountryPickerField(
+                countryCodeController: _countryCodeController,
+                countryNameController: _countryNameController,
+                selectedCountryCode: provider.countryCode,
+                selectedCountryName: provider.countryName,
+                onCountrySelected: (country) {
+                  provider.countryCode = country.code;
+                  provider.countryName = country.name;
+                  setState(() {});
+                },
               ),
             ),
           ]),

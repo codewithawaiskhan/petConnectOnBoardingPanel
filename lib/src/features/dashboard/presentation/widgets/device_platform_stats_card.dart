@@ -32,10 +32,10 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
         color: whiteColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
@@ -55,40 +55,40 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
               // Header Row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             color: primaryColor.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
                             Icons.devices_rounded,
-                            size: 20,
+                            size: 18,
                             color: primaryColor,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               AppText(
                                 text: "Mobile Platform Adoption",
-                                fontSize: 16,
+                                fontSize: 15,
                                 fontWeight: FontWeight.w700,
                                 color: textPrimaryColor,
                               ),
-                              const SizedBox(height: 2),
+                              const SizedBox(height: 1),
                               AppText(
                                 text:
                                     "Android vs iOS distribution of registered users",
-                                fontSize: 12,
+                                fontSize: 11,
                                 color: textSecondaryColor,
                               ),
                             ],
@@ -100,8 +100,8 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
                   const SizedBox(width: 12),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
+                      horizontal: 9,
+                      vertical: 4,
                     ),
                     decoration: BoxDecoration(
                       color: primaryColor.withValues(alpha: 0.06),
@@ -131,7 +131,7 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
 
               // Metrics Breakdown: Android Card & iOS Card
               if (isNarrow)
@@ -144,7 +144,7 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
                       count: formattedAndroid,
                       percentage: androidPct,
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     _buildPlatformTile(
                       platform: "iOS Users",
                       icon: Icons.apple_rounded,
@@ -166,7 +166,7 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
                         percentage: androidPct,
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: _buildPlatformTile(
                         platform: "iOS Users",
@@ -179,13 +179,13 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
                   ],
                 ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 10),
 
               // Linear Progress Bar
               ClipRRect(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(6),
                 child: Container(
-                  height: 12,
+                  height: 8,
                   width: double.infinity,
                   color: borderColor,
                   child: total == 0
@@ -207,7 +207,7 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
                 ),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
 
               // Progress Bar Legend / Labels
               Row(
@@ -216,8 +216,8 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
                   Row(
                     children: [
                       Container(
-                        width: 8,
-                        height: 8,
+                        width: 7,
+                        height: 7,
                         decoration: BoxDecoration(
                           color: androidGreenColor,
                           shape: BoxShape.circle,
@@ -226,7 +226,7 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
                       const SizedBox(width: 6),
                       AppText(
                         text: "Android: ${androidPct.toStringAsFixed(1)}%",
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: textPrimaryColor,
                       ),
@@ -235,8 +235,8 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
                   Row(
                     children: [
                       Container(
-                        width: 8,
-                        height: 8,
+                        width: 7,
+                        height: 7,
                         decoration: BoxDecoration(
                           color: iosDarkColor,
                           shape: BoxShape.circle,
@@ -245,7 +245,7 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
                       const SizedBox(width: 6),
                       AppText(
                         text: "iOS: ${iosPct.toStringAsFixed(1)}%",
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: textPrimaryColor,
                       ),
@@ -268,37 +268,37 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
     required double percentage,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(6),
             ),
-            child: Icon(icon, size: 22, color: color),
+            child: Icon(icon, size: 18, color: color),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppText(
                   text: platform,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w500,
                   color: textSecondaryColor,
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
                 AppText(
                   text: count,
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: textPrimaryColor,
                 ),
@@ -306,14 +306,14 @@ class DevicePlatformStatsCard extends StatelessWidget with AppColors {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(6),
             ),
             child: AppText(
               text: "${percentage.toStringAsFixed(1)}%",
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w700,
               color: color == iosDarkColor ? textPrimaryColor : color,
             ),

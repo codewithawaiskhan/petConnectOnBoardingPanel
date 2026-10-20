@@ -142,7 +142,7 @@ class _GlobalTopAppBar extends StatelessWidget
   Widget build(BuildContext context) {
     final currentTitle = currentIndex < _titles.length
         ? _titles[currentIndex]
-        : "Onboarding Portal";
+        : "PetAccess Portal";
 
     return Container(
       decoration: BoxDecoration(
@@ -151,185 +151,202 @@ class _GlobalTopAppBar extends StatelessWidget
       ),
       child: SafeArea(
         bottom: false,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: isSmall ? 8 : 20),
-          child: Row(
-            children: [
-
-              if (isSmall)
-                Builder(
-                  builder: (scaffoldContext) => IconButton(
-                    icon: Icon(
-                      Icons.menu_rounded,
-                      color: textPrimaryColor,
-                      size: 24,
-                    ),
-                    tooltip: "Open Menu",
-                    onPressed: () => Scaffold.of(scaffoldContext).openDrawer(),
-                  ),
-                ),
-
-              if (isSmall) ...[
-                const SizedBox(width: 4),
-                const AppLogo(size: 28),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: AppText(
-                    text: currentTitle,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: textPrimaryColor,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ] else ...[
-
-                SizedBox(
-                  width: isMedium ? 56 : 240,
-                  child: Row(
-                    children: [
-                      const AppLogo(size: 34),
-                      if (!isMedium) ...[
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AppText(
-                                text: "PetConnect",
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: textPrimaryColor,
-                                maxLines: 1,
-                              ),
-                              AppText(
-                                text: "ONBOARDING PORTAL",
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: primaryColor,
-                                maxLines: 1,
-                              ),
-                            ],
-                          ),
+        child: isSmall
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Builder(
+                      builder: (scaffoldContext) => IconButton(
+                        icon: Icon(
+                          Icons.menu_rounded,
+                          color: textPrimaryColor,
+                          size: 24,
                         ),
-                      ],
-                    ],
-                  ),
-                ),
-                Container(
-                  height: 36,
-                  width: 1,
-                  color: borderColor,
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                ),
-
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          AppText(
-                            text: "Portal",
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: textSecondaryColor,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 6),
-                            child: Icon(
-                              Icons.chevron_right_rounded,
-                              size: 14,
-                              color: textSecondaryColor,
-                            ),
-                          ),
-                          AppText(
-                            text: currentTitle,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: primaryColor,
-                          ),
-                        ],
+                        tooltip: "Open Menu",
+                        onPressed: () =>
+                            Scaffold.of(scaffoldContext).openDrawer(),
                       ),
-                      const SizedBox(height: 2),
-                      AppText(
+                    ),
+                    const SizedBox(width: 4),
+                    const AppLogo(size: 28),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: AppText(
                         text: currentTitle,
-                        fontSize: 18,
+                        fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: textPrimaryColor,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ),
+                    ),
+                    _buildAdminUserMenu(context),
+                  ],
                 ),
-              ],
-
-              Consumer<AdminAuthProvider>(
-                builder: (context, auth, _) {
-                  final initial = auth.adminName.isNotEmpty
-                      ? auth.adminName.substring(0, 1).toUpperCase()
-                      : "A";
-
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircleAvatar(
-                        radius: 17,
-                        backgroundColor: primaryColor.withValues(alpha: 0.12),
-                        child: AppText(
-                          text: initial,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: primaryColor,
-                        ),
-                      ),
-                      if (!isSmall) ...[
-                        const SizedBox(width: 10),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AppText(
-                              text: auth.adminName.isNotEmpty
-                                  ? auth.adminName
-                                  : auth.adminRole,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: textPrimaryColor,
-                              maxLines: 1,
+              )
+            : Row(
+                children: [
+                  Container(
+                    width: isMedium ? 76.0 : 260.0,
+                    height: double.infinity,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isMedium ? 16 : 20,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border(right: BorderSide(color: borderColor)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: isMedium
+                          ? MainAxisAlignment.center
+                          : MainAxisAlignment.start,
+                      children: [
+                        const AppLogo(size: 34),
+                        if (!isMedium) ...[
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                AppText(
+                                  text: "PetAccess",
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: textPrimaryColor,
+                                  maxLines: 1,
+                                ),
+                                AppText(
+                                  text: "PORTAL",
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: primaryColor,
+                                  maxLines: 1,
+                                ),
+                              ],
                             ),
-                            AppText(
-                              text: auth.adminEmail,
-                              fontSize: 11,
-                              color: textSecondaryColor,
-                              maxLines: 1,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 8),
+                          ),
+                        ],
                       ],
-                      const SizedBox(width: 4),
-                      IconButton(
-                        icon: Icon(
-                          Icons.logout_rounded,
-                          color: textSecondaryColor,
-                          size: 20,
-                        ),
-                        tooltip: "Logout (${auth.adminEmail})",
-                        onPressed: () => auth.logout(context),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    AppText(
+                                      text: "Portal",
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: textSecondaryColor,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                      ),
+                                      child: Icon(
+                                        Icons.chevron_right_rounded,
+                                        size: 14,
+                                        color: textSecondaryColor,
+                                      ),
+                                    ),
+                                    AppText(
+                                      text: currentTitle,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: primaryColor,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                AppText(
+                                  text: currentTitle,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: textPrimaryColor,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                          _buildAdminUserMenu(context),
+                        ],
                       ),
-                    ],
-                  );
-                },
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
       ),
+    );
+  }
+
+  Widget _buildAdminUserMenu(BuildContext context) {
+    return Consumer<AdminAuthProvider>(
+      builder: (context, auth, _) {
+        final initial = auth.adminName.isNotEmpty
+            ? auth.adminName.substring(0, 1).toUpperCase()
+            : "A";
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 17,
+              backgroundColor: primaryColor.withValues(alpha: 0.12),
+              child: AppText(
+                text: initial,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: primaryColor,
+              ),
+            ),
+            if (!isSmall) ...[
+              const SizedBox(width: 10),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppText(
+                    text: auth.adminName.isNotEmpty
+                        ? auth.adminName
+                        : auth.adminRole,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: textPrimaryColor,
+                    maxLines: 1,
+                  ),
+                  AppText(
+                    text: auth.adminEmail,
+                    fontSize: 11,
+                    color: textSecondaryColor,
+                    maxLines: 1,
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+            ],
+            const SizedBox(width: 4),
+            IconButton(
+              icon: Icon(
+                Icons.logout_rounded,
+                color: textSecondaryColor,
+                size: 20,
+              ),
+              tooltip: "Logout (${auth.adminEmail})",
+              onPressed: () => auth.logout(context),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -502,13 +519,13 @@ class _MobileDrawer extends StatelessWidget with AppColors {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AppText(
-                        text: "PetConnect",
+                        text: "PetAccess",
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: textPrimaryColor,
                       ),
                       AppText(
-                        text: "Onboarding Portal",
+                        text: "Portal",
                         fontSize: 12,
                         color: textSecondaryColor,
                       ),
