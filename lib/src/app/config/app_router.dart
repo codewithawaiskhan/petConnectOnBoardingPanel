@@ -10,6 +10,9 @@ import '../../features/lab_onboarding/presentation/screens/lab_onboarding_screen
 import '../../features/lab_onboarding/presentation/screens/labs_list_screen.dart';
 import '../../features/pet_parents/presentation/screens/pet_parent_detail_screen.dart';
 import '../../features/pet_parents/presentation/screens/pet_parents_list_screen.dart';
+import '../../features/resource_categories/presentation/screens/resource_categories_list_screen.dart';
+import '../../features/resources/presentation/screens/resource_detail_screen.dart';
+import '../../features/resources/presentation/screens/resources_list_screen.dart';
 import '../../features/service_provider_onboarding/presentation/screens/service_provider_detail_screen.dart';
 import '../../features/service_provider_onboarding/presentation/screens/service_provider_onboarding_screen.dart';
 import '../../features/service_provider_onboarding/presentation/screens/service_providers_list_screen.dart';
@@ -244,6 +247,44 @@ final GoRouter appRouter = GoRouter(
               name: 'diagnostic-labs',
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: LabOnboardingScreen()),
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/resource-categories',
+              name: 'resource-categories',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: ResourceCategoriesListScreen()),
+            ),
+            GoRoute(
+              path: '/post-categories',
+              redirect: (context, state) => '/resource-categories',
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/resources',
+              name: 'resources',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: ResourcesListScreen()),
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  name: 'resource-detail',
+                  pageBuilder: (context, state) {
+                    final id = state.pathParameters['id'] ?? '';
+                    return NoTransitionPage(
+                      child: ResourceDetailScreen(id: id),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),

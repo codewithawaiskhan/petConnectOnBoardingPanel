@@ -69,6 +69,18 @@ const List<_NavItemData> _navItems = [
     icon: Icons.biotech_outlined,
     activeIcon: Icons.biotech_rounded,
   ),
+  _NavItemData(
+    index: 8,
+    title: "Resource Categories",
+    icon: Icons.category_outlined,
+    activeIcon: Icons.category_rounded,
+  ),
+  _NavItemData(
+    index: 9,
+    title: "Resources",
+    icon: Icons.menu_book_outlined,
+    activeIcon: Icons.menu_book_rounded,
+  ),
 ];
 
 class DashboardShell extends StatelessWidget with AppColors {
@@ -136,6 +148,8 @@ class _GlobalTopAppBar extends StatelessWidget
     "Onboard Provider",
     "Diagnostic Labs Directory",
     "Onboard Lab",
+    "Resource Categories",
+    "Resources Directory",
   ];
 
   @override

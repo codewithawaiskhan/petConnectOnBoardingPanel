@@ -1,7 +1,7 @@
 mixin ApiEndpoints {
-  // static String webUrl = "https://petconnect.example.com";
   static String baseUrl = "https://server.petaccessapp.com";
-  static String storageBaseUrl = baseUrl;
+  static String storageBaseUrl =
+      "https://petaccessapp.s3.us-east-1.amazonaws.com";
 
   static String apiUrl = "$baseUrl/api";
 
@@ -42,6 +42,17 @@ mixin ApiEndpoints {
   static String updatePetParent(String id) => "$apiUrl/pet-parent/$id";
   static String updatePetParentPassword(String id) =>
       "$apiUrl/pet-parent/update-password/$id";
+
+  static String postCategories = "$apiUrl/post-category";
+  static String getPostCategories = "$apiUrl/post-category";
+  static String postCategoryDetail(String id) => "$apiUrl/post-category/$id";
+  static String updatePostCategory(String id) => "$apiUrl/post-category/$id";
+  static String deletePostCategory(String id) => "$apiUrl/post-category/$id";
+
+  static String posts = "$apiUrl/post";
+  static String postDetail(String id) => "$apiUrl/post/$id";
+  static String updatePost(String id) => "$apiUrl/post/$id";
+  static String deletePost(String id) => "$apiUrl/post/$id";
 
   static const String cachedUserKey = 'CACHED_USER';
   static const String authTokenKey = 'AUTH_TOKEN';
