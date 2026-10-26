@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/network/api_services.dart';
 import '../../features/admin_auth/di/admin_auth_injector.dart';
+import '../../features/campaigns/di/campaign_injector.dart';
 import '../../features/dashboard/di/dashboard_injector.dart';
 import '../../features/lab_onboarding/di/lab_onboarding_injector.dart';
 import '../../features/pet_parents/di/pet_parents_injector.dart';
@@ -28,4 +29,5 @@ Future<void> setupInjector() async {
   initPetParentsDependencies();
   initResourceCategoriesDependencies();
   initResourceDependencies();
+  initCampaignDependencies();
 }

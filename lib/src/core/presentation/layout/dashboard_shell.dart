@@ -81,6 +81,12 @@ const List<_NavItemData> _navItems = [
     icon: Icons.menu_book_outlined,
     activeIcon: Icons.menu_book_rounded,
   ),
+  _NavItemData(
+    index: 10,
+    title: "Campaigns",
+    icon: Icons.campaign_outlined,
+    activeIcon: Icons.campaign_rounded,
+  ),
 ];
 
 class DashboardShell extends StatelessWidget with AppColors {
@@ -150,6 +156,7 @@ class _GlobalTopAppBar extends StatelessWidget
     "Onboard Lab",
     "Resource Categories",
     "Resources Directory",
+    "Campaigns Directory",
   ];
 
   @override
@@ -389,20 +396,6 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
       child: Column(
         children: [
           const SizedBox(height: 14),
-          if (!isCollapsed)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: AppText(
-                  text: "MAIN NAVIGATION",
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: textSecondaryColor.withValues(alpha: 0.8),
-                  letterSpacing: 0.8,
-                ),
-              ),
-            ),
           Expanded(
             child: ListView.separated(
               padding: EdgeInsets.symmetric(
@@ -474,8 +467,9 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
                     child: AppText(
                       text: item.title,
                       fontSize: 13,
-                      fontWeight:
-                          isSelected ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
                       color: isSelected ? primaryColor : textPrimaryColor,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -539,7 +533,7 @@ class _MobileDrawer extends StatelessWidget with AppColors {
                         color: textPrimaryColor,
                       ),
                       AppText(
-                        text: "Portal",
+                        text: "OnBoarding Portal",
                         fontSize: 12,
                         color: textSecondaryColor,
                       ),
@@ -572,8 +566,9 @@ class _MobileDrawer extends StatelessWidget with AppColors {
                     title: AppText(
                       text: item.title,
                       fontSize: 14,
-                      fontWeight:
-                          isSelected ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
                       color: isSelected ? primaryColor : textPrimaryColor,
                     ),
                     trailing: isSelected

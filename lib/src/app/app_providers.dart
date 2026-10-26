@@ -8,6 +8,7 @@ import '../features/lab_onboarding/presentation/providers/lab_onboarding_provide
 import '../features/lab_onboarding/presentation/providers/labs_list_provider.dart';
 import '../features/pet_parents/presentation/providers/pet_parent_detail_provider.dart';
 import '../features/pet_parents/presentation/providers/pet_parents_list_provider.dart';
+import '../features/campaigns/presentation/providers/campaign_provider.dart';
 import '../features/resource_categories/presentation/providers/resource_category_provider.dart';
 import '../features/resources/presentation/providers/resource_provider.dart';
 import '../features/service_provider_onboarding/presentation/providers/service_provider_detail_provider.dart';
@@ -64,5 +65,8 @@ List<SingleChildWidget> appProviders = [
   ),
   ChangeNotifierProvider<ResourceProvider>(
     create: (_) => sl<ResourceProvider>(),
+  ),
+  ChangeNotifierProvider<CampaignProvider>(
+    create: (_) => sl<CampaignProvider>(),
   ),
 ];

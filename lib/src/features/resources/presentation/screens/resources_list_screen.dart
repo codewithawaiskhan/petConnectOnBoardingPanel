@@ -7,6 +7,7 @@ import '../../../../app/config/api_endpoints.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/constants.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
+import '../../../../core/presentation/widgets/bootstrap_pagination.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
 import '../../../../core/utils/dialog_utils.dart';
@@ -189,6 +190,10 @@ class _ResourcesListScreenState extends State<ResourcesListScreen>
                     const SizedBox(height: 20),
                   ],
                   _buildContent(provider, isDesktop),
+                  if (provider.resources.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _buildPaginationControls(provider, isDesktop),
+                  ],
                 ],
               ),
             ),
@@ -486,6 +491,70 @@ class _ResourcesListScreenState extends State<ResourcesListScreen>
     return isDesktop
         ? _buildDesktopTable(list)
         : _buildMobileCards(list);
+  }
+
+  Widget _buildPaginationControls(ResourceProvider provider, bool isDesktop) {
+    if (provider.totalDocs == 0) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: borderColor),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 640;
+
+          final infoAndDropdown = Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
+            children: [
+              AppText(
+                text:
+                    "Showing page ${provider.currentPage} of ${provider.totalPages > 0 ? provider.totalPages : 1} (${provider.totalDocs} resources)",
+                fontSize: 12,
+                color: textSecondaryColor,
+              ),
+              ItemsPerPageDropdown(
+                currentLimit: provider.limit,
+                isEnabled: !provider.isPaginationLoading && !provider.isLoading,
+                onLimitChanged: (newLimit) => provider.setLimit(newLimit),
+              ),
+            ],
+          );
+
+          final pagination = BootstrapPagination(
+            currentPage: provider.currentPage,
+            totalPages: provider.totalPages,
+            isEnabled: !provider.isPaginationLoading && !provider.isLoading,
+            onPageChanged: (page) => provider.goToPage(page),
+          );
+
+          if (isNarrow) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                infoAndDropdown,
+                const SizedBox(height: 12),
+                pagination,
+              ],
+            );
+          }
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              infoAndDropdown,
+              pagination,
+            ],
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildEmptyState(ResourceProvider provider) {

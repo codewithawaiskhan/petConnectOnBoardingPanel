@@ -4,6 +4,7 @@ import '../../core/presentation/layout/dashboard_shell.dart';
 import '../../features/admin_auth/presentation/providers/admin_auth_provider.dart';
 import '../../features/admin_auth/presentation/screens/admin_login_screen.dart';
 import '../../features/admin_auth/presentation/screens/splash_loading_screen.dart';
+import '../../features/campaigns/presentation/screens/campaigns_list_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_home_screen.dart';
 import '../../features/lab_onboarding/presentation/screens/lab_detail_screen.dart';
 import '../../features/lab_onboarding/presentation/screens/lab_onboarding_screen.dart';
@@ -285,6 +286,17 @@ final GoRouter appRouter = GoRouter(
                   },
                 ),
               ],
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/campaigns',
+              name: 'campaigns',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: CampaignsListScreen()),
             ),
           ],
         ),

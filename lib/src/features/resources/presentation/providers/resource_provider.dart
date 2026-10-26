@@ -26,11 +26,17 @@ class ResourceProvider extends ChangeNotifier {
   int _totalDocs = 0;
   int get totalDocs => _totalDocs;
 
-  final int _currentPage = 1;
+  int _limit = 10;
+  int get limit => _limit;
+
+  int _currentPage = 1;
   int get currentPage => _currentPage;
 
   int _totalPages = 1;
   int get totalPages => _totalPages;
+
+  bool _isPaginationLoading = false;
+  bool get isPaginationLoading => _isPaginationLoading;
 
   String _searchQuery = '';
   String get searchQuery => _searchQuery;
@@ -38,63 +44,63 @@ class ResourceProvider extends ChangeNotifier {
   String? _selectedCategoryFilter;
   String? get selectedCategoryFilter => _selectedCategoryFilter;
 
-  List<ResourceEntity> get resources {
-    var list = _allResources;
+  List<ResourceEntity> get resources => _allResources;
 
-    if (_selectedCategoryFilter != null &&
-        _selectedCategoryFilter!.trim().isNotEmpty) {
-      list = list.where((r) {
-        final catId = r.categoryId ?? r.postCategory?.id;
-        return catId == _selectedCategoryFilter;
-      }).toList();
-    }
+  int get totalCount => _totalDocs;
 
-    if (_searchQuery.trim().isEmpty) {
-      return list;
-    }
-
-    final q = _searchQuery.trim().toLowerCase();
-    return list.where((r) {
-      final titleMatch = r.title.toLowerCase().contains(q);
-      final bodyMatch = r.body.toLowerCase().contains(q);
-      final idMatch = (r.longAutoIncrementId ?? '').toLowerCase().contains(q);
-      final catMatch =
-          (r.postCategory?.title ?? '').toLowerCase().contains(q);
-      return titleMatch || bodyMatch || idMatch || catMatch;
-    }).toList();
+  void setLimit(int newLimit) {
+    if (_limit == newLimit) return;
+    _limit = newLimit;
+    _currentPage = 1;
+    fetchResources(isRefresh: true);
   }
 
-  int get totalCount => _allResources.length;
+  void goToPage(int page) {
+    if (page < 1 || page > _totalPages || page == _currentPage) return;
+    fetchResources(page: page);
+  }
 
   void setSearchQuery(String query) {
     _searchQuery = query;
-    notifyListeners();
+    _currentPage = 1;
+    fetchResources(isRefresh: true);
   }
 
   void setSelectedCategory(String? categoryId) {
     _selectedCategoryFilter = categoryId;
-    notifyListeners();
+    _currentPage = 1;
+    fetchResources(isRefresh: true);
   }
 
-  Future<void> fetchResources({bool isRefresh = false}) async {
-    if (_isLoading && !isRefresh) return;
+  Future<void> fetchResources({bool isRefresh = false, int? page}) async {
+    final targetPage = page ?? (isRefresh ? 1 : _currentPage);
 
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+    if (isRefresh || targetPage == 1) {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+    } else {
+      _isPaginationLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+    }
 
     try {
       final response = await useCases.getResources(
-        page: 1,
-        pageSize: 50,
+        page: targetPage,
+        pageSize: _limit,
+        postCategory: _selectedCategoryFilter,
+        keyword: _searchQuery.trim().isEmpty ? null : _searchQuery.trim(),
       );
       _allResources = response.resources;
       _totalDocs = response.docsCount;
-      _totalPages = response.pages;
+      _totalPages = response.pages > 0 ? response.pages : 1;
+      _currentPage = targetPage;
     } catch (e) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
     } finally {
       _isLoading = false;
+      _isPaginationLoading = false;
       notifyListeners();
     }
   }

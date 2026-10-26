@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/constants.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
+import '../../../../core/presentation/widgets/bootstrap_pagination.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
 import '../../../../core/presentation/widgets/custom_text_field.dart';
 import '../../../../core/presentation/widgets/status_badge.dart';
@@ -328,6 +329,10 @@ class _ResourceCategoriesListScreenState
                   _buildSearchBar(provider, isDesktop),
                   const SizedBox(height: 20),
                   _buildContent(provider, isDesktop),
+                  if (provider.categories.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _buildPaginationControls(provider, isDesktop),
+                  ],
                 ],
               ),
             ),
@@ -635,10 +640,11 @@ class _ResourceCategoriesListScreenState
       );
     }
 
+    final paginatedList = provider.paginatedCategories;
     if (isDesktop) {
-      return _buildDesktopTable(list);
+      return _buildDesktopTable(paginatedList);
     } else {
-      return _buildMobileCards(list);
+      return _buildMobileCards(paginatedList);
     }
   }
 
@@ -766,6 +772,8 @@ class _ResourceCategoriesListScreenState
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: textPrimaryColor,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
 
@@ -878,6 +886,8 @@ class _ResourceCategoriesListScreenState
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: textPrimaryColor,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Row(
@@ -973,6 +983,70 @@ class _ResourceCategoriesListScreenState
           ),
         );
       },
+    );
+  }
+
+  Widget _buildPaginationControls(
+    ResourceCategoryProvider provider,
+    bool isDesktop,
+  ) {
+    if (provider.totalDocs == 0) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: borderColor),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 640;
+
+          final infoAndDropdown = Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
+            children: [
+              AppText(
+                text:
+                    "Showing page ${provider.currentPage} of ${provider.totalPages > 0 ? provider.totalPages : 1} (${provider.totalDocs} categories)",
+                fontSize: 12,
+                color: textSecondaryColor,
+              ),
+              ItemsPerPageDropdown(
+                currentLimit: provider.limit,
+                isEnabled: !provider.isLoading,
+                onLimitChanged: (newLimit) => provider.setLimit(newLimit),
+              ),
+            ],
+          );
+
+          final pagination = BootstrapPagination(
+            currentPage: provider.currentPage,
+            totalPages: provider.totalPages,
+            isEnabled: !provider.isLoading,
+            onPageChanged: (page) => provider.goToPage(page),
+          );
+
+          if (isNarrow) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                infoAndDropdown,
+                const SizedBox(height: 12),
+                pagination,
+              ],
+            );
+          }
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [infoAndDropdown, pagination],
+          );
+        },
+      ),
     );
   }
 }

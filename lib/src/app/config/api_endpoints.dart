@@ -54,6 +54,11 @@ mixin ApiEndpoints {
   static String updatePost(String id) => "$apiUrl/post/$id";
   static String deletePost(String id) => "$apiUrl/post/$id";
 
+  static String campaigns = "$apiUrl/campaign/";
+  static String campaignDetail(String id) => "$apiUrl/campaign/$id";
+  static String updateCampaign(String id) => "$apiUrl/campaign/$id";
+  static String deleteCampaign(String id) => "$apiUrl/campaign/$id";
+
   static const String cachedUserKey = 'CACHED_USER';
   static const String authTokenKey = 'AUTH_TOKEN';
   static const String cachedProfileKey = 'CACHED_PROFILE_KEY';
