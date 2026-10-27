@@ -88,8 +88,11 @@ class ShowImage with ApiEndpoints, AppColors {
               _errorWidget(imageWidth, imageHeight, radius),
         );
       } else {
-        final isFullUrl = image.startsWith("http") || image.startsWith("https");
-        final imageUrl = isFullUrl ? image : "${ApiEndpoints.baseUrl}/$image";
+        final isFullUrl =
+            image.startsWith("http://") || image.startsWith("https://");
+        final cleanPath = image.startsWith('/') ? image.substring(1) : image;
+        final imageUrl =
+            isFullUrl ? image : "${ApiEndpoints.storageBaseUrl}/$cleanPath";
 
         content = _buildCachedNetworkImage(
           imageUrl,

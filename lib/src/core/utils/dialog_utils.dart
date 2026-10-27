@@ -123,4 +123,91 @@ class DialogUtils {
       },
     );
   }
+
+  static void showDynamicInfoDialog({
+    required BuildContext context,
+    required String title,
+    required String message,
+    String buttonText = "Understood",
+    double maxWidth = 420,
+    VoidCallback? onClose,
+  }) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) {
+        return Dialog(
+          backgroundColor: AppColorsHelper().whiteColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              AppConstantsHelper().radiusMedium,
+            ),
+            side: BorderSide(
+              color: AppColorsHelper().borderColor,
+              width: AppConstantsHelper().smallBorder,
+            ),
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: AppConstantsHelper().largeSpace),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: AppText(
+                    text: title,
+                    fontSize: AppConstantsHelper().fontXlText,
+                    fontWeight: FontWeight.w700,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(height: AppConstantsHelper().normalSpace),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: AppText(
+                    text: message,
+                    color: AppColorsHelper().textSecondaryColor,
+                    fontSize: AppConstantsHelper().fontBaseText,
+                    fontWeight: FontWeight.w500,
+                    textAlign: TextAlign.center,
+                    maxLines: 4,
+                  ),
+                ),
+                SizedBox(height: AppConstantsHelper().largeSpace),
+                Divider(
+                  height: AppConstantsHelper().border,
+                  thickness: AppConstantsHelper().border,
+                  color: AppColorsHelper().borderColor,
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(dialogContext);
+                    if (onClose != null) {
+                      onClose();
+                    }
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(
+                      vertical: AppConstantsHelper().smMediumSpace,
+                    ),
+                    alignment: Alignment.center,
+                    child: AppText(
+                      text: buttonText,
+                      style: TextStyle(
+                        fontSize: AppConstantsHelper().fontLgText,
+                        color: AppColorsHelper().primaryColor,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -117,7 +118,29 @@ class _CampaignsListScreenState extends State<CampaignsListScreen>
     }
   }
 
+  bool _isOneTimeCampaign(CampaignEntity campaign) {
+    final freq = campaign.frequency.trim().toLowerCase();
+    return freq == 'onetime' ||
+        freq == 'one-time' ||
+        freq == 'one_time' ||
+        freq == 'once';
+  }
+
+  void _showOneTimeCampaignCannotEditDialog() {
+    DialogUtils.showDynamicInfoDialog(
+      context: context,
+      title: "Cannot Edit Campaign",
+      message:
+          "One-time broadcast campaigns cannot be modified after creation, as they are processed and dispatched immediately to recipients. If you need to make changes, please create a new campaign.",
+      buttonText: "Understood",
+    );
+  }
+
   void _openAddEditDialog([CampaignEntity? campaign]) {
+    if (campaign != null && _isOneTimeCampaign(campaign)) {
+      _showOneTimeCampaignCannotEditDialog();
+      return;
+    }
     AddEditCampaignDialog.show(context, campaign: campaign);
   }
 
@@ -199,27 +222,54 @@ class _CampaignsListScreenState extends State<CampaignsListScreen>
     }
   }
 
+  Widget _buildPlaceholderThumbnail(double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: primaryColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.campaign_outlined,
+          color: primaryColor.withValues(alpha: 0.6),
+          size: size * 0.5,
+        ),
+      ),
+    );
+  }
+
   Widget _buildThumbnail(String? image, {double size = 42}) {
     if (image == null || image.trim().isEmpty) {
-      return Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: primaryColor.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: borderColor),
-        ),
-        child: Center(
-          child: Icon(
-            Icons.campaign_outlined,
-            color: primaryColor.withValues(alpha: 0.6),
-            size: size * 0.5,
-          ),
-        ),
-      );
+      return _buildPlaceholderThumbnail(size);
     }
 
     final trimmed = image.trim();
+
+    if (trimmed.startsWith('data:image')) {
+      try {
+        final commaIndex = trimmed.indexOf(',');
+        final base64Part =
+            commaIndex != -1 ? trimmed.substring(commaIndex + 1) : trimmed;
+        final bytes = base64Decode(base64Part.trim());
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.memory(
+            bytes,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                _buildPlaceholderThumbnail(size),
+          ),
+        );
+      } catch (_) {
+        return _buildPlaceholderThumbnail(size);
+      }
+    }
+
     final url = trimmed.startsWith('http')
         ? trimmed
         : "${ApiEndpoints.storageBaseUrl}/$trimmed";
@@ -231,22 +281,8 @@ class _CampaignsListScreenState extends State<CampaignsListScreen>
         width: size,
         height: size,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: primaryColor.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: borderColor),
-          ),
-          child: Center(
-            child: Icon(
-              Icons.campaign_outlined,
-              color: primaryColor.withValues(alpha: 0.6),
-              size: size * 0.5,
-            ),
-          ),
-        ),
+        errorBuilder: (context, error, stackTrace) =>
+            _buildPlaceholderThumbnail(size),
       ),
     );
   }
@@ -780,7 +816,7 @@ class _CampaignsListScreenState extends State<CampaignsListScreen>
                           constraints: const BoxConstraints(maxWidth: 340),
                           child: Row(
                             children: [
-                              _buildThumbnail(campaign.featuredImage),
+                              _buildThumbnail(campaign.featuredImage ?? campaign.attachment),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: AppText(
@@ -873,54 +909,70 @@ class _CampaignsListScreenState extends State<CampaignsListScreen>
 
                       // ACTIONS (View, Edit, Delete)
                       DataCell(
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              onPressed: () => _openDetailDialog(campaign),
-                              icon: Icon(
-                                Icons.visibility_outlined,
-                                color: textSecondaryColor,
-                                size: 18,
-                              ),
-                              tooltip: "View Campaign",
-                              constraints: const BoxConstraints(
-                                minWidth: 32,
-                                minHeight: 32,
-                              ),
-                              padding: EdgeInsets.zero,
-                            ),
-                            const SizedBox(width: 4),
-                            IconButton(
-                              onPressed: () => _openAddEditDialog(campaign),
-                              icon: Icon(
-                                Icons.edit_outlined,
-                                color: primaryColor,
-                                size: 18,
-                              ),
-                              tooltip: "Edit Campaign",
-                              constraints: const BoxConstraints(
-                                minWidth: 32,
-                                minHeight: 32,
-                              ),
-                              padding: EdgeInsets.zero,
-                            ),
-                            const SizedBox(width: 4),
-                            IconButton(
-                              onPressed: () => _confirmDelete(campaign),
-                              icon: Icon(
-                                Icons.delete_outline_rounded,
-                                color: errorColor,
-                                size: 18,
-                              ),
-                              tooltip: "Delete Campaign",
-                              constraints: const BoxConstraints(
-                                minWidth: 32,
-                                minHeight: 32,
-                              ),
-                              padding: EdgeInsets.zero,
-                            ),
-                          ],
+                        Builder(
+                          builder: (context) {
+                            final isOneTime = _isOneTimeCampaign(campaign);
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  onPressed: () => _openDetailDialog(campaign),
+                                  icon: Icon(
+                                    Icons.visibility_outlined,
+                                    color: textSecondaryColor,
+                                    size: 18,
+                                  ),
+                                  tooltip: "View Campaign",
+                                  constraints: const BoxConstraints(
+                                    minWidth: 32,
+                                    minHeight: 32,
+                                  ),
+                                  padding: EdgeInsets.zero,
+                                ),
+                                const SizedBox(width: 4),
+                                IconButton(
+                                  onPressed: isOneTime
+                                      ? () =>
+                                          _showOneTimeCampaignCannotEditDialog()
+                                      : () => _openAddEditDialog(campaign),
+                                  icon: Icon(
+                                    isOneTime
+                                        ? Icons.edit_off_outlined
+                                        : Icons.edit_outlined,
+                                    color: isOneTime
+                                        ? textSecondaryColor.withValues(
+                                            alpha: 0.45,
+                                          )
+                                        : primaryColor,
+                                    size: 18,
+                                  ),
+                                  tooltip: isOneTime
+                                      ? "One-time campaigns cannot be edited"
+                                      : "Edit Campaign",
+                                  constraints: const BoxConstraints(
+                                    minWidth: 32,
+                                    minHeight: 32,
+                                  ),
+                                  padding: EdgeInsets.zero,
+                                ),
+                                const SizedBox(width: 4),
+                                IconButton(
+                                  onPressed: () => _confirmDelete(campaign),
+                                  icon: Icon(
+                                    Icons.delete_outline_rounded,
+                                    color: errorColor,
+                                    size: 18,
+                                  ),
+                                  tooltip: "Delete Campaign",
+                                  constraints: const BoxConstraints(
+                                    minWidth: 32,
+                                    minHeight: 32,
+                                  ),
+                                  padding: EdgeInsets.zero,
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -955,7 +1007,10 @@ class _CampaignsListScreenState extends State<CampaignsListScreen>
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildThumbnail(campaign.featuredImage, size: 48),
+                  _buildThumbnail(
+                    campaign.featuredImage ?? campaign.attachment,
+                    size: 48,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: AppText(
@@ -1034,37 +1089,50 @@ class _CampaignsListScreenState extends State<CampaignsListScreen>
                 ],
               ),
               const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: () => _openDetailDialog(campaign),
-                    icon: Icon(
-                      Icons.visibility_outlined,
-                      color: textSecondaryColor,
-                      size: 20,
-                    ),
-                    tooltip: "View",
-                  ),
-                  IconButton(
-                    onPressed: () => _openAddEditDialog(campaign),
-                    icon: Icon(
-                      Icons.edit_outlined,
-                      color: primaryColor,
-                      size: 20,
-                    ),
-                    tooltip: "Edit",
-                  ),
-                  IconButton(
-                    onPressed: () => _confirmDelete(campaign),
-                    icon: Icon(
-                      Icons.delete_outline_rounded,
-                      color: errorColor,
-                      size: 20,
-                    ),
-                    tooltip: "Delete",
-                  ),
-                ],
+              Builder(
+                builder: (context) {
+                  final isOneTime = _isOneTimeCampaign(campaign);
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () => _openDetailDialog(campaign),
+                        icon: Icon(
+                          Icons.visibility_outlined,
+                          color: textSecondaryColor,
+                          size: 20,
+                        ),
+                        tooltip: "View",
+                      ),
+                      IconButton(
+                        onPressed: isOneTime
+                            ? () => _showOneTimeCampaignCannotEditDialog()
+                            : () => _openAddEditDialog(campaign),
+                        icon: Icon(
+                          isOneTime
+                              ? Icons.edit_off_outlined
+                              : Icons.edit_outlined,
+                          color: isOneTime
+                              ? textSecondaryColor.withValues(alpha: 0.45)
+                              : primaryColor,
+                          size: 20,
+                        ),
+                        tooltip: isOneTime
+                            ? "One-time campaigns cannot be edited"
+                            : "Edit",
+                      ),
+                      IconButton(
+                        onPressed: () => _confirmDelete(campaign),
+                        icon: Icon(
+                          Icons.delete_outline_rounded,
+                          color: errorColor,
+                          size: 20,
+                        ),
+                        tooltip: "Delete",
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),

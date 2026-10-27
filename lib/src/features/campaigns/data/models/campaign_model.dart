@@ -102,6 +102,26 @@ class CampaignModel extends CampaignEntity {
       }
     }
 
+    final String? resolvedImage = (json['featuredImage'] != null &&
+            json['featuredImage'].toString().trim().isNotEmpty)
+        ? json['featuredImage'].toString().trim()
+        : ((json['attachment'] != null &&
+                json['attachment'].toString().trim().isNotEmpty)
+            ? json['attachment'].toString().trim()
+            : ((json['image'] != null &&
+                    json['image'].toString().trim().isNotEmpty)
+                ? json['image'].toString().trim()
+                : ((json['banner'] != null &&
+                        json['banner'].toString().trim().isNotEmpty)
+                    ? json['banner'].toString().trim()
+                    : ((json['featuredImageDataURI'] != null &&
+                            json['featuredImageDataURI'].toString().trim().isNotEmpty)
+                        ? json['featuredImageDataURI'].toString().trim()
+                        : ((json['attachmentDataURI'] != null &&
+                                json['attachmentDataURI'].toString().trim().isNotEmpty)
+                            ? json['attachmentDataURI'].toString().trim()
+                            : null)))));
+
     return CampaignModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       autoIncrementId: parsedAutoIncrementId,
@@ -111,8 +131,8 @@ class CampaignModel extends CampaignEntity {
       weekDay: parsedWeekDay,
       title: json['title']?.toString() ?? '',
       body: json['body']?.toString() ?? '',
-      attachment: json['attachment']?.toString(),
-      featuredImage: json['featuredImage']?.toString(),
+      attachment: json['attachment']?.toString() ?? resolvedImage,
+      featuredImage: resolvedImage,
       userType: json['userType']?.toString() ?? 'all',
       countryName: json['countryName']?.toString(),
       countryCode: json['countryCode']?.toString(),
@@ -286,21 +306,38 @@ class CreateUpdateCampaignModel extends CreateUpdateCampaignEntity {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    final imageUri = (featuredImageDataURI != null &&
+            featuredImageDataURI!.trim().isNotEmpty)
+        ? featuredImageDataURI!.trim()
+        : ((attachmentDataURI != null && attachmentDataURI!.trim().isNotEmpty)
+            ? attachmentDataURI!.trim()
+            : null);
+
+    final isClearingImage =
+        (featuredImageDataURI != null && featuredImageDataURI!.trim().isEmpty) ||
+        (attachmentDataURI != null && attachmentDataURI!.trim().isEmpty);
+
+    final map = <String, dynamic>{
       'userType': userType,
       'frequency': frequency,
       if (weekDay != null) 'weekDay': weekDay,
       'title': title,
       'body': body,
-      if (attachmentDataURI != null && attachmentDataURI!.trim().isNotEmpty)
-        'attachmentDataURI': attachmentDataURI!.trim(),
-      if (featuredImageDataURI != null && featuredImageDataURI!.trim().isNotEmpty)
-        'featuredImageDataURI': featuredImageDataURI!.trim(),
       if (countryName != null && countryName!.trim().isNotEmpty)
         'countryName': countryName!.trim(),
       if (countryCode != null && countryCode!.trim().isNotEmpty)
         'countryCode': countryCode!.trim(),
       if (link != null && link!.trim().isNotEmpty) 'link': link!.trim(),
     };
+
+    if (imageUri != null) {
+      map['featuredImageDataURI'] = imageUri;
+      map['attachmentDataURI'] = imageUri;
+    } else if (isClearingImage) {
+      map['featuredImageDataURI'] = '';
+      map['attachmentDataURI'] = '';
+    }
+
+    return map;
   }
 }

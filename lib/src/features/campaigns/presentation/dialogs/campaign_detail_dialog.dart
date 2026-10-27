@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../app/config/api_endpoints.dart';
@@ -66,15 +67,75 @@ class CampaignDetailDialog extends StatelessWidget with AppColors {
     }
   }
 
+  Widget _buildBanner(String? rawImage) {
+    if (rawImage == null || rawImage.trim().isEmpty) return const SizedBox.shrink();
+
+    final trimmed = rawImage.trim();
+
+    if (trimmed.startsWith('data:image')) {
+      try {
+        final commaIndex = trimmed.indexOf(',');
+        final base64Part =
+            commaIndex != -1 ? trimmed.substring(commaIndex + 1) : trimmed;
+        final bytes = base64Decode(base64Part.trim());
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                border: Border.all(color: borderColor),
+              ),
+              child: Image.memory(bytes, fit: BoxFit.cover),
+            ),
+          ),
+        );
+      } catch (_) {
+        return const SizedBox.shrink();
+      }
+    }
+
+    final imageUrl = trimmed.startsWith('http')
+        ? trimmed
+        : "${ApiEndpoints.storageBaseUrl}/$trimmed";
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          height: 200,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            border: Border.all(color: borderColor),
+          ),
+          child: Image.network(
+            imageUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Container(
+              height: 180,
+              color: backgroundColor,
+              child: Center(
+                child: Icon(
+                  Icons.image_not_supported_outlined,
+                  color: textSecondaryColor,
+                  size: 32,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final image = campaign.featuredImage;
-    final hasImage = image != null && image.trim().isNotEmpty;
-    final imageUrl = hasImage
-        ? (image.startsWith('http')
-              ? image
-              : "${ApiEndpoints.storageBaseUrl}/$image")
-        : null;
+    final bannerImage = campaign.featuredImage ?? campaign.attachment;
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -164,32 +225,7 @@ class CampaignDetailDialog extends StatelessWidget with AppColors {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Banner if present
-                      if (imageUrl != null) ...[
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            height: 180,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: backgroundColor,
-                              border: Border.all(color: borderColor),
-                            ),
-                            child: Image.network(
-                              imageUrl,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Center(
-                                    child: Icon(
-                                      Icons.image_not_supported_outlined,
-                                      color: textSecondaryColor,
-                                      size: 32,
-                                    ),
-                                  ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
+                      _buildBanner(bannerImage),
 
                       // Title
                       AppText(
@@ -333,7 +369,9 @@ class CampaignDetailDialog extends StatelessWidget with AppColors {
                             campaign.link!.trim().isNotEmpty,
                       ),
                       if (campaign.attachment != null &&
-                          campaign.attachment!.trim().isNotEmpty) ...[
+                          campaign.attachment!.trim().isNotEmpty &&
+                          !campaign.attachment!.startsWith('data:image') &&
+                          campaign.attachment != bannerImage) ...[
                         const SizedBox(height: 12),
                         _buildInfoRow(
                           label: 'Attachment',

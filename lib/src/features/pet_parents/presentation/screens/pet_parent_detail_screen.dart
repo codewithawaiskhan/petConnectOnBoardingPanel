@@ -15,6 +15,16 @@ import '../dialogs/edit_pet_parent_dialog.dart';
 import '../dialogs/update_password_dialog.dart';
 import '../providers/pet_parent_detail_provider.dart';
 import '../providers/pet_parents_list_provider.dart';
+import '../../../pets/presentation/providers/pets_provider.dart';
+import '../../../pets/presentation/widgets/pets_tab_view.dart';
+import '../../../medical_records/presentation/providers/medical_records_provider.dart';
+import '../../../medical_records/presentation/widgets/medical_records_tab_view.dart';
+import '../../../reminders/presentation/providers/reminders_provider.dart';
+import '../../../reminders/presentation/widgets/reminders_tab_view.dart';
+import '../../../ai_assessments/presentation/providers/ai_assessments_provider.dart';
+import '../../../ai_assessments/presentation/widgets/ai_assessments_tab_view.dart';
+import '../../../pet_gallery/presentation/providers/pet_gallery_provider.dart';
+import '../../../pet_gallery/presentation/widgets/pet_gallery_tab_view.dart';
 
 class PetParentDetailScreen extends StatefulWidget {
   final String id;
@@ -27,11 +37,59 @@ class PetParentDetailScreen extends StatefulWidget {
 
 class _PetParentDetailScreenState extends State<PetParentDetailScreen>
     with AppColors {
+  int _selectedTabIndex = 0;
+
+  static const List<Map<String, dynamic>> _tabs = [
+    {
+      'title': 'Details',
+      'icon': Icons.badge_outlined,
+    },
+    {
+      'title': 'Pets',
+      'icon': Icons.pets_rounded,
+    },
+    {
+      'title': 'Medical Records',
+      'icon': Icons.medical_services_outlined,
+    },
+    {
+      'title': 'Reminders',
+      'icon': Icons.notifications_active_outlined,
+    },
+    {
+      'title': 'AI Assessments',
+      'icon': Icons.auto_awesome_rounded,
+    },
+    {
+      'title': 'Pet Gallery',
+      'icon': Icons.photo_library_outlined,
+    },
+  ];
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PetParentDetailProvider>().fetchPetParentDetail(widget.id);
+      if (!mounted) return;
+      final detailProvider = context.read<PetParentDetailProvider>();
+      final recordsProvider = context.read<MedicalRecordsProvider>();
+      final remindersProvider = context.read<RemindersProvider>();
+      final assessmentsProvider = context.read<AiAssessmentsProvider>();
+      final galleryProvider = context.read<PetGalleryProvider>();
+      final petsProvider = context.read<PetsProvider>();
+
+      detailProvider.fetchPetParentDetail(widget.id).then((_) {
+        if (mounted) {
+          final userId = detailProvider.petParent?.user?.id;
+          if (userId != null && userId.isNotEmpty) {
+            recordsProvider.fetchMedicalRecords(userId);
+            remindersProvider.fetchReminders(userId);
+            assessmentsProvider.fetchAiAssessments(userId);
+            galleryProvider.fetchPetGallery(userId);
+          }
+        }
+      });
+      petsProvider.fetchPets(widget.id);
     });
   }
 
@@ -65,9 +123,29 @@ class _PetParentDetailScreenState extends State<PetParentDetailScreen>
           IconButton(
             icon: Icon(Icons.refresh_rounded, color: textSecondaryColor),
             tooltip: "Refresh Details",
-            onPressed: () => context
-                .read<PetParentDetailProvider>()
-                .fetchPetParentDetail(widget.id, forceRefresh: true),
+            onPressed: () {
+              final detailProvider = context.read<PetParentDetailProvider>();
+              final recordsProvider = context.read<MedicalRecordsProvider>();
+              final remindersProvider = context.read<RemindersProvider>();
+              final assessmentsProvider = context.read<AiAssessmentsProvider>();
+              final galleryProvider = context.read<PetGalleryProvider>();
+              final petsProvider = context.read<PetsProvider>();
+
+              detailProvider
+                  .fetchPetParentDetail(widget.id, forceRefresh: true)
+                  .then((_) {
+                if (mounted) {
+                  final userId = detailProvider.petParent?.user?.id;
+                  if (userId != null && userId.isNotEmpty) {
+                    recordsProvider.fetchMedicalRecords(userId, forceRefresh: true);
+                    remindersProvider.fetchReminders(userId, forceRefresh: true);
+                    assessmentsProvider.fetchAiAssessments(userId, forceRefresh: true);
+                    galleryProvider.fetchPetGallery(userId, forceRefresh: true);
+                  }
+                }
+              });
+              petsProvider.fetchPets(widget.id, forceRefresh: true);
+            },
           ),
           const SizedBox(width: 8),
         ],
@@ -98,53 +176,313 @@ class _PetParentDetailScreenState extends State<PetParentDetailScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeaderCard(parent, isDesktop),
+                const SizedBox(height: 18),
+                _buildTabBar(parent, isDesktop),
                 const SizedBox(height: 20),
-                if (isDesktop)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          children: [
-                            _buildPersonalInfoCard(parent),
-                            const SizedBox(height: 20),
-                            _buildWalletCard(parent),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          children: [
-                            _buildRegistrationActivityCard(parent),
-                            const SizedBox(height: 20),
-                            _buildLocationCard(parent),
-                            const SizedBox(height: 20),
-                            _buildActivityCard(parent),
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-                else ...[
-                  _buildPersonalInfoCard(parent),
-                  const SizedBox(height: 16),
-                  _buildRegistrationActivityCard(parent),
-                  const SizedBox(height: 16),
-                  _buildLocationCard(parent),
-                  const SizedBox(height: 16),
-                  _buildWalletCard(parent),
-                  const SizedBox(height: 16),
-                  _buildActivityCard(parent),
-                ],
+                _buildTabContent(parent, isDesktop),
                 const SizedBox(height: 40),
               ],
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildTabBar(PetParentItemEntity parent, bool isDesktop) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: List.generate(_tabs.length, (index) {
+            final tab = _tabs[index];
+            final isSelected = _selectedTabIndex == index;
+            final isPetsTab = index == 1;
+            final isRecordsTab = index == 2;
+            final isRemindersTab = index == 3;
+            final isAiAssessmentsTab = index == 4;
+            final isGalleryTab = index == 5;
+
+            return Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: InkWell(
+                onTap: () {
+                  if (_selectedTabIndex != index) {
+                    setState(() => _selectedTabIndex = index);
+                  }
+                },
+                borderRadius: BorderRadius.circular(10),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? primaryColor.withValues(alpha: 0.1)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isSelected
+                          ? primaryColor.withValues(alpha: 0.3)
+                          : Colors.transparent,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        tab['icon'] as IconData,
+                        size: 16,
+                        color: isSelected ? primaryColor : textSecondaryColor,
+                      ),
+                      const SizedBox(width: 8),
+                      AppText(
+                        text: tab['title'] as String,
+                        fontSize: 13,
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w500,
+                        color: isSelected ? primaryColor : textSecondaryColor,
+                      ),
+                      if (isPetsTab) ...[
+                        const SizedBox(width: 8),
+                        Consumer<PetsProvider>(
+                          builder: (context, petsProvider, _) {
+                            final count = petsProvider.pets.length;
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? primaryColor
+                                    : textSecondaryColor.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: AppText(
+                                text: petsProvider.isPetsLoading && count == 0
+                                    ? "..."
+                                    : "$count",
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? whiteColor
+                                    : textSecondaryColor,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                      if (isRecordsTab) ...[
+                        const SizedBox(width: 8),
+                        Consumer<MedicalRecordsProvider>(
+                          builder: (context, recordsProvider, _) {
+                            final count = recordsProvider.records.length;
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? primaryColor
+                                    : textSecondaryColor.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: AppText(
+                                text: recordsProvider.isRecordsLoading && count == 0
+                                    ? "..."
+                                    : "$count",
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? whiteColor
+                                    : textSecondaryColor,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                      if (isRemindersTab) ...[
+                        const SizedBox(width: 8),
+                        Consumer<RemindersProvider>(
+                          builder: (context, remindersProvider, _) {
+                            final count = remindersProvider.reminders.length;
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? primaryColor
+                                    : textSecondaryColor.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: AppText(
+                                text: remindersProvider.isRemindersLoading && count == 0
+                                    ? "..."
+                                    : "$count",
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? whiteColor
+                                    : textSecondaryColor,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                      if (isAiAssessmentsTab) ...[
+                        const SizedBox(width: 8),
+                        Consumer<AiAssessmentsProvider>(
+                          builder: (context, assessmentsProvider, _) {
+                            final count = assessmentsProvider.assessments.length;
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? primaryColor
+                                    : textSecondaryColor.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: AppText(
+                                text: assessmentsProvider.isAssessmentsLoading && count == 0
+                                    ? "..."
+                                    : "$count",
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? whiteColor
+                                    : textSecondaryColor,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                      if (isGalleryTab) ...[
+                        const SizedBox(width: 8),
+                        Consumer<PetGalleryProvider>(
+                          builder: (context, galleryProvider, _) {
+                            final count = galleryProvider.galleryItems.length;
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? primaryColor
+                                    : textSecondaryColor.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: AppText(
+                                text: galleryProvider.isGalleryLoading && count == 0
+                                    ? "..."
+                                    : "$count",
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? whiteColor
+                                    : textSecondaryColor,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabContent(PetParentItemEntity parent, bool isDesktop) {
+    switch (_selectedTabIndex) {
+      case 0:
+        return _buildDetailsContent(parent, isDesktop);
+      case 1:
+        return PetsTabView(parentId: widget.id);
+      case 2:
+        return MedicalRecordsTabView(userId: parent.user?.id ?? '');
+      case 3:
+        return RemindersTabView(userId: parent.user?.id ?? '');
+      case 4:
+        return AiAssessmentsTabView(userId: parent.user?.id ?? '');
+      case 5:
+        return PetGalleryTabView(userId: parent.user?.id ?? '');
+      default:
+        return _buildDetailsContent(parent, isDesktop);
+    }
+  }
+
+  Widget _buildDetailsContent(PetParentItemEntity parent, bool isDesktop) {
+    if (isDesktop) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 3,
+            child: Column(
+              children: [
+                _buildPersonalInfoCard(parent),
+                const SizedBox(height: 20),
+                _buildWalletCard(parent),
+              ],
+            ),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            flex: 2,
+            child: Column(
+              children: [
+                _buildRegistrationActivityCard(parent),
+                const SizedBox(height: 20),
+                _buildLocationCard(parent),
+                const SizedBox(height: 20),
+                _buildActivityCard(parent),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      children: [
+        _buildPersonalInfoCard(parent),
+        const SizedBox(height: 16),
+        _buildRegistrationActivityCard(parent),
+        const SizedBox(height: 16),
+        _buildLocationCard(parent),
+        const SizedBox(height: 16),
+        _buildWalletCard(parent),
+        const SizedBox(height: 16),
+        _buildActivityCard(parent),
+      ],
     );
   }
 

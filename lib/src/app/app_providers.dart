@@ -8,6 +8,11 @@ import '../features/lab_onboarding/presentation/providers/lab_onboarding_provide
 import '../features/lab_onboarding/presentation/providers/labs_list_provider.dart';
 import '../features/pet_parents/presentation/providers/pet_parent_detail_provider.dart';
 import '../features/pet_parents/presentation/providers/pet_parents_list_provider.dart';
+import '../features/ai_assessments/presentation/providers/ai_assessments_provider.dart';
+import '../features/pet_gallery/presentation/providers/pet_gallery_provider.dart';
+import '../features/reminders/presentation/providers/reminders_provider.dart';
+import '../features/medical_records/presentation/providers/medical_records_provider.dart';
+import '../features/pets/presentation/providers/pets_provider.dart';
 import '../features/campaigns/presentation/providers/campaign_provider.dart';
 import '../features/resource_categories/presentation/providers/resource_category_provider.dart';
 import '../features/resources/presentation/providers/resource_provider.dart';
@@ -68,5 +73,20 @@ List<SingleChildWidget> appProviders = [
   ),
   ChangeNotifierProvider<CampaignProvider>(
     create: (_) => sl<CampaignProvider>(),
+  ),
+  ChangeNotifierProvider<PetsProvider>(
+    create: (_) => sl<PetsProvider>(),
+  ),
+  ChangeNotifierProvider<MedicalRecordsProvider>(
+    create: (_) => sl<MedicalRecordsProvider>(),
+  ),
+  ChangeNotifierProvider<RemindersProvider>(
+    create: (_) => sl<RemindersProvider>(),
+  ),
+  ChangeNotifierProvider<AiAssessmentsProvider>(
+    create: (_) => sl<AiAssessmentsProvider>(),
+  ),
+  ChangeNotifierProvider<PetGalleryProvider>(
+    create: (_) => sl<PetGalleryProvider>(),
   ),
 ];

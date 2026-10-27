@@ -48,6 +48,7 @@ class _AddEditCampaignDialogState extends State<AddEditCampaignDialog>
   String? _featuredImageDataURI;
   String? _featuredFileName;
   Uint8List? _featuredFileBytes;
+  String? _existingImageUrl;
   bool _isPickingImage = false;
 
   String? _attachmentDataURI;
@@ -91,7 +92,11 @@ class _AddEditCampaignDialogState extends State<AddEditCampaignDialog>
     _userType = c?.userType ?? 'all';
     _frequency = c?.frequency ?? 'Onetime';
     _weekDay = c?.weekDay;
-    _attachmentDataURI = c?.attachment;
+
+    final initialImage = c?.featuredImage ?? c?.attachment;
+    if (initialImage != null && initialImage.trim().isNotEmpty) {
+      _existingImageUrl = initialImage.trim();
+    }
 
     if (_frequency == 'Weekly' && _weekDay == null) {
       _weekDay = 1; // Default to Monday if weekly
@@ -125,10 +130,12 @@ class _AddEditCampaignDialogState extends State<AddEditCampaignDialog>
           final mime = ext == 'jpg' ? 'image/jpeg' : 'image/$ext';
           final base64Str = base64Encode(bytes);
 
+          final dataUri = 'data:$mime;base64,$base64Str';
           setState(() {
             _featuredFileName = file.name;
             _featuredFileBytes = bytes;
-            _featuredImageDataURI = 'data:$mime;base64,$base64Str';
+            _featuredImageDataURI = dataUri;
+            _attachmentDataURI = dataUri;
           });
         }
       }
@@ -148,6 +155,8 @@ class _AddEditCampaignDialogState extends State<AddEditCampaignDialog>
       _featuredFileName = null;
       _featuredFileBytes = null;
       _featuredImageDataURI = '';
+      _attachmentDataURI = '';
+      _existingImageUrl = null;
     });
   }
 
@@ -604,11 +613,56 @@ class _AddEditCampaignDialogState extends State<AddEditCampaignDialog>
   }
 
   Widget _buildImagePickerSection() {
-    final existingImage = widget.campaign?.featuredImage;
     final hasNewImage = _featuredFileBytes != null;
-    final hasExistingImage = existingImage != null &&
-        existingImage.isNotEmpty &&
+    final hasExistingImage = _existingImageUrl != null &&
+        _existingImageUrl!.trim().isNotEmpty &&
         _featuredImageDataURI != '';
+
+    Widget thumbnail;
+    if (hasNewImage) {
+      thumbnail = Image.memory(_featuredFileBytes!, fit: BoxFit.cover);
+    } else if (hasExistingImage) {
+      final img = _existingImageUrl!;
+      if (img.startsWith('data:image')) {
+        try {
+          final commaIndex = img.indexOf(',');
+          final base64Part =
+              commaIndex != -1 ? img.substring(commaIndex + 1) : img;
+          final bytes = base64Decode(base64Part.trim());
+          thumbnail = Image.memory(bytes, fit: BoxFit.cover);
+        } catch (_) {
+          thumbnail = Center(
+            child: Icon(Icons.image_outlined, color: textSecondaryColor),
+          );
+        }
+      } else {
+        final fullUrl = img.startsWith('http')
+            ? img
+            : "${ApiEndpoints.storageBaseUrl}/$img";
+        thumbnail = Image.network(
+          fullUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Center(
+            child: Icon(Icons.image_outlined, color: textSecondaryColor),
+          ),
+        );
+      }
+    } else {
+      thumbnail = Center(
+        child: Icon(
+          Icons.add_photo_alternate_outlined,
+          color: textSecondaryColor,
+          size: 26,
+        ),
+      );
+    }
+
+    final displayText = _featuredFileName ??
+        (hasExistingImage
+            ? (_existingImageUrl!.startsWith('data:image')
+                ? 'Current campaign banner'
+                : _existingImageUrl!.split('/').last)
+            : 'No banner chosen');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -632,28 +686,7 @@ class _AddEditCampaignDialogState extends State<AddEditCampaignDialog>
                   border: Border.all(color: borderColor),
                 ),
                 clipBehavior: Clip.antiAlias,
-                child: hasNewImage
-                    ? Image.memory(_featuredFileBytes!, fit: BoxFit.cover)
-                    : (hasExistingImage
-                        ? Image.network(
-                            existingImage.startsWith('http')
-                                ? existingImage
-                                : "${ApiEndpoints.storageBaseUrl}/$existingImage",
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Center(
-                              child: Icon(
-                                Icons.image_outlined,
-                                color: textSecondaryColor,
-                              ),
-                            ),
-                          )
-                        : Center(
-                            child: Icon(
-                              Icons.add_photo_alternate_outlined,
-                              color: textSecondaryColor,
-                              size: 26,
-                            ),
-                          )),
+                child: thumbnail,
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -661,10 +694,7 @@ class _AddEditCampaignDialogState extends State<AddEditCampaignDialog>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AppText(
-                      text: _featuredFileName ??
-                          (hasExistingImage
-                              ? 'Existing campaign banner'
-                              : 'No banner chosen'),
+                      text: displayText,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: textPrimaryColor,

@@ -42,6 +42,21 @@ mixin ApiEndpoints {
   static String updatePetParent(String id) => "$apiUrl/pet-parent/$id";
   static String updatePetParentPassword(String id) =>
       "$apiUrl/pet-parent/update-password/$id";
+  static String pets = "$apiUrl/pet";
+  static String petsByParent(String parentId) =>
+      "$pets?petParentObjectId=$parentId";
+  static String medicalRecords = "$apiUrl/medical-record/";
+  static String medicalRecordsByUser(String userId) =>
+      "$medicalRecords?user=$userId";
+  static String reminders = "$apiUrl/v1/reminder/";
+  static String remindersByUser(String userId) =>
+      "$reminders?user=$userId";
+  static String aiAssessments = "$apiUrl/v1/ai-assessments/";
+  static String aiAssessmentsByUser(String userId) =>
+      "$aiAssessments?user=$userId";
+  static String petGallery = "$apiUrl/v1/pet-gallery/";
+  static String petGalleryByUser(String userId) =>
+      "$petGallery?user=$userId";
 
   static String postCategories = "$apiUrl/post-category";
   static String getPostCategories = "$apiUrl/post-category";

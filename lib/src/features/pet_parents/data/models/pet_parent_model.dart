@@ -129,6 +129,8 @@ class PetParentItemModel extends PetParentItemEntity {
       parsedUser = PetParentUserModel.fromJson(
         json['user'] as Map<String, dynamic>,
       );
+    } else if (json['user'] != null && json['user'] is String) {
+      parsedUser = PetParentUserModel(id: json['user'].toString());
     }
 
     int parsedAppointments = 0;
