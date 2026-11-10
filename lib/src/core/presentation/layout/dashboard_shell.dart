@@ -87,6 +87,12 @@ const List<_NavItemData> _navItems = [
     icon: Icons.campaign_outlined,
     activeIcon: Icons.campaign_rounded,
   ),
+  _NavItemData(
+    index: 11,
+    title: "Withdrawals",
+    icon: Icons.account_balance_wallet_outlined,
+    activeIcon: Icons.account_balance_wallet_rounded,
+  ),
 ];
 
 class DashboardShell extends StatelessWidget with AppColors {
@@ -157,6 +163,7 @@ class _GlobalTopAppBar extends StatelessWidget
     "Resource Categories",
     "Resources Directory",
     "Campaigns Directory",
+    "Withdrawals",
   ];
 
   @override

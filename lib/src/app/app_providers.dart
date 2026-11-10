@@ -22,6 +22,7 @@ import '../features/service_provider_onboarding/presentation/providers/service_p
 import '../features/vet_onboarding/presentation/providers/doctor_onboarding_provider.dart';
 import '../features/vet_onboarding/presentation/providers/vet_detail_provider.dart';
 import '../features/vet_onboarding/presentation/providers/vets_list_provider.dart';
+import '../features/withdrawal_requests/presentation/providers/withdrawal_list_provider.dart';
 import 'di/injector.dart';
 
 List<SingleChildWidget> appProviders = [
@@ -88,5 +89,8 @@ List<SingleChildWidget> appProviders = [
   ),
   ChangeNotifierProvider<PetGalleryProvider>(
     create: (_) => sl<PetGalleryProvider>(),
+  ),
+  ChangeNotifierProvider<WithdrawalListProvider>(
+    create: (_) => sl<WithdrawalListProvider>(),
   ),
 ];

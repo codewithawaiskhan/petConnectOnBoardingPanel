@@ -15,6 +15,7 @@ import '../../features/resource_categories/di/resource_categories_injector.dart'
 import '../../features/resources/di/resource_injector.dart';
 import '../../features/service_provider_onboarding/di/service_provider_onboarding_injector.dart';
 import '../../features/vet_onboarding/di/vet_onboarding_injector.dart';
+import '../../features/withdrawal_requests/di/withdrawal_injector.dart';
 import '../../shared/taxonomy/di/taxonomy_injector.dart';
 
 final sl = GetIt.instance;
@@ -40,4 +41,5 @@ Future<void> setupInjector() async {
   initResourceCategoriesDependencies();
   initResourceDependencies();
   initCampaignDependencies();
+  initWithdrawalDependencies();
 }

@@ -19,6 +19,7 @@ class DirectoryFilterBar extends StatelessWidget {
   }) onApply;
   final VoidCallback onClear;
   final bool isLoading;
+  final bool showCountryFilter;
 
   const DirectoryFilterBar({
     super.key,
@@ -28,6 +29,7 @@ class DirectoryFilterBar extends StatelessWidget {
     required this.onApply,
     required this.onClear,
     this.isLoading = false,
+    this.showCountryFilter = true,
   });
 
   @override
@@ -39,6 +41,7 @@ class DirectoryFilterBar extends StatelessWidget {
       onApply: onApply,
       onClear: onClear,
       isLoading: isLoading,
+      showCountryFilter: showCountryFilter,
     );
   }
 }
@@ -54,6 +57,7 @@ class _DirectoryFilterBarContent extends StatefulWidget {
   }) onApply;
   final VoidCallback onClear;
   final bool isLoading;
+  final bool showCountryFilter;
 
   const _DirectoryFilterBarContent({
     required this.fromDate,
@@ -62,6 +66,7 @@ class _DirectoryFilterBarContent extends StatefulWidget {
     required this.onApply,
     required this.onClear,
     required this.isLoading,
+    required this.showCountryFilter,
   });
 
   @override
@@ -285,19 +290,25 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    SizedBox(
-                      width: 180,
-                      child: _buildFromDateField(context),
-                    ),
-                    const SizedBox(width: 10),
-                    SizedBox(
-                      width: 180,
-                      child: _buildToDateField(context),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _buildCountryDropdown(),
-                    ),
+                    if (widget.showCountryFilter) ...[
+                      SizedBox(
+                        width: 180,
+                        child: _buildFromDateField(context),
+                      ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        width: 180,
+                        child: _buildToDateField(context),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _buildCountryDropdown(),
+                      ),
+                    ] else ...[
+                      Expanded(child: _buildFromDateField(context)),
+                      const SizedBox(width: 10),
+                      Expanded(child: _buildToDateField(context)),
+                    ],
                     const SizedBox(width: 12),
                     _buildApplyButton(),
                     const SizedBox(width: 8),
@@ -322,8 +333,11 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    Expanded(child: _buildCountryDropdown()),
-                    const SizedBox(width: 10),
+                    if (widget.showCountryFilter) ...[
+                      Expanded(child: _buildCountryDropdown()),
+                      const SizedBox(width: 10),
+                    ] else
+                      const Spacer(),
                     _buildApplyButton(),
                     const SizedBox(width: 8),
                     _buildClearButton(),
@@ -340,8 +354,10 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
                 _buildFromDateField(context),
                 const SizedBox(height: 10),
                 _buildToDateField(context),
-                const SizedBox(height: 10),
-                _buildCountryDropdown(),
+                if (widget.showCountryFilter) ...[
+                  const SizedBox(height: 10),
+                  _buildCountryDropdown(),
+                ],
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -375,7 +391,9 @@ class _DirectoryFilterBarContentState extends State<_DirectoryFilterBarContent>
         ),
         const SizedBox(width: 8),
         AppText(
-          text: "Filter By Date Range & Country",
+          text: widget.showCountryFilter
+              ? "Filter By Date Range & Country"
+              : "Filter By Date Range",
           fontSize: 13,
           fontWeight: FontWeight.w600,
           fontFamily: fontPoppins,

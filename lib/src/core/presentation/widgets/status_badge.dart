@@ -32,20 +32,26 @@ class StatusBadge extends StatelessWidget with AppColors {
         lower == 'deleted' ||
         lower == 'declined' ||
         lower == 'blocked' ||
-        lower == 'rejected') {
+        lower == 'rejected' ||
+        lower == 'failed') {
       bg = peachColor.withValues(alpha: 0.6);
       fg = errorColor;
+    } else if (lower == 'submitted') {
+      bg = lightSkyBlueColor;
+      fg = primaryColor;
     } else if (lower == 'pending' ||
         lower == 'in review' ||
         lower == 'in_review' ||
         lower == 'under review' ||
-        lower == 'review') {
+        lower == 'review' ||
+        lower == 'processing') {
       bg = lightYellowColor;
       fg = yellowColor;
     } else if (lower == 'approved' ||
         lower == 'active' ||
         lower == 'verified' ||
-        lower == 'completed') {
+        lower == 'completed' ||
+        lower == 'paid') {
       bg = lightGreenColor;
       fg = successColor;
     } else {

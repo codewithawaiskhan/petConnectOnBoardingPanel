@@ -20,6 +20,7 @@ import '../../features/service_provider_onboarding/presentation/screens/service_
 import '../../features/vet_onboarding/presentation/screens/vet_detail_screen.dart';
 import '../../features/vet_onboarding/presentation/screens/vet_onboarding_screen.dart';
 import '../../features/vet_onboarding/presentation/screens/vets_list_screen.dart';
+import '../../features/withdrawal_requests/presentation/screens/withdrawal_list_screen.dart';
 import '../di/injector.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
@@ -297,6 +298,17 @@ final GoRouter appRouter = GoRouter(
               name: 'campaigns',
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: CampaignsListScreen()),
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/withdrawal-requests',
+              name: 'withdrawal-requests',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: WithdrawalListScreen()),
             ),
           ],
         ),

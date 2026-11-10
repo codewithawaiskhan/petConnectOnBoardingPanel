@@ -1,5 +1,6 @@
 mixin ApiEndpoints {
   static String baseUrl = "https://server.petaccessapp.com";
+  // static String baseUrl = "http://192.168.18.188:4751";
   static String storageBaseUrl =
       "https://petaccessapp.s3.us-east-1.amazonaws.com";
 
@@ -49,14 +50,12 @@ mixin ApiEndpoints {
   static String medicalRecordsByUser(String userId) =>
       "$medicalRecords?user=$userId";
   static String reminders = "$apiUrl/v1/reminder/";
-  static String remindersByUser(String userId) =>
-      "$reminders?user=$userId";
+  static String remindersByUser(String userId) => "$reminders?user=$userId";
   static String aiAssessments = "$apiUrl/v1/ai-assessments/";
   static String aiAssessmentsByUser(String userId) =>
       "$aiAssessments?user=$userId";
   static String petGallery = "$apiUrl/v1/pet-gallery/";
-  static String petGalleryByUser(String userId) =>
-      "$petGallery?user=$userId";
+  static String petGalleryByUser(String userId) => "$petGallery?user=$userId";
 
   static String postCategories = "$apiUrl/post-category";
   static String getPostCategories = "$apiUrl/post-category";
@@ -73,6 +72,9 @@ mixin ApiEndpoints {
   static String campaignDetail(String id) => "$apiUrl/campaign/$id";
   static String updateCampaign(String id) => "$apiUrl/campaign/$id";
   static String deleteCampaign(String id) => "$apiUrl/campaign/$id";
+
+  static const String getReferralRedemptions = '/referral-redemption';
+  static const String updateWithdrawalStatus = '/referral-redemption';
 
   static const String cachedUserKey = 'CACHED_USER';
   static const String authTokenKey = 'AUTH_TOKEN';
