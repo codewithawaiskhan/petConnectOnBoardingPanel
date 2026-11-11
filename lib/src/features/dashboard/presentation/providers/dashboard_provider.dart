@@ -38,13 +38,24 @@ class DashboardProvider extends ChangeNotifier {
   String _selectedStateCountryCode = 'US';
   String get selectedStateCountryCode => _selectedStateCountryCode;
 
+  DateTime? _fromDate;
+  DateTime? get fromDate => _fromDate;
+
+  DateTime? _toDate;
+  DateTime? get toDate => _toDate;
+
+  bool get hasDateFilter => _fromDate != null || _toDate != null;
+
   Future<void> fetchDashboardStats({bool isRefresh = false}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final response = await useCases.getAdminDashboardData();
+      final response = await useCases.getAdminDashboardData(
+        from: _fromDate?.toIso8601String(),
+        to: _toDate?.toIso8601String(),
+      );
       _stats = response.stats;
       _errorMessage = null;
     } catch (e) {
@@ -61,7 +72,10 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await useCases.getTopCountries();
+      final response = await useCases.getTopCountries(
+        from: _fromDate?.toIso8601String(),
+        to: _toDate?.toIso8601String(),
+      );
       _topCountries = response.data;
       _topCountriesError = null;
     } catch (e) {
@@ -72,7 +86,10 @@ class DashboardProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchTopStates({String? countryCode, bool isRefresh = false}) async {
+  Future<void> fetchTopStates({
+    String? countryCode,
+    bool isRefresh = false,
+  }) async {
     if (countryCode != null && countryCode.isNotEmpty) {
       _selectedStateCountryCode = countryCode.toUpperCase();
     }
@@ -83,6 +100,8 @@ class DashboardProvider extends ChangeNotifier {
     try {
       final response = await useCases.getTopCountries(
         countryCode: _selectedStateCountryCode,
+        from: _fromDate?.toIso8601String(),
+        to: _toDate?.toIso8601String(),
       );
       _topStates = response.data;
       _topStatesError = null;
@@ -98,7 +117,35 @@ class DashboardProvider extends ChangeNotifier {
     await Future.wait([
       fetchDashboardStats(isRefresh: isRefresh),
       fetchTopCountries(isRefresh: isRefresh),
-      fetchTopStates(countryCode: _selectedStateCountryCode, isRefresh: isRefresh),
+      fetchTopStates(
+        countryCode: _selectedStateCountryCode,
+        isRefresh: isRefresh,
+      ),
     ]);
+  }
+
+  void updateDateRange(DateTime? from, DateTime? to) {
+    if (from != null) {
+      _fromDate = DateTime(from.year, from.month, from.day, 0, 0, 0, 0);
+    } else {
+      _fromDate = null;
+    }
+
+    if (to != null) {
+      _toDate = DateTime(to.year, to.month, to.day, 23, 59, 59, 999);
+    } else {
+      _toDate = null;
+    }
+
+    notifyListeners();
+    fetchAllDashboardData(isRefresh: true);
+  }
+
+  void clearDateRange() {
+    if (_fromDate == null && _toDate == null) return;
+    _fromDate = null;
+    _toDate = null;
+    notifyListeners();
+    fetchAllDashboardData(isRefresh: true);
   }
 }

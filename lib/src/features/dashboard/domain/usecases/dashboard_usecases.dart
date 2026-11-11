@@ -7,11 +7,22 @@ class DashboardUseCases {
 
   const DashboardUseCases({required this.repository});
 
-  Future<DashboardStatsResponseEntity> getAdminDashboardData() async {
-    return await repository.getAdminDashboardData();
+  Future<DashboardStatsResponseEntity> getAdminDashboardData({
+    String? from,
+    String? to,
+  }) async {
+    return await repository.getAdminDashboardData(from: from, to: to);
   }
 
-  Future<TopCountriesResponseEntity> getTopCountries({String? countryCode}) async {
-    return await repository.getTopCountries(countryCode: countryCode);
+  Future<TopCountriesResponseEntity> getTopCountries({
+    String? countryCode,
+    String? from,
+    String? to,
+  }) async {
+    return await repository.getTopCountries(
+      countryCode: countryCode,
+      from: from,
+      to: to,
+    );
   }
 }

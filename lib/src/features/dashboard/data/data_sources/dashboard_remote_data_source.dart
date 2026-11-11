@@ -3,8 +3,12 @@ import '../../../../core/network/api_services.dart';
 import '../../../../core/network/models/response/response.dart';
 
 abstract class DashboardRemoteDataSource {
-  Future<Response> getAdminDashboardData();
-  Future<Response> getTopCountries({String? countryCode});
+  Future<Response> getAdminDashboardData({String? from, String? to});
+  Future<Response> getTopCountries({
+    String? countryCode,
+    String? from,
+    String? to,
+  });
 }
 
 class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
@@ -13,16 +17,43 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   DashboardRemoteDataSourceImpl({required this.apiServices});
 
   @override
-  Future<Response> getAdminDashboardData() async {
-    return await apiServices.getData(ApiEndpoints.adminDashboardData);
+  Future<Response> getAdminDashboardData({String? from, String? to}) async {
+    final queryParams = <String, String>{};
+    if (from != null && from.trim().isNotEmpty) {
+      queryParams['from'] = from.trim();
+    }
+    if (to != null && to.trim().isNotEmpty) {
+      queryParams['to'] = to.trim();
+    }
+
+    final uri = Uri.parse(ApiEndpoints.adminDashboardData)
+        .replace(queryParameters: queryParams.isEmpty ? null : queryParams)
+        .toString();
+
+    return await apiServices.getData(uri);
   }
 
   @override
-  Future<Response> getTopCountries({String? countryCode}) async {
-    String url = ApiEndpoints.topCountries;
+  Future<Response> getTopCountries({
+    String? countryCode,
+    String? from,
+    String? to,
+  }) async {
+    final queryParams = <String, String>{};
     if (countryCode != null && countryCode.trim().isNotEmpty) {
-      url = "$url?countryCode=${countryCode.trim().toUpperCase()}";
+      queryParams['countryCode'] = countryCode.trim().toUpperCase();
     }
-    return await apiServices.getData(url);
+    if (from != null && from.trim().isNotEmpty) {
+      queryParams['from'] = from.trim();
+    }
+    if (to != null && to.trim().isNotEmpty) {
+      queryParams['to'] = to.trim();
+    }
+
+    final uri = Uri.parse(ApiEndpoints.topCountries)
+        .replace(queryParameters: queryParams.isEmpty ? null : queryParams)
+        .toString();
+
+    return await apiServices.getData(uri);
   }
 }

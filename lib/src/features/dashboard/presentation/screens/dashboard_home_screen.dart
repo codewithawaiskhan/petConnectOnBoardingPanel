@@ -10,6 +10,7 @@ import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shimmers/dashboard_stats_shimmer.dart';
 import '../../domain/entities/dashboard_stats_entity.dart';
 import '../providers/dashboard_provider.dart';
+import '../widgets/dashboard_date_range_filter.dart';
 import '../widgets/device_platform_stats_card.dart';
 import '../widgets/top_countries_stats_card.dart';
 import '../widgets/top_states_stats_card.dart';
@@ -49,6 +50,10 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (!context.isDesktop) ...[
+                    DashboardDateRangeFilter(expandButtons: true),
+                    const SizedBox(height: 14),
+                  ],
                   if (provider.isLoading &&
                       provider.stats.totalPetParentsCount == 0)
                     const DashboardStatsShimmer()

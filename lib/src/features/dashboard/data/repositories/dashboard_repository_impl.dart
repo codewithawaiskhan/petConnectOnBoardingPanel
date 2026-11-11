@@ -12,27 +12,39 @@ class DashboardRepositoryImpl implements DashboardRepository {
   const DashboardRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<DashboardStatsResponseEntity> getAdminDashboardData() async {
-    final Response response = await remoteDataSource.getAdminDashboardData();
+  Future<DashboardStatsResponseEntity> getAdminDashboardData({
+    String? from,
+    String? to,
+  }) async {
+    final Response response = await remoteDataSource.getAdminDashboardData(
+      from: from,
+      to: to,
+    );
 
     final Map<String, dynamic> rawResponse =
         response.body is Map<String, dynamic>
-        ? response.body as Map<String, dynamic>
-        : <String, dynamic>{};
+            ? response.body as Map<String, dynamic>
+            : <String, dynamic>{};
 
     return DashboardStatsResponseModel.fromJson(rawResponse);
   }
 
   @override
-  Future<TopCountriesResponseEntity> getTopCountries({String? countryCode}) async {
+  Future<TopCountriesResponseEntity> getTopCountries({
+    String? countryCode,
+    String? from,
+    String? to,
+  }) async {
     final Response response = await remoteDataSource.getTopCountries(
       countryCode: countryCode,
+      from: from,
+      to: to,
     );
 
     final Map<String, dynamic> rawResponse =
         response.body is Map<String, dynamic>
-        ? response.body as Map<String, dynamic>
-        : <String, dynamic>{};
+            ? response.body as Map<String, dynamic>
+            : <String, dynamic>{};
 
     return TopCountriesResponseModel.fromJson(rawResponse);
   }

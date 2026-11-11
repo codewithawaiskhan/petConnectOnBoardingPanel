@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../features/admin_auth/presentation/providers/admin_auth_provider.dart';
+import '../../../features/dashboard/presentation/widgets/dashboard_date_range_filter.dart';
 import '../../constants/app_colors.dart';
 import '../widgets/app_logo.dart';
 import '../widgets/app_text.dart';
@@ -306,6 +307,10 @@ class _GlobalTopAppBar extends StatelessWidget
                               ],
                             ),
                           ),
+                          if (currentIndex == 0 && !isMedium) ...[
+                            DashboardDateRangeFilter(),
+                            const SizedBox(width: 16),
+                          ],
                           _buildAdminUserMenu(context),
                         ],
                       ),
