@@ -16,6 +16,11 @@ import '../../features/resources/di/resource_injector.dart';
 import '../../features/service_provider_onboarding/di/service_provider_onboarding_injector.dart';
 import '../../features/vet_onboarding/di/vet_onboarding_injector.dart';
 import '../../features/withdrawal_requests/di/withdrawal_injector.dart';
+import '../../features/marketing_companies/di/marketing_companies_injector.dart';
+import '../../features/commission_settings/di/commission_settings_injector.dart';
+import '../../features/company_dashboard/di/company_dashboard_injector.dart';
+import '../../features/my_team/di/my_team_injector.dart';
+import '../../features/assignment_requests/di/assignment_requests_injector.dart';
 import '../../shared/taxonomy/di/taxonomy_injector.dart';
 
 final sl = GetIt.instance;
@@ -42,4 +47,9 @@ Future<void> setupInjector() async {
   initResourceDependencies();
   initCampaignDependencies();
   initWithdrawalDependencies();
+  initMarketingCompaniesDependencies();
+  initCommissionSettingsDependencies();
+  initCompanyDashboardDependencies();
+  initMyTeamDependencies();
+  initAssignmentRequestsDependencies();
 }

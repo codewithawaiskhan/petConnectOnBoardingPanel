@@ -21,11 +21,51 @@ import '../../features/vet_onboarding/presentation/screens/vet_detail_screen.dar
 import '../../features/vet_onboarding/presentation/screens/vet_onboarding_screen.dart';
 import '../../features/vet_onboarding/presentation/screens/vets_list_screen.dart';
 import '../../features/withdrawal_requests/presentation/screens/withdrawal_list_screen.dart';
+import '../../features/marketing_companies/presentation/screens/marketing_companies_list_screen.dart';
+import '../../features/commission_settings/presentation/screens/commission_settings_screen.dart';
+import '../../features/company_dashboard/presentation/screens/company_dashboard_screen.dart';
+import '../../features/my_team/presentation/screens/my_team_screen.dart';
+import '../../features/assignment_requests/presentation/screens/assignment_requests_screen.dart';
 import '../di/injector.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
 );
+
+const List<String> _superAdminOnlyPrefixes = [
+  '/pet-parents',
+  '/vets',
+  '/doctors',
+  '/providers',
+  '/service-providers',
+  '/labs',
+  '/diagnostic-labs',
+  '/resource-categories',
+  '/post-categories',
+  '/resources',
+  '/campaigns',
+  '/withdrawal-requests',
+  '/marketing-companies',
+  '/commission-settings',
+  '/assignment-requests',
+];
+
+bool _isSuperAdminOnlyPath(String path) {
+  return _superAdminOnlyPrefixes.any(
+    (prefix) => path == prefix || path.startsWith('$prefix/'),
+  );
+}
+
+const List<String> _marketingOwnerOnlyPrefixes = [
+  '/company-dashboard',
+  '/my-team',
+];
+
+bool _isMarketingOwnerOnlyPath(String path) {
+  return _marketingOwnerOnlyPrefixes.any(
+    (prefix) => path == prefix || path.startsWith('$prefix/'),
+  );
+}
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
@@ -61,8 +101,35 @@ final GoRouter appRouter = GoRouter(
       return isLoggingIn ? null : '/login';
     }
 
+    final isSuperAdmin = authProvider.isSuperAdmin;
+    final isMarketingCompanyOwner = authProvider.isMarketingCompanyOwner;
+
+    if (!isSuperAdmin && !isMarketingCompanyOwner) {
+      Future.microtask(() => authProvider.clearSession());
+      return isLoggingIn ? null : '/login';
+    }
+
     if (isLoggingIn || isSplash || state.matchedLocation == '/') {
+      if (isMarketingCompanyOwner) {
+        if (destination == '/dashboard' || _isSuperAdminOnlyPath(destination)) {
+          return '/company-dashboard';
+        }
+        return destination;
+      }
+      if (_isMarketingOwnerOnlyPath(destination)) {
+        return '/dashboard';
+      }
       return destination;
+    }
+
+    if (isMarketingCompanyOwner &&
+        (state.matchedLocation == '/dashboard' ||
+            _isSuperAdminOnlyPath(state.matchedLocation))) {
+      return '/company-dashboard';
+    }
+
+    if (isSuperAdmin && _isMarketingOwnerOnlyPath(state.matchedLocation)) {
+      return '/dashboard';
     }
 
     return null;
@@ -309,6 +376,61 @@ final GoRouter appRouter = GoRouter(
               name: 'withdrawal-requests',
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: WithdrawalListScreen()),
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/marketing-companies',
+              name: 'marketing-companies',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: MarketingCompaniesListScreen()),
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/commission-settings',
+              name: 'commission-settings',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: CommissionSettingsScreen()),
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/company-dashboard',
+              name: 'company-dashboard',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: CompanyDashboardScreen()),
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/my-team',
+              name: 'my-team',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: MyTeamScreen()),
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/assignment-requests',
+              name: 'assignment-requests',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: AssignmentRequestsScreen()),
             ),
           ],
         ),

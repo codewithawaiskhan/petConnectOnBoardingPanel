@@ -23,6 +23,11 @@ import '../features/vet_onboarding/presentation/providers/doctor_onboarding_prov
 import '../features/vet_onboarding/presentation/providers/vet_detail_provider.dart';
 import '../features/vet_onboarding/presentation/providers/vets_list_provider.dart';
 import '../features/withdrawal_requests/presentation/providers/withdrawal_list_provider.dart';
+import '../features/marketing_companies/presentation/providers/marketing_company_list_provider.dart';
+import '../features/commission_settings/presentation/providers/commission_settings_provider.dart';
+import '../features/company_dashboard/presentation/providers/company_dashboard_provider.dart';
+import '../features/my_team/presentation/providers/my_team_provider.dart';
+import '../features/assignment_requests/presentation/providers/assignment_requests_provider.dart';
 import 'di/injector.dart';
 
 List<SingleChildWidget> appProviders = [
@@ -92,5 +97,20 @@ List<SingleChildWidget> appProviders = [
   ),
   ChangeNotifierProvider<WithdrawalListProvider>(
     create: (_) => sl<WithdrawalListProvider>(),
+  ),
+  ChangeNotifierProvider<MarketingCompanyListProvider>(
+    create: (_) => sl<MarketingCompanyListProvider>(),
+  ),
+  ChangeNotifierProvider<CommissionSettingsProvider>(
+    create: (_) => sl<CommissionSettingsProvider>(),
+  ),
+  ChangeNotifierProvider<CompanyDashboardProvider>(
+    create: (_) => sl<CompanyDashboardProvider>(),
+  ),
+  ChangeNotifierProvider<MyTeamProvider>(
+    create: (_) => sl<MyTeamProvider>(),
+  ),
+  ChangeNotifierProvider<AssignmentRequestsProvider>(
+    create: (_) => sl<AssignmentRequestsProvider>(),
   ),
 ];

@@ -1,6 +1,6 @@
 mixin ApiEndpoints {
-  static String baseUrl = "https://server.petaccessapp.com";
-  // static String baseUrl = "http://192.168.18.188:4751";
+  //   static String baseUrl = "https://server.petaccessapp.com";
+  static String baseUrl = "http://192.168.18.188:4751";
   static String storageBaseUrl =
       "https://petaccessapp.s3.us-east-1.amazonaws.com";
 
@@ -75,6 +75,17 @@ mixin ApiEndpoints {
 
   static const String getReferralRedemptions = '/referral-redemption';
   static const String updateWithdrawalStatus = '/referral-redemption';
+  static const String marketingCompany = '/marketing-company';
+  static const String companyCommissionPolicy =
+      '/marketing-company-commission-policy';
+  static const String renewalCommissionSettings =
+      '/renewal-commission-settings/';
+  static const String myCompanyProfile = '/marketing-company/me';
+  static const String myReferralStats = '/referral/stats/my';
+  static const String myInfluencers = '/influencer/my';
+  static const String assignInfluencerRequest = '/assign-influencers-request';
+  static String userByReferralCode(String code) =>
+      '/user/referralCode/${Uri.encodeComponent(code)}';
 
   static const String cachedUserKey = 'CACHED_USER';
   static const String authTokenKey = 'AUTH_TOKEN';

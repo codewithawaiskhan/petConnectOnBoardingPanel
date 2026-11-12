@@ -21,7 +21,7 @@ class _NavItemData {
   });
 }
 
-const List<_NavItemData> _navItems = [
+final List<_NavItemData> _allNavItems = [
   _NavItemData(
     index: 0,
     title: "Dashboard",
@@ -94,6 +94,36 @@ const List<_NavItemData> _navItems = [
     icon: Icons.account_balance_wallet_outlined,
     activeIcon: Icons.account_balance_wallet_rounded,
   ),
+  _NavItemData(
+    index: 12,
+    title: "Marketing Companies",
+    icon: Icons.business_outlined,
+    activeIcon: Icons.business_rounded,
+  ),
+  _NavItemData(
+    index: 13,
+    title: "Commission Settings",
+    icon: Icons.percent_outlined,
+    activeIcon: Icons.percent_rounded,
+  ),
+  _NavItemData(
+    index: 14,
+    title: "Dashboard",
+    icon: Icons.dashboard_outlined,
+    activeIcon: Icons.dashboard_rounded,
+  ),
+  _NavItemData(
+    index: 15,
+    title: "My Team",
+    icon: Icons.groups_outlined,
+    activeIcon: Icons.groups_rounded,
+  ),
+  _NavItemData(
+    index: 16,
+    title: "Assignment Requests",
+    icon: Icons.group_add_outlined,
+    activeIcon: Icons.group_add_rounded,
+  ),
 ];
 
 class DashboardShell extends StatelessWidget with AppColors {
@@ -101,8 +131,60 @@ class DashboardShell extends StatelessWidget with AppColors {
 
   const DashboardShell({super.key, required this.navigationShell});
 
+  List<_NavItemData> _buildNavItems(AdminAuthProvider auth) {
+    if (auth.isSuperAdmin) {
+      return _allNavItems
+          .where((item) => item.index != 14 && item.index != 15)
+          .toList();
+    }
+    if (auth.isMarketingCompanyOwner) {
+      return _allNavItems
+          .where((item) => item.index == 14 || item.index == 15)
+          .toList();
+    }
+    return [];
+  }
+
+  Map<int, String> _buildTitles(AdminAuthProvider auth) {
+    final allTitles = <int, String>{
+      0: "Dashboard Overview",
+      1: "Pet Parents Directory",
+      2: "Veterinarians Directory",
+      3: "Onboard Veterinarian",
+      4: "Service Providers Directory",
+      5: "Onboard Provider",
+      6: "Diagnostic Labs Directory",
+      7: "Onboard Lab",
+      8: "Resource Categories",
+      9: "Resources Directory",
+      10: "Campaigns Directory",
+      11: "Withdrawals",
+      12: "Marketing Companies",
+      13: "Commission Settings",
+      14: "Company Dashboard",
+      15: "My Team",
+      16: "Assignment Requests",
+    };
+
+    if (auth.isSuperAdmin) {
+      return allTitles;
+    }
+    if (auth.isMarketingCompanyOwner) {
+      return {
+        14: "Company Dashboard",
+        15: "My Team",
+      16: "Assignment Requests",
+      };
+    }
+    return {};
+  }
+
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AdminAuthProvider>();
+    final navItems = _buildNavItems(auth);
+    final titles = _buildTitles(auth);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
@@ -114,17 +196,22 @@ class DashboardShell extends StatelessWidget with AppColors {
           backgroundColor: backgroundColor,
           appBar: _GlobalTopAppBar(
             currentIndex: navigationShell.currentIndex,
+            titles: titles,
             isSmall: isSmall,
             isMedium: isMedium,
           ),
           drawer: isSmall
-              ? _MobileDrawer(navigationShell: navigationShell)
+              ? _MobileDrawer(
+                  navigationShell: navigationShell,
+                  navItems: navItems,
+                )
               : null,
           body: Row(
             children: [
               if (!isSmall)
                 _DesktopSidebar(
                   navigationShell: navigationShell,
+                  navItems: navItems,
                   isCollapsed: isCollapsed,
                 ),
               Expanded(child: navigationShell),
@@ -140,11 +227,13 @@ class _GlobalTopAppBar extends StatelessWidget
     with AppColors
     implements PreferredSizeWidget {
   final int currentIndex;
+  final Map<int, String> titles;
   final bool isSmall;
   final bool isMedium;
 
   const _GlobalTopAppBar({
     required this.currentIndex,
+    required this.titles,
     required this.isSmall,
     required this.isMedium,
   });
@@ -152,26 +241,9 @@ class _GlobalTopAppBar extends StatelessWidget
   @override
   Size get preferredSize => const Size.fromHeight(70);
 
-  static const List<String> _titles = [
-    "Dashboard Overview",
-    "Pet Parents Directory",
-    "Veterinarians Directory",
-    "Onboard Veterinarian",
-    "Service Providers Directory",
-    "Onboard Provider",
-    "Diagnostic Labs Directory",
-    "Onboard Lab",
-    "Resource Categories",
-    "Resources Directory",
-    "Campaigns Directory",
-    "Withdrawals",
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final currentTitle = currentIndex < _titles.length
-        ? _titles[currentIndex]
-        : "PetAccess Portal";
+    final currentTitle = titles[currentIndex] ?? "PetAccess Portal";
 
     return Container(
       decoration: BoxDecoration(
@@ -386,10 +458,12 @@ class _GlobalTopAppBar extends StatelessWidget
 
 class _DesktopSidebar extends StatelessWidget with AppColors {
   final StatefulNavigationShell navigationShell;
+  final List<_NavItemData> navItems;
   final bool isCollapsed;
 
   const _DesktopSidebar({
     required this.navigationShell,
+    required this.navItems,
     required this.isCollapsed,
   });
 
@@ -414,10 +488,10 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
                 horizontal: isCollapsed ? 10 : 14,
                 vertical: 4,
               ),
-              itemCount: _navItems.length,
+              itemCount: navItems.length,
               separatorBuilder: (context, index) => const SizedBox(height: 4),
               itemBuilder: (context, index) {
-                final item = _navItems[index];
+                final item = navItems[index];
                 return _buildNavItem(
                   context: context,
                   item: item,
@@ -516,8 +590,12 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
 
 class _MobileDrawer extends StatelessWidget with AppColors {
   final StatefulNavigationShell navigationShell;
+  final List<_NavItemData> navItems;
 
-  const _MobileDrawer({required this.navigationShell});
+  const _MobileDrawer({
+    required this.navigationShell,
+    required this.navItems,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -558,10 +636,10 @@ class _MobileDrawer extends StatelessWidget with AppColors {
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                itemCount: _navItems.length,
+                itemCount: navItems.length,
                 separatorBuilder: (context, index) => const SizedBox(height: 2),
                 itemBuilder: (context, index) {
-                  final item = _navItems[index];
+                  final item = navItems[index];
                   final isSelected = navigationShell.currentIndex == item.index;
 
                   return ListTile(

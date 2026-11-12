@@ -59,21 +59,58 @@ class AdminAuthProvider extends ChangeNotifier {
     return 'Admin';
   }
 
-  String get adminRole {
+  String get currentRole {
     if (_currentUser?.roles.isNotEmpty == true) {
-      return _currentUser!.roles.first;
+      return _currentUser!.roles.first.trim();
     }
     if (_decodedToken != null) {
       if (_decodedToken!['roles'] is List &&
           (_decodedToken!['roles'] as List).isNotEmpty) {
-        return (_decodedToken!['roles'] as List).first.toString();
+        return (_decodedToken!['roles'] as List).first.toString().trim();
       }
       if (_decodedToken!['role'] != null) {
-        return _decodedToken!['role'].toString();
+        return _decodedToken!['role'].toString().trim();
       }
     }
-    return 'Super Admin';
+    return '';
   }
+
+  String get adminRole => currentRole;
+
+  String _normalizeRole(String role) =>
+      role.toLowerCase().replaceAll(RegExp(r'[\s_\-]'), '');
+
+  List<String> get _normalizedRoles {
+    final result = <String>[];
+    if (_currentUser?.roles.isNotEmpty == true) {
+      for (final r in _currentUser!.roles) {
+        final normalized = _normalizeRole(r);
+        if (normalized.isNotEmpty) result.add(normalized);
+      }
+    }
+    if (_decodedToken != null) {
+      if (_decodedToken!['roles'] is List) {
+        for (final r in (_decodedToken!['roles'] as List)) {
+          final normalized = _normalizeRole(r.toString());
+          if (normalized.isNotEmpty) result.add(normalized);
+        }
+      }
+      if (_decodedToken!['role'] != null) {
+        final normalized = _normalizeRole(_decodedToken!['role'].toString());
+        if (normalized.isNotEmpty) result.add(normalized);
+      }
+    }
+    return result;
+  }
+
+  bool get isMarketingCompanyOwner =>
+      _normalizedRoles.contains('marketingcompany') ||
+      _normalizedRoles.contains('marketingcompanyowner');
+
+  bool get isSuperAdmin =>
+      !isMarketingCompanyOwner &&
+      (_normalizedRoles.contains('superadmin') ||
+          _normalizedRoles.contains('admin'));
 
   Future<bool> checkAuthStatus() async {
     _isInitializing = true;
@@ -123,7 +160,7 @@ class AdminAuthProvider extends ChangeNotifier {
               'Admin',
           username: _decodedToken!['username']?.toString() ?? '',
           email: _decodedToken!['email']?.toString() ?? '',
-          roles: rolesList.isNotEmpty ? rolesList : ['admin'],
+          roles: rolesList,
         );
       }
 
@@ -194,6 +231,15 @@ class AdminAuthProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> clearSession() async {
+    await useCases.logout();
+    _isLoggedIn = false;
+    _token = null;
+    _decodedToken = null;
+    _currentUser = null;
+    notifyListeners();
   }
 
   Future<void> logout(BuildContext context) async {
