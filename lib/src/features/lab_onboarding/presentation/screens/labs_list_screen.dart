@@ -172,13 +172,29 @@ class _LabsListScreenState extends State<LabsListScreen> with AppColors {
             ],
           ),
         ),
-        CustomButton(
-          text: "Refresh",
-          isIcon: true,
-          icon: Icon(Icons.refresh_rounded, size: 16, color: whiteColor),
-          height: 38,
-          radius: 8,
-          onTap: () => provider.fetchLabs(isRefresh: true),
+        const SizedBox(width: 12),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomButton(
+              text: "Refresh",
+              isOutlined: true,
+              isIcon: true,
+              icon: Icon(Icons.refresh_rounded, size: 16, color: primaryColor),
+              height: 38,
+              radius: 8,
+              onTap: () => provider.fetchLabs(isRefresh: true),
+            ),
+            const SizedBox(width: 10),
+            CustomButton(
+              text: "Add Lab",
+              isIcon: true,
+              icon: Icon(Icons.add_rounded, size: 18, color: whiteColor),
+              height: 38,
+              radius: 8,
+              onTap: () => context.go('/diagnostic-labs'),
+            ),
+          ],
         ),
       ],
     );

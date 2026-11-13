@@ -41,34 +41,16 @@ final List<_NavItemData> _allNavItems = [
     activeIcon: Icons.people_alt_rounded,
   ),
   _NavItemData(
-    index: 3,
-    title: "Onboard Veterinarian",
-    icon: Icons.medical_services_outlined,
-    activeIcon: Icons.medical_services_rounded,
-  ),
-  _NavItemData(
     index: 4,
     title: "Providers Directory",
     icon: Icons.storefront_outlined,
     activeIcon: Icons.storefront_rounded,
   ),
   _NavItemData(
-    index: 5,
-    title: "Onboard Provider",
-    icon: Icons.add_business_outlined,
-    activeIcon: Icons.add_business_rounded,
-  ),
-  _NavItemData(
     index: 6,
     title: "Labs Directory",
     icon: Icons.science_outlined,
     activeIcon: Icons.science_rounded,
-  ),
-  _NavItemData(
-    index: 7,
-    title: "Onboard Lab",
-    icon: Icons.biotech_outlined,
-    activeIcon: Icons.biotech_rounded,
   ),
   _NavItemData(
     index: 8,
@@ -510,7 +492,10 @@ class _DesktopSidebar extends StatelessWidget with AppColors {
     required _NavItemData item,
     required bool isCollapsed,
   }) {
-    final isSelected = navigationShell.currentIndex == item.index;
+    final isSelected = navigationShell.currentIndex == item.index ||
+        (item.index == 2 && navigationShell.currentIndex == 3) ||
+        (item.index == 4 && navigationShell.currentIndex == 5) ||
+        (item.index == 6 && navigationShell.currentIndex == 7);
 
     final itemWidget = InkWell(
       onTap: () => navigationShell.goBranch(
@@ -640,7 +625,10 @@ class _MobileDrawer extends StatelessWidget with AppColors {
                 separatorBuilder: (context, index) => const SizedBox(height: 2),
                 itemBuilder: (context, index) {
                   final item = navItems[index];
-                  final isSelected = navigationShell.currentIndex == item.index;
+                  final isSelected = navigationShell.currentIndex == item.index ||
+        (item.index == 2 && navigationShell.currentIndex == 3) ||
+        (item.index == 4 && navigationShell.currentIndex == 5) ||
+        (item.index == 6 && navigationShell.currentIndex == 7);
 
                   return ListTile(
                     shape: RoundedRectangleBorder(

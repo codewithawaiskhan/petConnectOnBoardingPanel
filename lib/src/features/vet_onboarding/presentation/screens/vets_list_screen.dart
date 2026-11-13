@@ -153,30 +153,48 @@ class _VetsListScreenState extends State<VetsListScreen> with AppColors {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppText(
+                text: "Registered Veterinarians",
+                fontSize: isDesktop ? 22 : 18,
+                fontWeight: FontWeight.w700,
+                color: textPrimaryColor,
+              ),
+              const SizedBox(height: 4),
+              AppText(
+                text: "Total Doctors: ${provider.totalDocs}",
+                fontSize: 13,
+                color: textSecondaryColor,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            AppText(
-              text: "Registered Veterinarians",
-              fontSize: isDesktop ? 22 : 18,
-              fontWeight: FontWeight.w700,
-              color: textPrimaryColor,
+            CustomButton(
+              text: "Refresh",
+              isOutlined: true,
+              isIcon: true,
+              icon: Icon(Icons.refresh_rounded, size: 16, color: primaryColor),
+              height: 38,
+              radius: 8,
+              onTap: () => provider.fetchDoctors(isRefresh: true),
             ),
-            const SizedBox(height: 4),
-            AppText(
-              text: "Total Doctors: ${provider.totalDocs}",
-              fontSize: 13,
-              color: textSecondaryColor,
+            const SizedBox(width: 10),
+            CustomButton(
+              text: "Add Vet",
+              isIcon: true,
+              icon: Icon(Icons.add_rounded, size: 18, color: whiteColor),
+              height: 38,
+              radius: 8,
+              onTap: () => context.go('/doctors'),
             ),
           ],
-        ),
-        CustomButton(
-          text: "Refresh",
-          isIcon: true,
-          icon: Icon(Icons.refresh_rounded, size: 16, color: whiteColor),
-          height: 38,
-          radius: 8,
-          onTap: () => provider.fetchDoctors(isRefresh: true),
         ),
       ],
     );

@@ -1,6 +1,6 @@
 mixin ApiEndpoints {
-  //   static String baseUrl = "https://server.petaccessapp.com";
-  static String baseUrl = "http://192.168.18.188:4751";
+  static String baseUrl = "https://server.petaccessapp.com";
+  // static String baseUrl = "http://192.168.18.188:4751";
   static String storageBaseUrl =
       "https://petaccessapp.s3.us-east-1.amazonaws.com";
 
