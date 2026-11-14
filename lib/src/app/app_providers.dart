@@ -28,6 +28,9 @@ import '../features/commission_settings/presentation/providers/commission_settin
 import '../features/company_dashboard/presentation/providers/company_dashboard_provider.dart';
 import '../features/my_team/presentation/providers/my_team_provider.dart';
 import '../features/assignment_requests/presentation/providers/assignment_requests_provider.dart';
+import '../features/company_wallet/presentation/providers/company_wallet_provider.dart';
+import '../features/company_redemptions/presentation/providers/company_redemptions_provider.dart';
+import '../features/company_payouts_admin/presentation/providers/company_payouts_provider.dart';
 import 'di/injector.dart';
 
 List<SingleChildWidget> appProviders = [
@@ -112,5 +115,14 @@ List<SingleChildWidget> appProviders = [
   ),
   ChangeNotifierProvider<AssignmentRequestsProvider>(
     create: (_) => sl<AssignmentRequestsProvider>(),
+  ),
+  ChangeNotifierProvider<CompanyWalletProvider>(
+    create: (_) => sl<CompanyWalletProvider>(),
+  ),
+  ChangeNotifierProvider<CompanyRedemptionsProvider>(
+    create: (_) => sl<CompanyRedemptionsProvider>(),
+  ),
+  ChangeNotifierProvider<CompanyPayoutsProvider>(
+    create: (_) => sl<CompanyPayoutsProvider>(),
   ),
 ];

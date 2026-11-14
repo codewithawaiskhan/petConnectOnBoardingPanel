@@ -86,6 +86,14 @@ mixin ApiEndpoints {
   static const String assignInfluencerRequest = '/assign-influencers-request';
   static String userByReferralCode(String code) =>
       '/user/referralCode/${Uri.encodeComponent(code)}';
+  static const String myReferralBalance = '/referral-balance/my';
+  static const String myCommissionLedger =
+      '/company-commission-ledger-entry/my';
+  static const String requestPayPalRedemption = '/referral-redemption/paypal';
+  static const String myRedemptions = '/referral-redemption/my';
+  static const String adminReferralRedemptions = '/referral-redemption/';
+  static String updateWithdrawalStatusEndpoint(String id) =>
+      '/referral-redemption/$id/update-withdrawal-status';
 
   static const String cachedUserKey = 'CACHED_USER';
   static const String authTokenKey = 'AUTH_TOKEN';

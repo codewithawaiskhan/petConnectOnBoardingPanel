@@ -26,6 +26,9 @@ import '../../features/commission_settings/presentation/screens/commission_setti
 import '../../features/company_dashboard/presentation/screens/company_dashboard_screen.dart';
 import '../../features/my_team/presentation/screens/my_team_screen.dart';
 import '../../features/assignment_requests/presentation/screens/assignment_requests_screen.dart';
+import '../../features/company_wallet/presentation/screens/company_wallet_screen.dart';
+import '../../features/company_redemptions/presentation/screens/company_redemptions_screen.dart';
+import '../../features/company_payouts_admin/presentation/screens/company_payouts_screen.dart';
 import '../di/injector.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
@@ -45,6 +48,8 @@ const List<String> _superAdminOnlyPrefixes = [
   '/resources',
   '/campaigns',
   '/withdrawal-requests',
+  '/user-withdrawals',
+  '/company-payouts',
   '/marketing-companies',
   '/commission-settings',
   '/assignment-requests',
@@ -59,6 +64,8 @@ bool _isSuperAdminOnlyPath(String path) {
 const List<String> _marketingOwnerOnlyPrefixes = [
   '/company-dashboard',
   '/my-team',
+  '/company-wallet',
+  '/my-redemptions',
 ];
 
 bool _isMarketingOwnerOnlyPath(String path) {
@@ -377,6 +384,10 @@ final GoRouter appRouter = GoRouter(
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: WithdrawalListScreen()),
             ),
+            GoRoute(
+              path: '/user-withdrawals',
+              redirect: (context, state) => '/withdrawal-requests',
+            ),
           ],
         ),
 
@@ -431,6 +442,39 @@ final GoRouter appRouter = GoRouter(
               name: 'assignment-requests',
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: AssignmentRequestsScreen()),
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/company-wallet',
+              name: 'company-wallet',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: CompanyWalletScreen()),
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/my-redemptions',
+              name: 'my-redemptions',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: CompanyRedemptionsScreen()),
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/company-payouts',
+              name: 'company-payouts',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: CompanyPayoutsScreen()),
             ),
           ],
         ),

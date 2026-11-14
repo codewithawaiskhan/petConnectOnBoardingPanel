@@ -664,7 +664,12 @@ class _ResourcesListScreenState extends State<ResourcesListScreen>
                 columns: const [
                   DataColumn(label: Text("ID")),
                   DataColumn(label: Text("COVER")),
-                  DataColumn(label: Text("TITLE")),
+                  DataColumn(
+                    label: SizedBox(
+                      width: 360,
+                      child: Text("TITLE"),
+                    ),
+                  ),
                   DataColumn(label: Text("CATEGORY")),
                   DataColumn(label: Text("CREATED AT")),
                   DataColumn(label: Text("ACTIONS")),
@@ -701,13 +706,12 @@ class _ResourcesListScreenState extends State<ResourcesListScreen>
                       ),
                       // TITLE
                       DataCell(
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 340),
+                        SizedBox(
+                          width: 360,
                           child: Row(
-                            mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Flexible(
+                              Expanded(
                                 child: AppText(
                                   text: resource.title,
                                   fontSize: 13,
@@ -717,25 +721,33 @@ class _ResourcesListScreenState extends State<ResourcesListScreen>
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              if (resource.isFeatured) ...[
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 7,
-                                    vertical: 2.5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: yellowColor.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: AppText(
-                                    text: "Featured",
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: yellowColor,
-                                  ),
-                                ),
-                              ],
+                              const SizedBox(width: 12),
+                              SizedBox(
+                                width: 58,
+                                child: resource.isFeatured
+                                    ? Center(
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 7,
+                                            vertical: 3,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: yellowColor.withValues(
+                                              alpha: 0.15,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                          ),
+                                          child: AppText(
+                                            text: "Featured",
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w700,
+                                            color: yellowColor,
+                                          ),
+                                        ),
+                                      )
+                                    : const SizedBox.shrink(),
+                              ),
                             ],
                           ),
                         ),

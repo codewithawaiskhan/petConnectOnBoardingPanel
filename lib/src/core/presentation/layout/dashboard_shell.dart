@@ -72,9 +72,15 @@ final List<_NavItemData> _allNavItems = [
   ),
   _NavItemData(
     index: 11,
-    title: "Withdrawals",
+    title: "User Withdrawals",
     icon: Icons.account_balance_wallet_outlined,
     activeIcon: Icons.account_balance_wallet_rounded,
+  ),
+  _NavItemData(
+    index: 19,
+    title: "Company Payouts",
+    icon: Icons.payments_outlined,
+    activeIcon: Icons.payments_rounded,
   ),
   _NavItemData(
     index: 12,
@@ -106,6 +112,18 @@ final List<_NavItemData> _allNavItems = [
     icon: Icons.group_add_outlined,
     activeIcon: Icons.group_add_rounded,
   ),
+  _NavItemData(
+    index: 17,
+    title: "Wallet & Ledger",
+    icon: Icons.account_balance_wallet_outlined,
+    activeIcon: Icons.account_balance_wallet_rounded,
+  ),
+  _NavItemData(
+    index: 18,
+    title: "Withdrawals",
+    icon: Icons.payments_outlined,
+    activeIcon: Icons.payments_rounded,
+  ),
 ];
 
 class DashboardShell extends StatelessWidget with AppColors {
@@ -116,12 +134,20 @@ class DashboardShell extends StatelessWidget with AppColors {
   List<_NavItemData> _buildNavItems(AdminAuthProvider auth) {
     if (auth.isSuperAdmin) {
       return _allNavItems
-          .where((item) => item.index != 14 && item.index != 15)
+          .where((item) =>
+              item.index != 14 &&
+              item.index != 15 &&
+              item.index != 17 &&
+              item.index != 18)
           .toList();
     }
     if (auth.isMarketingCompanyOwner) {
       return _allNavItems
-          .where((item) => item.index == 14 || item.index == 15)
+          .where((item) =>
+              item.index == 14 ||
+              item.index == 15 ||
+              item.index == 17 ||
+              item.index == 18)
           .toList();
     }
     return [];
@@ -140,12 +166,15 @@ class DashboardShell extends StatelessWidget with AppColors {
       8: "Resource Categories",
       9: "Resources Directory",
       10: "Campaigns Directory",
-      11: "Withdrawals",
+      11: "User Withdrawals",
       12: "Marketing Companies",
       13: "Commission Settings",
       14: "Company Dashboard",
       15: "My Team",
       16: "Assignment Requests",
+      17: "Wallet & Ledger",
+      18: "Withdrawals",
+      19: "Company Payouts",
     };
 
     if (auth.isSuperAdmin) {
@@ -155,7 +184,8 @@ class DashboardShell extends StatelessWidget with AppColors {
       return {
         14: "Company Dashboard",
         15: "My Team",
-      16: "Assignment Requests",
+        17: "Wallet & Ledger",
+        18: "Withdrawals",
       };
     }
     return {};
@@ -379,9 +409,12 @@ class _GlobalTopAppBar extends StatelessWidget
   Widget _buildAdminUserMenu(BuildContext context) {
     return Consumer<AdminAuthProvider>(
       builder: (context, auth, _) {
-        final initial = auth.adminName.isNotEmpty
-            ? auth.adminName.substring(0, 1).toUpperCase()
-            : "A";
+        final displayName = auth.isSuperAdmin
+            ? "PetAccess Admin"
+            : (auth.adminName.isNotEmpty ? auth.adminName : "PetAccess Admin");
+        final initial = displayName.isNotEmpty
+            ? displayName.substring(0, 1).toUpperCase()
+            : "P";
 
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -403,20 +436,19 @@ class _GlobalTopAppBar extends StatelessWidget
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppText(
-                    text: auth.adminName.isNotEmpty
-                        ? auth.adminName
-                        : auth.adminRole,
+                    text: displayName,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: textPrimaryColor,
                     maxLines: 1,
                   ),
-                  AppText(
-                    text: auth.adminEmail,
-                    fontSize: 11,
-                    color: textSecondaryColor,
-                    maxLines: 1,
-                  ),
+                  if (auth.adminEmail.isNotEmpty)
+                    AppText(
+                      text: auth.adminEmail,
+                      fontSize: 11,
+                      color: textSecondaryColor,
+                      maxLines: 1,
+                    ),
                 ],
               ),
               const SizedBox(width: 8),

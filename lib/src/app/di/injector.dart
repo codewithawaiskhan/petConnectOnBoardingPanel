@@ -21,6 +21,9 @@ import '../../features/commission_settings/di/commission_settings_injector.dart'
 import '../../features/company_dashboard/di/company_dashboard_injector.dart';
 import '../../features/my_team/di/my_team_injector.dart';
 import '../../features/assignment_requests/di/assignment_requests_injector.dart';
+import '../../features/company_wallet/di/company_wallet_injector.dart';
+import '../../features/company_redemptions/di/company_redemptions_injector.dart';
+import '../../features/company_payouts_admin/di/company_payouts_injector.dart';
 import '../../shared/taxonomy/di/taxonomy_injector.dart';
 
 final sl = GetIt.instance;
@@ -52,4 +55,7 @@ Future<void> setupInjector() async {
   initCompanyDashboardDependencies();
   initMyTeamDependencies();
   initAssignmentRequestsDependencies();
+  initCompanyWalletDependencies();
+  initCompanyRedemptionsDependencies();
+  initCompanyPayoutsDependencies();
 }

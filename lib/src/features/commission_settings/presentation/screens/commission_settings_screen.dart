@@ -74,42 +74,46 @@ class _CommissionSettingsScreenState extends State<CommissionSettingsScreen>
       child: Scaffold(
         backgroundColor: backgroundColor,
         body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
+              width: double.infinity,
               padding: EdgeInsets.symmetric(
                 horizontal: isDesktop ? 24.0 : 16.0,
               ),
-              decoration: BoxDecoration(
-                color: whiteColor,
-                border: Border(bottom: BorderSide(color: borderColor)),
-              ),
-              child: TabBar(
-                isScrollable: true,
-                tabAlignment: TabAlignment.start,
-                labelColor: primaryColor,
-                unselectedLabelColor: textSecondaryColor,
-                indicatorColor: primaryColor,
-                indicatorWeight: 2.5,
-                labelStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-                unselectedLabelStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-                tabs: const [
-                  Tab(
-                    icon: Icon(Icons.public_rounded, size: 18),
-                    iconMargin: EdgeInsets.only(bottom: 4),
-                    text: "Global Settings",
+              color: whiteColor,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: TabBar(
+                  isScrollable: true,
+                  tabAlignment: TabAlignment.start,
+                  dividerColor: Colors.transparent,
+                  dividerHeight: 0,
+                  labelColor: primaryColor,
+                  unselectedLabelColor: textSecondaryColor,
+                  indicatorColor: primaryColor,
+                  indicatorWeight: 2.5,
+                  labelStyle: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                   ),
-                  Tab(
-                    icon: Icon(Icons.business_center_outlined, size: 18),
-                    iconMargin: EdgeInsets.only(bottom: 4),
-                    text: "Company Policies",
+                  unselectedLabelStyle: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
+                  tabs: const [
+                    Tab(
+                      icon: Icon(Icons.public_rounded, size: 18),
+                      iconMargin: EdgeInsets.only(bottom: 4),
+                      text: "Global Settings",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.business_center_outlined, size: 18),
+                      iconMargin: EdgeInsets.only(bottom: 4),
+                      text: "Company Policies",
+                    ),
+                  ],
+                ),
               ),
             ),
             Expanded(

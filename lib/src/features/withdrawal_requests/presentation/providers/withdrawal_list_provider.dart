@@ -89,6 +89,7 @@ class WithdrawalListProvider extends ChangeNotifier {
         'page': targetPage.toString(),
         'pageSize': _limit.toString(),
         'type': 'PayPal',
+        'isMarketingCompany': 'false',
       };
 
       if (_searchKeyword.trim().isNotEmpty) {

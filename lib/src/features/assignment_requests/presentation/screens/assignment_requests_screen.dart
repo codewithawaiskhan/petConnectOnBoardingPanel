@@ -77,6 +77,32 @@ class _AssignmentRequestsScreenState extends State<AssignmentRequestsScreen>
     );
   }
 
+  void _viewDetails(AssignmentRequestEntity request) {
+    final companyName =
+        request.marketingCompany?.displayName.isNotEmpty == true
+            ? request.marketingCompany!.displayName
+            : "—";
+    final primaryUser =
+        request.users.isNotEmpty ? request.users.first : null;
+    final userName = primaryUser?.fullName ?? "—";
+    final userEmail = primaryUser?.email ?? "—";
+    final idText = request.autoIncrementId > 0
+        ? "#${request.autoIncrementId}"
+        : "#${request.id.substring(0, 6)}";
+
+    DialogUtils.showDynamicInfoDialog(
+      context: context,
+      title: "Assignment Request Details ($idText)",
+      message:
+          "Marketing Company: $companyName\n"
+          "Influencer Name: $userName\n"
+          "Influencer Email: $userEmail\n"
+          "Status: ${request.status}\n"
+          "Requested Date: ${_formatDate(request.createdAt)}",
+      buttonText: "Close",
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDesktop = context.isDesktop;
@@ -232,56 +258,68 @@ class _AssignmentRequestsScreenState extends State<AssignmentRequestsScreen>
     AssignmentRequestEntity request,
   ) {
     final isSubmitted = request.status.trim().toLowerCase() == 'submitted';
-    if (!isSubmitted) {
-      return AppText(
-        text: "—",
-        fontSize: 13,
-        color: textSecondaryColor,
-      );
-    }
 
     if (provider.isUpdating(request.id)) {
       return SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: primaryColor,
+        width: 195,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: primaryColor,
+            ),
+          ),
         ),
       );
     }
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          visualDensity: VisualDensity.compact,
-          padding: const EdgeInsets.all(4),
-          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-          icon: Icon(
-            Icons.check_circle_outline_rounded,
-            size: 20,
-            color: successColor,
+    return SizedBox(
+      width: 195,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (isSubmitted) ...[
+            CustomButton(
+              text: "Approve",
+              fontSize: 11,
+              height: 28,
+              radius: 6,
+              fillColor: successColor,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              onTap: () => _confirmStatusUpdate(request, 'Approved'),
+            ),
+            const SizedBox(width: 6),
+            CustomButton(
+              text: "Decline",
+              fontSize: 11,
+              height: 28,
+              radius: 6,
+              isOutlined: true,
+              buttonBorder: Border.all(color: errorColor),
+              textColor: errorColor,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              onTap: () => _confirmStatusUpdate(request, 'Declined'),
+            ),
+            const SizedBox(width: 4),
+          ],
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.all(4),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: Icon(
+              Icons.visibility_outlined,
+              size: 18,
+              color: textPrimaryColor,
+            ),
+            tooltip: "View Details",
+            splashRadius: 18,
+            onPressed: () => _viewDetails(request),
           ),
-          tooltip: "Approve Request",
-          splashRadius: 18,
-          onPressed: () => _confirmStatusUpdate(request, 'Approved'),
-        ),
-        const SizedBox(width: 4),
-        IconButton(
-          visualDensity: VisualDensity.compact,
-          padding: const EdgeInsets.all(4),
-          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-          icon: Icon(
-            Icons.cancel_outlined,
-            size: 20,
-            color: errorColor,
-          ),
-          tooltip: "Decline Request",
-          splashRadius: 18,
-          onPressed: () => _confirmStatusUpdate(request, 'Declined'),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -344,11 +382,17 @@ class _AssignmentRequestsScreenState extends State<AssignmentRequestsScreen>
                     ),
                   ),
                   DataColumn(
-                    label: AppText(
-                      text: "Actions",
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: textSecondaryColor,
+                    label: SizedBox(
+                      width: 195,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: AppText(
+                          text: "Actions",
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: textSecondaryColor,
+                        ),
+                      ),
                     ),
                   ),
                 ],
