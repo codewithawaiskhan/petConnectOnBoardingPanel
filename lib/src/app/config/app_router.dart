@@ -29,6 +29,7 @@ import '../../features/assignment_requests/presentation/screens/assignment_reque
 import '../../features/company_wallet/presentation/screens/company_wallet_screen.dart';
 import '../../features/company_redemptions/presentation/screens/company_redemptions_screen.dart';
 import '../../features/company_payouts_admin/presentation/screens/company_payouts_screen.dart';
+import '../../features/admin_settings/presentation/screens/admin_settings_screen.dart';
 import '../di/injector.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
@@ -53,6 +54,7 @@ const List<String> _superAdminOnlyPrefixes = [
   '/marketing-companies',
   '/commission-settings',
   '/assignment-requests',
+  '/admin-settings',
 ];
 
 bool _isSuperAdminOnlyPath(String path) {
@@ -475,6 +477,17 @@ final GoRouter appRouter = GoRouter(
               name: 'company-payouts',
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: CompanyPayoutsScreen()),
+            ),
+          ],
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/admin-settings',
+              name: 'admin-settings',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: AdminSettingsScreen()),
             ),
           ],
         ),

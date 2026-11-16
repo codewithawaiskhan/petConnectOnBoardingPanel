@@ -24,6 +24,7 @@ import '../../features/assignment_requests/di/assignment_requests_injector.dart'
 import '../../features/company_wallet/di/company_wallet_injector.dart';
 import '../../features/company_redemptions/di/company_redemptions_injector.dart';
 import '../../features/company_payouts_admin/di/company_payouts_injector.dart';
+import '../../features/admin_settings/di/admin_settings_injector.dart';
 import '../../shared/taxonomy/di/taxonomy_injector.dart';
 
 final sl = GetIt.instance;
@@ -58,4 +59,5 @@ Future<void> setupInjector() async {
   initCompanyWalletDependencies();
   initCompanyRedemptionsDependencies();
   initCompanyPayoutsDependencies();
+  initAdminSettingsInjector();
 }

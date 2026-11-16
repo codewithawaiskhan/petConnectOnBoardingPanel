@@ -31,6 +31,7 @@ import '../features/assignment_requests/presentation/providers/assignment_reques
 import '../features/company_wallet/presentation/providers/company_wallet_provider.dart';
 import '../features/company_redemptions/presentation/providers/company_redemptions_provider.dart';
 import '../features/company_payouts_admin/presentation/providers/company_payouts_provider.dart';
+import '../features/admin_settings/presentation/providers/admin_settings_provider.dart';
 import 'di/injector.dart';
 
 List<SingleChildWidget> appProviders = [
@@ -124,5 +125,8 @@ List<SingleChildWidget> appProviders = [
   ),
   ChangeNotifierProvider<CompanyPayoutsProvider>(
     create: (_) => sl<CompanyPayoutsProvider>(),
+  ),
+  ChangeNotifierProvider<AdminSettingsProvider>(
+    create: (_) => sl<AdminSettingsProvider>(),
   ),
 ];

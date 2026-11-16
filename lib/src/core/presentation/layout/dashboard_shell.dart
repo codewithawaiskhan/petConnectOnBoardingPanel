@@ -124,6 +124,12 @@ final List<_NavItemData> _allNavItems = [
     icon: Icons.payments_outlined,
     activeIcon: Icons.payments_rounded,
   ),
+  _NavItemData(
+    index: 20,
+    title: "Settings",
+    icon: Icons.settings_outlined,
+    activeIcon: Icons.settings,
+  ),
 ];
 
 class DashboardShell extends StatelessWidget with AppColors {
@@ -175,6 +181,7 @@ class DashboardShell extends StatelessWidget with AppColors {
       17: "Wallet & Ledger",
       18: "Withdrawals",
       19: "Company Payouts",
+      20: "Global Settings",
     };
 
     if (auth.isSuperAdmin) {

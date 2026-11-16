@@ -73,6 +73,7 @@ mixin ApiEndpoints {
   static String updateCampaign(String id) => "$apiUrl/campaign/$id";
   static String deleteCampaign(String id) => "$apiUrl/campaign/$id";
 
+  static const String globalSettings = '/settings';
   static const String getReferralRedemptions = '/referral-redemption';
   static const String updateWithdrawalStatus = '/referral-redemption';
   static const String marketingCompany = '/marketing-company';
