@@ -25,23 +25,15 @@ class CompanyDashboardRepositoryImpl implements CompanyDashboardRepository {
   }
 
   @override
-  Future<CompanyProfileEntity> getMyCompanyProfile() async {
-    final Response response = await remoteDataSource.getMyCompanyProfile();
-    final doc = _extractDoc(response.body);
-    return CompanyProfileModel.fromJson(doc).toEntity();
-  }
-
-  @override
-  Future<ReferralStatsEntity> getMyReferralStats({
+  Future<CompanyDashboardEntity> getMyCompanyDashboard({
     String? from,
     String? to,
   }) async {
-    final Response response = await remoteDataSource.getMyReferralStats(
+    final Response response = await remoteDataSource.getMyCompanyDashboard(
       from: from,
       to: to,
     );
     final doc = _extractDoc(response.body);
-    return ReferralStatsModel.fromJson(doc).toEntity();
+    return CompanyDashboardModel.fromJson(doc).toEntity();
   }
 }
-

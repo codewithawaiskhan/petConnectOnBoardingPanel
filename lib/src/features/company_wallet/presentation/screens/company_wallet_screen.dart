@@ -473,8 +473,8 @@ class _CompanyWalletScreenState extends State<CompanyWalletScreen>
                 children: provider.entryTypeOptions.map((type) {
                   final isSelected = provider.selectedEntryType == type;
                   final label = type == 'All'
-                      ? 'All Types'
-                      : (type == 'credit' ? 'Credits (+)' : 'Debits (-)');
+                      ? 'All'
+                      : (type == 'credit' ? 'Credits' : 'Debits');
 
                   return Padding(
                     padding: const EdgeInsets.only(right: 6),
@@ -482,12 +482,11 @@ class _CompanyWalletScreenState extends State<CompanyWalletScreen>
                       onTap: () => provider.onEntryTypeChanged(type),
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 7,
-                        ),
+                        height: 38,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: isSelected ? primaryColor : backgroundColor,
+                          color: isSelected ? primaryColor : whiteColor,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isSelected ? primaryColor : borderColor,
@@ -507,99 +506,13 @@ class _CompanyWalletScreenState extends State<CompanyWalletScreen>
                 }).toList(),
               ),
               // Date Range Pickers
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: borderColor),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    InkWell(
-                      onTap: () => _pickFromDate(context, provider),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.calendar_today_rounded,
-                              size: 14,
-                              color: textSecondaryColor,
-                            ),
-                            const SizedBox(width: 6),
-                            AppText(
-                              text: provider.fromDate != null
-                                  ? _shortDateFormat.format(provider.fromDate!)
-                                  : "From Date",
-                              fontSize: 12,
-                              color: provider.fromDate != null
-                                  ? textPrimaryColor
-                                  : textSecondaryColor,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    AppText(text: "→", fontSize: 12, color: textSecondaryColor),
-                    InkWell(
-                      onTap: () => _pickToDate(context, provider),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.calendar_today_rounded,
-                              size: 14,
-                              color: textSecondaryColor,
-                            ),
-                            const SizedBox(width: 6),
-                            AppText(
-                              text: provider.toDate != null
-                                  ? _shortDateFormat.format(provider.toDate!)
-                                  : "To Date",
-                              fontSize: 12,
-                              color: provider.toDate != null
-                                  ? textPrimaryColor
-                                  : textSecondaryColor,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              _buildDateFilterControls(
+                fromDate: provider.fromDate,
+                toDate: provider.toDate,
+                onPickFrom: () => _pickFromDate(context, provider),
+                onPickTo: () => _pickToDate(context, provider),
+                onClear: () => provider.clearDateRange(),
               ),
-              if (provider.fromDate != null || provider.toDate != null)
-                InkWell(
-                  onTap: () => provider.clearDateRange(),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 6,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.close_rounded, size: 14, color: errorColor),
-                        const SizedBox(width: 4),
-                        AppText(
-                          text: "Clear Dates",
-                          fontSize: 12,
-                          color: errorColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
             ],
           ),
         ],
@@ -607,235 +520,344 @@ class _CompanyWalletScreenState extends State<CompanyWalletScreen>
     );
   }
 
-  Widget _buildDesktopDataTable(CompanyWalletProvider provider) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 900),
-        child: DataTable(
-          headingRowHeight: 48,
-          dataRowMinHeight: 56,
-          dataRowMaxHeight: 64,
-          horizontalMargin: 20,
-          columnSpacing: 24,
-          columns: [
-            DataColumn(
-              label: AppText(
-                text: "Date & Time",
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
+  Widget _buildDatePickerButton({
+    required String label,
+    required bool isSelected,
+    required IconData icon,
+    required VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        height: 38,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? primaryColor.withValues(alpha: 0.08) : whiteColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: isSelected ? primaryColor : borderColor),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 14,
+              color: isSelected ? primaryColor : textSecondaryColor,
             ),
-            DataColumn(
-              label: AppText(
-                text: "Type",
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            DataColumn(
-              label: AppText(
-                text: "Description",
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            DataColumn(
-              label: AppText(
-                text: "Amount",
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            DataColumn(
-              label: AppText(
-                text: "Subscription Details",
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            DataColumn(
-              label: AppText(
-                text: "Status",
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
+            const SizedBox(width: 8),
+            AppText(
+              text: label,
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              color: isSelected ? primaryColor : textSecondaryColor,
             ),
           ],
-          rows: provider.entries.map((entry) {
-            return DataRow(
-              cells: [
-                // Date
-                DataCell(
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AppText(
-                        text: _formatDate(entry.createdAt),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: textPrimaryColor,
-                      ),
-                      if (entry.autoIncrementId != null)
-                        AppText(
-                          text: "#${entry.autoIncrementId}",
-                          fontSize: 11,
-                          color: textSecondaryColor,
-                        ),
-                    ],
-                  ),
-                ),
-                // Type
-                DataCell(
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: entry.isCredit
-                          ? lightGreenColor
-                          : peachColor.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          entry.isCredit
-                              ? Icons.arrow_downward_rounded
-                              : Icons.arrow_upward_rounded,
-                          size: 12,
-                          color: entry.isCredit ? successColor : errorColor,
-                        ),
-                        const SizedBox(width: 4),
-                        AppText(
-                          text: entry.isCredit ? "Credit" : "Debit",
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: entry.isCredit ? successColor : errorColor,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Description
-                DataCell(
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AppText(
-                        text: _buildDescription(entry),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: textPrimaryColor,
-                      ),
-                      if (entry.productId != null &&
-                          entry.productId!.isNotEmpty)
-                        AppText(
-                          text: "Product: ${entry.productId}",
-                          fontSize: 11,
-                          color: textSecondaryColor,
-                        ),
-                    ],
-                  ),
-                ),
-                // Amount
-                DataCell(
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AppText(
-                        text:
-                            "${entry.isCredit ? '+' : '-'} \$${entry.amount.toStringAsFixed(2)}",
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: entry.isCredit ? successColor : errorColor,
-                      ),
-                      const SizedBox(width: 4),
-                      AppText(
-                        text: entry.currencyCode,
-                        fontSize: 11,
-                        color: textSecondaryColor,
-                      ),
-                    ],
-                  ),
-                ),
-                // Subscription / User
-                DataCell(
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (entry.subscriptionPrice != null)
-                        AppText(
-                          text:
-                              "\$${entry.subscriptionPrice!.toStringAsFixed(2)} ${entry.subscriptionCurrency ?? ''} (${entry.subscriptionType ?? 'Plan'})",
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: textPrimaryColor,
-                        )
-                      else
-                        AppText(
-                          text: "Direct Commission",
-                          fontSize: 12,
-                          color: textSecondaryColor,
-                        ),
-                      if (entry.userEmail != null &&
-                          entry.userEmail!.isNotEmpty)
-                        AppText(
-                          text: entry.userEmail!,
-                          fontSize: 11,
-                          color: textSecondaryColor,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                    ],
-                  ),
-                ),
-                // Status
-                DataCell(
-                  entry.isRefunded
-                      ? Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: peachColor.withValues(alpha: 0.6),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: AppText(
-                            text: "Refunded",
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: errorColor,
-                          ),
-                        )
-                      : Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: lightGreenColor,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: AppText(
-                            text: "Settled",
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: successColor,
-                          ),
-                        ),
-                ),
-              ],
-            );
-          }).toList(),
         ),
       ),
+    );
+  }
+
+  Widget _buildDateFilterControls({
+    required DateTime? fromDate,
+    required DateTime? toDate,
+    required VoidCallback onPickFrom,
+    required VoidCallback onPickTo,
+    required VoidCallback onClear,
+  }) {
+    final fromBtn = _buildDatePickerButton(
+      label: fromDate != null ? _shortDateFormat.format(fromDate) : "From Date",
+      isSelected: fromDate != null,
+      icon: Icons.calendar_today_outlined,
+      onTap: onPickFrom,
+    );
+
+    final toBtn = _buildDatePickerButton(
+      label: toDate != null ? _shortDateFormat.format(toDate) : "To Date",
+      isSelected: toDate != null,
+      icon: Icons.event_outlined,
+      onTap: onPickTo,
+    );
+
+    final hasFilter = fromDate != null || toDate != null;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        fromBtn,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: AppText(
+            text: "to",
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: textSecondaryColor,
+          ),
+        ),
+        toBtn,
+        if (hasFilter) ...[
+          const SizedBox(width: 8),
+          Tooltip(
+            message: "Clear Dates",
+            child: InkWell(
+              onTap: onClear,
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                height: 38,
+                width: 38,
+                decoration: BoxDecoration(
+                  color: whiteColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: borderColor),
+                ),
+                child: Icon(Icons.close_rounded, size: 16, color: errorColor),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildTableHeaderCell(
+    String label, {
+    TextAlign textAlign = TextAlign.start,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: AppText(
+        text: label,
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        color: textSecondaryColor,
+        textAlign: textAlign,
+      ),
+    );
+  }
+
+  Widget _buildTableCell({
+    required Widget child,
+    Alignment alignment = Alignment.centerLeft,
+  }) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 60),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      alignment: alignment,
+      child: child,
+    );
+  }
+
+  Widget _buildDesktopDataTable(CompanyWalletProvider provider) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double minWidth = 950;
+        final double tableWidth =
+            constraints.maxWidth > minWidth ? constraints.maxWidth : minWidth;
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: tableWidth,
+            child: Table(
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              columnWidths: const {
+                0: FlexColumnWidth(1.8),
+                1: FlexColumnWidth(1.2),
+                2: FlexColumnWidth(2.2),
+                3: FlexColumnWidth(1.4),
+                4: FlexColumnWidth(2.0),
+                5: FlexColumnWidth(1.2),
+              },
+              children: [
+                TableRow(
+                  decoration: BoxDecoration(
+                    color: backgroundColor.withValues(alpha: 0.6),
+                    border: Border(bottom: BorderSide(color: borderColor)),
+                  ),
+                  children: [
+                    _buildTableHeaderCell("Date & Time"),
+                    _buildTableHeaderCell("Type"),
+                    _buildTableHeaderCell("Description"),
+                    _buildTableHeaderCell("Amount"),
+                    _buildTableHeaderCell("Subscription Details"),
+                    _buildTableHeaderCell("Status"),
+                  ],
+                ),
+                ...provider.entries.map((entry) {
+                  return TableRow(
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: borderColor)),
+                    ),
+                    children: [
+                      _buildTableCell(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            AppText(
+                              text: _formatDate(entry.createdAt),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: textPrimaryColor,
+                            ),
+                            if (entry.autoIncrementId != null)
+                              AppText(
+                                text: "#${entry.autoIncrementId}",
+                                fontSize: 11,
+                                color: textSecondaryColor,
+                              ),
+                          ],
+                        ),
+                      ),
+                      _buildTableCell(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: entry.isCredit
+                                ? lightGreenColor
+                                : peachColor.withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                entry.isCredit
+                                    ? Icons.arrow_downward_rounded
+                                    : Icons.arrow_upward_rounded,
+                                size: 12,
+                                color: entry.isCredit ? successColor : errorColor,
+                              ),
+                              const SizedBox(width: 4),
+                              AppText(
+                                text: entry.isCredit ? "Credit" : "Debit",
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: entry.isCredit ? successColor : errorColor,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      _buildTableCell(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            AppText(
+                              text: _buildDescription(entry),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: textPrimaryColor,
+                            ),
+                            if (entry.productId != null &&
+                                entry.productId!.isNotEmpty)
+                              AppText(
+                                text: "Product: ${entry.productId}",
+                                fontSize: 11,
+                                color: textSecondaryColor,
+                              ),
+                          ],
+                        ),
+                      ),
+                      _buildTableCell(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            AppText(
+                              text:
+                                  "${entry.isCredit ? '+' : '-'} \$${entry.amount.toStringAsFixed(2)}",
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: entry.isCredit ? successColor : errorColor,
+                            ),
+                            const SizedBox(width: 4),
+                            AppText(
+                              text: entry.currencyCode,
+                              fontSize: 11,
+                              color: textSecondaryColor,
+                            ),
+                          ],
+                        ),
+                      ),
+                      _buildTableCell(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (entry.subscriptionPrice != null)
+                              AppText(
+                                text:
+                                    "\$${entry.subscriptionPrice!.toStringAsFixed(2)} ${entry.subscriptionCurrency ?? ''} (${entry.subscriptionType ?? 'Plan'})",
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: textPrimaryColor,
+                              )
+                            else
+                              AppText(
+                                text: "Direct Commission",
+                                fontSize: 12,
+                                color: textSecondaryColor,
+                              ),
+                            if (entry.userEmail != null &&
+                                entry.userEmail!.isNotEmpty)
+                              AppText(
+                                text: entry.userEmail!,
+                                fontSize: 11,
+                                color: textSecondaryColor,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
+                      ),
+                      _buildTableCell(
+                        child: entry.isRefunded
+                            ? Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: peachColor.withValues(alpha: 0.6),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: AppText(
+                                  text: "Refunded",
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: errorColor,
+                                ),
+                              )
+                            : Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: lightGreenColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: AppText(
+                                  text: "Settled",
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: successColor,
+                                ),
+                              ),
+                      ),
+                    ],
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

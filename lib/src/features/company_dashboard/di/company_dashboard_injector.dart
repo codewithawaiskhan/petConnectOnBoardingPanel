@@ -19,23 +19,15 @@ void initCompanyDashboardDependencies() {
     ),
   );
 
-  sl.registerLazySingleton<GetMyCompanyProfileUseCase>(
-    () => GetMyCompanyProfileUseCase(
-      repository: sl<CompanyDashboardRepository>(),
-    ),
-  );
-
-  sl.registerLazySingleton<GetMyReferralStatsUseCase>(
-    () => GetMyReferralStatsUseCase(
+  sl.registerLazySingleton<GetCompanyDashboardUseCase>(
+    () => GetCompanyDashboardUseCase(
       repository: sl<CompanyDashboardRepository>(),
     ),
   );
 
   sl.registerFactory<CompanyDashboardProvider>(
     () => CompanyDashboardProvider(
-      getMyCompanyProfileUseCase: sl<GetMyCompanyProfileUseCase>(),
-      getMyReferralStatsUseCase: sl<GetMyReferralStatsUseCase>(),
+      getCompanyDashboardUseCase: sl<GetCompanyDashboardUseCase>(),
     ),
   );
 }
-

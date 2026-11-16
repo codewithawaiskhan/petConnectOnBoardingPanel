@@ -302,12 +302,11 @@ class _CompanyRedemptionsScreenState extends State<CompanyRedemptionsScreen>
                       onTap: () => provider.onStatusChanged(status),
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 7,
-                        ),
+                        height: 38,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: isSelected ? primaryColor : backgroundColor,
+                          color: isSelected ? primaryColor : whiteColor,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isSelected ? primaryColor : borderColor,
@@ -326,99 +325,13 @@ class _CompanyRedemptionsScreenState extends State<CompanyRedemptionsScreen>
                   );
                 }).toList(),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: borderColor),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    InkWell(
-                      onTap: () => _pickFromDate(context, provider),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.calendar_today_rounded,
-                              size: 14,
-                              color: textSecondaryColor,
-                            ),
-                            const SizedBox(width: 6),
-                            AppText(
-                              text: provider.fromDate != null
-                                  ? _shortDateFormat.format(provider.fromDate!)
-                                  : "From Date",
-                              fontSize: 12,
-                              color: provider.fromDate != null
-                                  ? textPrimaryColor
-                                  : textSecondaryColor,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    AppText(text: "→", fontSize: 12, color: textSecondaryColor),
-                    InkWell(
-                      onTap: () => _pickToDate(context, provider),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.calendar_today_rounded,
-                              size: 14,
-                              color: textSecondaryColor,
-                            ),
-                            const SizedBox(width: 6),
-                            AppText(
-                              text: provider.toDate != null
-                                  ? _shortDateFormat.format(provider.toDate!)
-                                  : "To Date",
-                              fontSize: 12,
-                              color: provider.toDate != null
-                                  ? textPrimaryColor
-                                  : textSecondaryColor,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              _buildDateFilterControls(
+                fromDate: provider.fromDate,
+                toDate: provider.toDate,
+                onPickFrom: () => _pickFromDate(context, provider),
+                onPickTo: () => _pickToDate(context, provider),
+                onClear: () => provider.clearDateRange(),
               ),
-              if (provider.fromDate != null || provider.toDate != null)
-                InkWell(
-                  onTap: () => provider.clearDateRange(),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 6,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.close_rounded, size: 14, color: errorColor),
-                        const SizedBox(width: 4),
-                        AppText(
-                          text: "Clear Dates",
-                          fontSize: 12,
-                          color: errorColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
             ],
           ),
         ],
@@ -426,148 +339,268 @@ class _CompanyRedemptionsScreenState extends State<CompanyRedemptionsScreen>
     );
   }
 
-  Widget _buildDesktopDataTable(CompanyRedemptionsProvider provider) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 800),
-        child: DataTable(
-          headingRowHeight: 48,
-          dataRowMinHeight: 56,
-          dataRowMaxHeight: 64,
-          horizontalMargin: 20,
-          columnSpacing: 28,
-          columns: [
-            DataColumn(
-              label: AppText(
-                text: "Request ID",
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
+  Widget _buildDatePickerButton({
+    required String label,
+    required bool isSelected,
+    required IconData icon,
+    required VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        height: 38,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? primaryColor.withValues(alpha: 0.08) : whiteColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: isSelected ? primaryColor : borderColor),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 14,
+              color: isSelected ? primaryColor : textSecondaryColor,
             ),
-            DataColumn(
-              label: AppText(
-                text: "Requested On",
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            DataColumn(
-              label: AppText(
-                text: "Amount",
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            DataColumn(
-              label: AppText(
-                text: "Payout Account",
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            DataColumn(
-              label: AppText(
-                text: "Status",
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
+            const SizedBox(width: 8),
+            AppText(
+              text: label,
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              color: isSelected ? primaryColor : textSecondaryColor,
             ),
           ],
-          rows: provider.redemptions.map((redemption) {
-            final idText = redemption.autoIncrementId != null
-                ? "#${redemption.autoIncrementId}"
-                : "#${redemption.id.substring(0, 6)}";
+        ),
+      ),
+    );
+  }
 
-            return DataRow(
-              cells: [
-                DataCell(
-                  AppText(
-                    text: idText,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: primaryColor,
-                  ),
+  Widget _buildDateFilterControls({
+    required DateTime? fromDate,
+    required DateTime? toDate,
+    required VoidCallback onPickFrom,
+    required VoidCallback onPickTo,
+    required VoidCallback onClear,
+  }) {
+    final fromBtn = _buildDatePickerButton(
+      label: fromDate != null ? _shortDateFormat.format(fromDate) : "From Date",
+      isSelected: fromDate != null,
+      icon: Icons.calendar_today_outlined,
+      onTap: onPickFrom,
+    );
+
+    final toBtn = _buildDatePickerButton(
+      label: toDate != null ? _shortDateFormat.format(toDate) : "To Date",
+      isSelected: toDate != null,
+      icon: Icons.event_outlined,
+      onTap: onPickTo,
+    );
+
+    final hasFilter = fromDate != null || toDate != null;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        fromBtn,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: AppText(
+            text: "to",
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: textSecondaryColor,
+          ),
+        ),
+        toBtn,
+        if (hasFilter) ...[
+          const SizedBox(width: 8),
+          Tooltip(
+            message: "Clear Dates",
+            child: InkWell(
+              onTap: onClear,
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                height: 38,
+                width: 38,
+                decoration: BoxDecoration(
+                  color: whiteColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: borderColor),
                 ),
-                DataCell(
-                  AppText(
-                    text: _formatDate(redemption.createdAt),
-                    fontSize: 12,
-                    color: textPrimaryColor,
+                child: Icon(Icons.close_rounded, size: 16, color: errorColor),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildTableHeaderCell(
+    String label, {
+    TextAlign textAlign = TextAlign.start,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: AppText(
+        text: label,
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        color: textSecondaryColor,
+        textAlign: textAlign,
+      ),
+    );
+  }
+
+  Widget _buildTableCell({
+    required Widget child,
+    Alignment alignment = Alignment.centerLeft,
+  }) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 60),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      alignment: alignment,
+      child: child,
+    );
+  }
+
+  Widget _buildDesktopDataTable(CompanyRedemptionsProvider provider) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double minWidth = 850;
+        final double tableWidth =
+            constraints.maxWidth > minWidth ? constraints.maxWidth : minWidth;
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: tableWidth,
+            child: Table(
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              columnWidths: const {
+                0: FlexColumnWidth(1.2),
+                1: FlexColumnWidth(1.8),
+                2: FlexColumnWidth(1.4),
+                3: FlexColumnWidth(2.2),
+                4: FlexColumnWidth(1.2),
+              },
+              children: [
+                TableRow(
+                  decoration: BoxDecoration(
+                    color: backgroundColor.withValues(alpha: 0.6),
+                    border: Border(bottom: BorderSide(color: borderColor)),
                   ),
+                  children: [
+                    _buildTableHeaderCell("Request ID"),
+                    _buildTableHeaderCell("Requested On"),
+                    _buildTableHeaderCell("Amount"),
+                    _buildTableHeaderCell("Payout Account"),
+                    _buildTableHeaderCell("Status"),
+                  ],
                 ),
-                DataCell(
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+                ...provider.redemptions.map((redemption) {
+                  final idText = redemption.autoIncrementId != null
+                      ? "#${redemption.autoIncrementId}"
+                      : "#${redemption.id.substring(0, 6)}";
+
+                  return TableRow(
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: borderColor)),
+                    ),
                     children: [
-                      AppText(
-                        text: "\$${redemption.amount.toStringAsFixed(2)}",
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: textPrimaryColor,
-                      ),
-                      const SizedBox(width: 4),
-                      AppText(
-                        text: redemption.currencyCode,
-                        fontSize: 11,
-                        color: textSecondaryColor,
-                      ),
-                    ],
-                  ),
-                ),
-                DataCell(
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                      _buildTableCell(
+                        child: AppText(
+                          text: idText,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: primaryColor,
                         ),
-                        decoration: BoxDecoration(
-                          color: primaryColor.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(6),
+                      ),
+                      _buildTableCell(
+                        child: AppText(
+                          text: _formatDate(redemption.createdAt),
+                          fontSize: 12,
+                          color: textPrimaryColor,
                         ),
+                      ),
+                      _buildTableCell(
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              Icons.payment_rounded,
-                              size: 13,
-                              color: primaryColor,
+                            AppText(
+                              text: "\$${redemption.amount.toStringAsFixed(2)}",
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: textPrimaryColor,
                             ),
                             const SizedBox(width: 4),
                             AppText(
-                              text: redemption.type,
+                              text: redemption.currencyCode,
                               fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: primaryColor,
+                              color: textSecondaryColor,
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: AppText(
-                          text: redemption.accountNumber,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: textPrimaryColor,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      _buildTableCell(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: primaryColor.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.payment_rounded,
+                                    size: 13,
+                                    color: primaryColor,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  AppText(
+                                    text: redemption.type,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: primaryColor,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: AppText(
+                                text: redemption.accountNumber,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: textPrimaryColor,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                      _buildTableCell(
+                        child: StatusBadge(status: redemption.status),
+                      ),
                     ],
-                  ),
-                ),
-                DataCell(
-                  StatusBadge(status: redemption.status),
-                ),
+                  );
+                }),
               ],
-            );
-          }).toList(),
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 

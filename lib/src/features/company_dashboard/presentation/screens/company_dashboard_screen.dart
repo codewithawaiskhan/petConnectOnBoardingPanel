@@ -5,7 +5,6 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/constants.dart';
 import '../../../../core/presentation/widgets/app_text.dart';
 import '../../../../core/presentation/widgets/custom_button.dart';
-import '../../../../core/presentation/widgets/status_badge.dart';
 import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../shared/presentation/widgets/shimmers/dashboard_stats_shimmer.dart';
 import '../../domain/entities/company_dashboard_entity.dart';
@@ -26,7 +25,7 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CompanyDashboardProvider>().fetchDashboardData();
+      context.read<CompanyDashboardProvider>().fetchDashboardStats();
     });
   }
 
@@ -126,24 +125,33 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen>
         builder: (context, provider, _) {
           return RefreshIndicator(
             color: primaryColor,
-            onRefresh: () => provider.fetchDashboardData(),
+            onRefresh: () => provider.fetchDashboardStats(),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.all(isDesktop ? 24.0 : 16.0),
+              padding: EdgeInsets.symmetric(
+                horizontal: isDesktop ? 24.0 : 16.0,
+                vertical: isDesktop ? 16.0 : 14.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildHeaderRow(context, provider, isDesktop),
-                  const SizedBox(height: 20),
-                  if (provider.isLoading && provider.profile.id.isEmpty)
+                  const SizedBox(height: 16),
+                  if (provider.isLoading && provider.dashboardData == null)
                     const DashboardStatsShimmer()
                   else if (provider.errorMessage != null &&
-                      provider.profile.id.isEmpty)
+                      provider.dashboardData == null)
                     _buildErrorState(provider)
-                  else ...[
-                    _buildProfileCard(provider.profile, isDesktop),
+                  else if (provider.dashboardData != null) ...[
+                    _buildTeamAndReferralsSection(
+                      context,
+                      provider.dashboardData!,
+                    ),
                     const SizedBox(height: 20),
-                    _buildStatsGrid(provider.stats),
+                    _buildFinancialOverviewSection(
+                      context,
+                      provider.dashboardData!,
+                    ),
                   ],
                 ],
               ),
@@ -159,6 +167,11 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen>
     CompanyDashboardProvider provider,
     bool isDesktop,
   ) {
+    final companyName =
+        provider.dashboardData?.marketingCompany.displayName.isNotEmpty == true
+        ? provider.dashboardData!.marketingCompany.displayName
+        : "Marketing Company";
+
     final fromLabel = provider.fromDate != null
         ? _dateFormat.format(provider.fromDate!)
         : "Start Date";
@@ -184,7 +197,9 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen>
         ? Tooltip(
             message: "Clear Date Filter",
             child: InkWell(
-              onTap: provider.isLoading ? null : () => provider.clearDateRange(),
+              onTap: provider.isLoading
+                  ? null
+                  : () => provider.clearDateRange(),
               borderRadius: BorderRadius.circular(radiusMedium),
               child: Container(
                 height: 40,
@@ -202,7 +217,7 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen>
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isWide = constraints.maxWidth >= 680;
+        final isWide = constraints.maxWidth >= 720;
 
         if (isWide) {
           return Row(
@@ -218,10 +233,11 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen>
                       fontWeight: FontWeight.w700,
                       color: textPrimaryColor,
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     AppText(
-                      text: "Monitor your company profile and referral performance",
-                      fontSize: 12,
+                      text: "Welcome back, $companyName",
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
                       color: textSecondaryColor,
                     ),
                   ],
@@ -259,7 +275,14 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen>
               fontWeight: FontWeight.w700,
               color: textPrimaryColor,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 2),
+            AppText(
+              text: "Welcome back, $companyName",
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: textSecondaryColor,
+            ),
+            const SizedBox(height: 14),
             Row(
               children: [
                 Expanded(child: fromBtn),
@@ -298,13 +321,9 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen>
         height: 40,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? primaryColor.withValues(alpha: 0.08)
-              : whiteColor,
+          color: isSelected ? primaryColor.withValues(alpha: 0.08) : whiteColor,
           borderRadius: BorderRadius.circular(radiusMedium),
-          border: Border.all(
-            color: isSelected ? primaryColor : borderColor,
-          ),
+          border: Border.all(color: isSelected ? primaryColor : borderColor),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -332,233 +351,644 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen>
     );
   }
 
-  Widget _buildProfileCard(CompanyProfileEntity profile, bool isDesktop) {
-    final initial = profile.displayName.isNotEmpty
-        ? profile.displayName.substring(0, 1).toUpperCase()
-        : "M";
+  // ==================== SECTION 1: TEAM & REFERRALS ====================
+  Widget _buildTeamAndReferralsSection(
+    BuildContext context,
+    CompanyDashboardEntity data,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppText(
+          text: "Team & Referrals",
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+          color: textPrimaryColor,
+        ),
+        const SizedBox(height: 2),
+        AppText(
+          text: "Track active influencer network and referral conversion rates",
+          fontSize: 11,
+          color: textSecondaryColor,
+        ),
+        const SizedBox(height: 10),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final crossAxisCount = constraints.maxWidth > 920
+                ? 3
+                : constraints.maxWidth > 580
+                ? 2
+                : 1;
 
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 14,
+                mainAxisSpacing: 14,
+                mainAxisExtent: 168,
+              ),
+              itemCount: 3,
+              itemBuilder: (context, index) {
+                if (index == 0) return _buildActiveInfluencersCard(data);
+                if (index == 1) return _buildConvertedCard(data);
+                return _buildNonConvertedCard(data);
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActiveInfluencersCard(CompanyDashboardEntity data) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: whiteColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: borderColor),
       ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= 640;
-
-          final leftInfo = Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CircleAvatar(
-                radius: 26,
-                backgroundColor: primaryColor.withValues(alpha: 0.12),
-                child: AppText(
-                  text: initial,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
+              AppText(
+                text: "Active Influencers",
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: textSecondaryColor,
+              ),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.groups_rounded,
                   color: primaryColor,
+                  size: 17,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            ],
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              AppText(
+                text: "${data.activeInfluencersCount}",
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: textPrimaryColor,
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 7,
+                  vertical: 2.5,
+                ),
+                decoration: BoxDecoration(
+                  color: primaryColor.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: primaryColor.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: AppText(
-                            text: profile.displayName.isNotEmpty
-                                ? profile.displayName
-                                : "Marketing Company",
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: textPrimaryColor,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (profile.status.isNotEmpty) ...[
-                          const SizedBox(width: 10),
-                          StatusBadge(status: profile.status),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 4),
+                    Icon(Icons.bolt_rounded, size: 13, color: primaryColor),
+                    const SizedBox(width: 3),
                     AppText(
-                      text: profile.legalName.isNotEmpty
-                          ? profile.legalName
-                          : "—",
-                      fontSize: 13,
-                      color: textSecondaryColor,
-                    ),
-                    const SizedBox(height: 4),
-                    AppText(
-                      text: profile.email.isNotEmpty ? profile.email : "—",
-                      fontSize: 12,
+                      text: "Active Network",
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
                       color: primaryColor,
-                      fontWeight: FontWeight.w500,
                     ),
                   ],
                 ),
               ),
             ],
-          );
-
-          final revenueShareBadge = Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-            decoration: BoxDecoration(
-              color: primaryColor.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: primaryColor.withValues(alpha: 0.2)),
-            ),
-            child: Column(
-              crossAxisAlignment: isWide
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppText(
-                  text: "Revenue Share",
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: textSecondaryColor,
-                ),
-                const SizedBox(height: 2),
-                AppText(
-                  text: "${profile.revenueShare}%",
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: primaryColor,
-                ),
-              ],
-            ),
-          );
-
-          if (isWide) {
-            return Row(
-              children: [
-                Expanded(child: leftInfo),
-                const SizedBox(width: 16),
-                revenueShareBadge,
-              ],
-            );
-          }
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              leftInfo,
-              const SizedBox(height: 14),
-              revenueShareBadge,
-            ],
-          );
-        },
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildStatsGrid(ReferralStatsEntity stats) {
-    final metrics = [
-      _KpiItem(
-        title: "Total Referred Users",
-        subtitle: "Cold + Hot",
-        count: "${stats.totalReferredUsers}",
-        icon: Icons.groups_rounded,
-        color: primaryColor,
-      ),
-      _KpiItem(
-        title: "Converted Referred Users",
-        subtitle: "Hot",
-        count: "${stats.convertedReferredUsers}",
-        icon: Icons.verified_user_rounded,
-        color: successColor,
-      ),
-      _KpiItem(
-        title: "Non-Converted Referred Users",
-        subtitle: "Cold",
-        count: "${stats.nonconvertedReferredUsers}",
-        icon: Icons.person_outline_rounded,
-        color: yellowColor,
-      ),
-    ];
+  Widget _buildConvertedCard(CompanyDashboardEntity data) {
+    final rateStr = data.combinedConversionRate.toStringAsFixed(1);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final crossAxisCount = constraints.maxWidth > 860
-            ? 3
-            : constraints.maxWidth > 540
-            ? 2
-            : 1;
-
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 14,
-            mainAxisSpacing: 14,
-            mainAxisExtent: 100,
-          ),
-          itemCount: metrics.length,
-          itemBuilder: (context, index) {
-            final item = metrics[index];
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: whiteColor,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: borderColor),
-              ),
-              child: Row(
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 46,
-                    height: 46,
-                    decoration: BoxDecoration(
-                      color: item.color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(item.icon, color: item.color, size: 22),
+                  AppText(
+                    text: "Converted Referrals",
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: textSecondaryColor,
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AppText(
-                          text: item.count,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: textPrimaryColor,
-                        ),
-                        const SizedBox(height: 2),
-                        AppText(
-                          text: item.title,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: textSecondaryColor,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        AppText(
-                          text: item.subtitle,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: item.color,
-                        ),
-                      ],
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 5,
+                      vertical: 1.5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: successColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: AppText(
+                      text: "Hot",
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: successColor,
                     ),
                   ),
                 ],
               ),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: successColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.verified_user_rounded,
+                  color: successColor,
+                  size: 17,
+                ),
+              ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  AppText(
+                    text: "${data.convertedUsersCount}",
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: textPrimaryColor,
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: successColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: successColor.withValues(alpha: 0.25),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.trending_up_rounded,
+                            size: 13,
+                            color: successColor,
+                          ),
+                          const SizedBox(width: 3),
+                          Flexible(
+                            child: AppText(
+                              text: "$rateStr% Conversion",
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: successColor,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              const Divider(height: 1, thickness: 1),
+              const SizedBox(height: 5),
+              DeviceDistributionVisualizer(
+                androidCount: data.convertedUsersCountAndroid,
+                iosCount: data.convertedUsersCountiOS,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNonConvertedCard(CompanyDashboardEntity data) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppText(
+                    text: "Non-Converted Referrals",
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: textSecondaryColor,
+                  ),
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 5,
+                      vertical: 1.5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: yellowColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: AppText(
+                      text: "Cold",
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: yellowColor,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: yellowColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.person_outline_rounded,
+                  color: yellowColor,
+                  size: 17,
+                ),
+              ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  AppText(
+                    text: "${data.nonconvertedUsersCount}",
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: textPrimaryColor,
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: yellowColor.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: yellowColor.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.hourglass_empty_rounded,
+                            size: 12,
+                            color: yellowColor,
+                          ),
+                          const SizedBox(width: 3),
+                          Flexible(
+                            child: AppText(
+                              text: "Unconverted Leads",
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: yellowColor,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              const Divider(height: 1, thickness: 1),
+              const SizedBox(height: 5),
+              DeviceDistributionVisualizer(
+                androidCount: data.nonconvertedUsersCountAndroid,
+                iosCount: data.nonconvertedUsersCountiOS,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==================== SECTION 2: FINANCIAL OVERVIEW ====================
+  Widget _buildFinancialOverviewSection(
+    BuildContext context,
+    CompanyDashboardEntity data,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppText(
+          text: "Financial Overview",
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+          color: textPrimaryColor,
+        ),
+        const SizedBox(height: 2),
+        AppText(
+          text:
+              "Real-time earnings, deductions, and net company payout balance",
+          fontSize: 11,
+          color: textSecondaryColor,
+        ),
+        const SizedBox(height: 10),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final crossAxisCount = constraints.maxWidth > 920
+                ? 3
+                : constraints.maxWidth > 580
+                ? 2
+                : 1;
+
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 14,
+                mainAxisSpacing: 14,
+                mainAxisExtent: 120,
+              ),
+              itemCount: 3,
+              itemBuilder: (context, index) {
+                if (index == 0) return _buildGrossEarningsCard(data);
+                if (index == 1) return _buildRefundsCard(data);
+                return _buildNetEarningsCard(data);
+              },
             );
           },
-        );
-      },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGrossEarningsCard(CompanyDashboardEntity data) {
+    final formatted =
+        "${data.currencyCode} ${data.grossEarnings.toStringAsFixed(2)}";
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AppText(
+                text: "Gross Earnings",
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: textSecondaryColor,
+              ),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.account_balance_wallet_outlined,
+                  color: primaryColor,
+                  size: 17,
+                ),
+              ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppText(
+                text: formatted,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: textPrimaryColor,
+              ),
+              const SizedBox(height: 2),
+              AppText(
+                text: "Total Revenue Generated",
+                fontSize: 11,
+                color: textSecondaryColor,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRefundsCard(CompanyDashboardEntity data) {
+    final formatted = "${data.currencyCode} ${data.refunds.toStringAsFixed(2)}";
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AppText(
+                text: "Refunds",
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: textSecondaryColor,
+              ),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: errorColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.replay_rounded, color: errorColor, size: 17),
+              ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppText(
+                text: formatted,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: errorColor,
+              ),
+              const SizedBox(height: 2),
+              AppText(
+                text: "Total Deductions & Reversals",
+                fontSize: 11,
+                color: textSecondaryColor,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNetEarningsCard(CompanyDashboardEntity data) {
+    final formatted =
+        "${data.currencyCode} ${data.netEarnings.toStringAsFixed(2)}";
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: successColor.withValues(alpha: 0.35),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: successColor.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppText(
+                    text: "Net Earnings",
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: textPrimaryColor,
+                  ),
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 5,
+                      vertical: 1.5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: successColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: AppText(
+                      text: "Payout",
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: successColor,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: successColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.payments_rounded,
+                  color: successColor,
+                  size: 17,
+                ),
+              ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppText(
+                text: formatted,
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: successColor,
+              ),
+              const SizedBox(height: 2),
+              AppText(
+                text: "Net Take-Home Earnings",
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: textSecondaryColor,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -587,7 +1017,7 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen>
             text: "Try Again",
             height: 36,
             radius: 8,
-            onTap: () => provider.fetchDashboardData(),
+            onTap: () => provider.fetchDashboardStats(),
           ),
         ],
       ),
@@ -595,19 +1025,107 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen>
   }
 }
 
-class _KpiItem {
-  final String title;
-  final String subtitle;
-  final String count;
-  final IconData icon;
-  final Color color;
+class DeviceDistributionVisualizer extends StatelessWidget with AppColors {
+  final int androidCount;
+  final int iosCount;
 
-  const _KpiItem({
-    required this.title,
-    required this.subtitle,
-    required this.count,
-    required this.icon,
-    required this.color,
+  const DeviceDistributionVisualizer({
+    super.key,
+    required this.androidCount,
+    required this.iosCount,
   });
-}
 
+  @override
+  Widget build(BuildContext context) {
+    final total = androidCount + iosCount;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Top Row: Badges
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Android Badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+              decoration: BoxDecoration(
+                color: lightGreenColor.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: successColor.withValues(alpha: 0.25)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.android, size: 12, color: successColor),
+                  const SizedBox(width: 4),
+                  AppText(
+                    text: "$androidCount",
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: successColor,
+                  ),
+                ],
+              ),
+            ),
+            // iOS Badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: borderColor),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.apple, size: 12, color: iosDarkColor),
+                  const SizedBox(width: 4),
+                  AppText(
+                    text: "$iosCount",
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: iosDarkColor,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        // Bottom Row: Mini Graph Segmented Bar
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: SizedBox(
+            height: 6.0,
+            child: Row(
+              children: [
+                if (total == 0)
+                  Expanded(flex: 1, child: Container(color: borderColor))
+                else ...[
+                  if (androidCount > 0)
+                    Expanded(
+                      flex: androidCount,
+                      child: Container(
+                        decoration: BoxDecoration(color: androidGreenColor),
+                      ),
+                    ),
+                  if (androidCount > 0 && iosCount > 0)
+                    const SizedBox(width: 2),
+                  if (iosCount > 0)
+                    Expanded(
+                      flex: iosCount,
+                      child: Container(
+                        decoration: BoxDecoration(color: iosDarkColor),
+                      ),
+                    ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -4,19 +4,14 @@ import '../../domain/entities/company_dashboard_entity.dart';
 import '../../domain/usecases/company_dashboard_usecases.dart';
 
 class CompanyDashboardProvider extends ChangeNotifier {
-  final GetMyCompanyProfileUseCase getMyCompanyProfileUseCase;
-  final GetMyReferralStatsUseCase getMyReferralStatsUseCase;
+  final GetCompanyDashboardUseCase getCompanyDashboardUseCase;
 
   CompanyDashboardProvider({
-    required this.getMyCompanyProfileUseCase,
-    required this.getMyReferralStatsUseCase,
+    required this.getCompanyDashboardUseCase,
   });
 
-  CompanyProfileEntity _profile = const CompanyProfileEntity.empty();
-  CompanyProfileEntity get profile => _profile;
-
-  ReferralStatsEntity _stats = const ReferralStatsEntity.empty();
-  ReferralStatsEntity get stats => _stats;
+  CompanyDashboardEntity? _dashboardData;
+  CompanyDashboardEntity? get dashboardData => _dashboardData;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -32,22 +27,21 @@ class CompanyDashboardProvider extends ChangeNotifier {
 
   bool get hasDateFilter => _fromDate != null || _toDate != null;
 
-  Future<void> fetchDashboardData({DateTime? from, DateTime? to}) async {
+  Future<void> fetchDashboardStats({DateTime? from, DateTime? to}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final results = await Future.wait([
-        getMyCompanyProfileUseCase(),
-        getMyReferralStatsUseCase(
-          from: (from ?? _fromDate)?.toUtc().toIso8601String(),
-          to: (to ?? _toDate)?.toUtc().toIso8601String(),
-        ),
-      ]);
+      final effectiveFrom = from ?? _fromDate;
+      final effectiveTo = to ?? _toDate;
 
-      _profile = results[0] as CompanyProfileEntity;
-      _stats = results[1] as ReferralStatsEntity;
+      final data = await getCompanyDashboardUseCase(
+        from: effectiveFrom?.toUtc().toIso8601String(),
+        to: effectiveTo?.toUtc().toIso8601String(),
+      );
+
+      _dashboardData = data;
       _errorMessage = null;
     } on AppException catch (e) {
       _errorMessage = e.message;
@@ -57,6 +51,31 @@ class CompanyDashboardProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> fetchDashboardData({DateTime? from, DateTime? to}) =>
+      fetchDashboardStats(from: from, to: to);
+
+  void updateDateRange(DateTime? from, DateTime? to) {
+    if (from != null) {
+      _fromDate = DateTime(from.year, from.month, from.day, 0, 0, 0, 0);
+    } else {
+      _fromDate = null;
+    }
+
+    if (to != null) {
+      _toDate = DateTime(to.year, to.month, to.day, 23, 59, 59, 999);
+    } else {
+      _toDate = null;
+    }
+
+    fetchDashboardStats(from: _fromDate, to: _toDate);
+  }
+
+  void clearDateRange() {
+    _fromDate = null;
+    _toDate = null;
+    fetchDashboardStats();
   }
 
   bool _isDisposed = false;
@@ -73,28 +92,4 @@ class CompanyDashboardProvider extends ChangeNotifier {
     _isDisposed = true;
     super.dispose();
   }
-
-  void updateDateRange(DateTime? from, DateTime? to) {
-    if (from != null) {
-      _fromDate = DateTime(from.year, from.month, from.day, 0, 0, 0, 0);
-    } else {
-      _fromDate = null;
-    }
-
-    if (to != null) {
-      _toDate = DateTime(to.year, to.month, to.day, 23, 59, 59, 999);
-    } else {
-      _toDate = null;
-    }
-
-    fetchDashboardData(from: _fromDate, to: _toDate);
-  }
-
-  void clearDateRange() {
-    if (_fromDate == null && _toDate == null) return;
-    _fromDate = null;
-    _toDate = null;
-    fetchDashboardData();
-  }
 }
-
